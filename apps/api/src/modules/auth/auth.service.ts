@@ -1,0 +1,199 @@
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { AdminRole, User } from '@prisma/client';
+import bcrypt from 'bcrypt';
+import { JwtPayload } from '../../common/auth/jwt-payload';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AdminLoginDto } from './dto/admin-login.dto';
+import { RequestOtpDto } from './dto/request-otp.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { ConsoleOtpProvider } from './providers/console-otp.provider';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly config: ConfigService,
+    private readonly jwt: JwtService,
+    private readonly otpProvider: ConsoleOtpProvider,
+    private readonly prisma: PrismaService,
+  ) {}
+
+  async requestCustomerOtp(dto: RequestOtpDto) {
+    const otp = this.generateOtp();
+    const otpHash = await bcrypt.hash(otp, this.config.get<number>('BCRYPT_SALT_ROUNDS', 12));
+    const expirySeconds = this.config.get<number>('MSG91_OTP_EXPIRY_SECONDS', 300);
+
+    await this.prisma.otpVerification.create({
+      data: {
+        mobileNumber: dto.mobileNumber,
+        otpHash,
+        expiresAt: new Date(Date.now() + expirySeconds * 1000),
+      },
+    });
+
+    await this.otpProvider.sendOtp(dto.mobileNumber, otp);
+
+    return {
+      success: true,
+      expiresInSeconds: expirySeconds,
+      message: 'OTP sent',
+    };
+  }
+
+  async verifyCustomerOtp(dto: VerifyOtpDto) {
+    const otpRecord = await this.prisma.otpVerification.findFirst({
+      where: {
+        mobileNumber: dto.mobileNumber,
+        isVerified: false,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!otpRecord) {
+      throw new UnauthorizedException('Invalid or expired OTP');
+    }
+
+    const maxAttempts = await this.getIntSetting('otp_max_attempts', 5);
+    if (otpRecord.attempts >= maxAttempts) {
+      throw new UnauthorizedException('Maximum OTP attempts exceeded');
+    }
+
+    const isValid = await bcrypt.compare(dto.otp, otpRecord.otpHash);
+    if (!isValid) {
+      await this.prisma.otpVerification.update({
+        where: { id: otpRecord.id },
+        data: { attempts: { increment: 1 } },
+      });
+      throw new UnauthorizedException('Invalid or expired OTP');
+    }
+
+    const user = await this.prisma.user.upsert({
+      where: { mobileNumber: dto.mobileNumber },
+      update: { isActive: true },
+      create: { mobileNumber: dto.mobileNumber },
+    });
+
+    await this.prisma.otpVerification.update({
+      where: { id: otpRecord.id },
+      data: { isVerified: true },
+    });
+
+    return this.createCustomerSession(user);
+  }
+
+  async loginAdmin(dto: AdminLoginDto) {
+    const admin = await this.prisma.adminUser.findUnique({
+      where: { email: dto.email.toLowerCase() },
+    });
+
+    if (!admin?.isActive) {
+      throw new UnauthorizedException('Invalid admin credentials');
+    }
+
+    const isValid = await bcrypt.compare(dto.password, admin.passwordHash);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid admin credentials');
+    }
+
+    await this.prisma.adminUser.update({
+      where: { id: admin.id },
+      data: { lastLoginAt: new Date() },
+    });
+
+    const payload: JwtPayload = { sub: admin.id, type: 'admin', role: admin.role };
+    const tokens = await this.signTokens(payload);
+
+    return {
+      ...tokens,
+      admin: {
+        id: admin.id,
+        email: admin.email,
+        name: admin.name,
+        role: admin.role,
+      },
+    };
+  }
+
+  async refresh(refreshToken: string, expectedType: 'customer' | 'admin') {
+    let payload: JwtPayload;
+    try {
+      payload = await this.jwt.verifyAsync<JwtPayload>(refreshToken, {
+        secret: this.config.getOrThrow<string>('JWT_REFRESH_SECRET'),
+      });
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    if (payload.type !== expectedType) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    if (payload.type === 'customer') {
+      const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+      if (!user?.isActive) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+      return this.createCustomerSession(user);
+    }
+
+    const admin = await this.prisma.adminUser.findUnique({ where: { id: payload.sub } });
+    if (!admin?.isActive) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const tokens = await this.signTokens({ sub: admin.id, type: 'admin', role: admin.role });
+    return {
+      ...tokens,
+      admin: {
+        id: admin.id,
+        email: admin.email,
+        name: admin.name,
+        role: admin.role,
+      },
+    };
+  }
+
+  private async createCustomerSession(user: User) {
+    const payload: JwtPayload = { sub: user.id, type: 'customer' };
+    const tokens = await this.signTokens(payload);
+
+    return {
+      ...tokens,
+      user: {
+        id: user.id,
+        mobileNumber: user.mobileNumber,
+        name: user.name,
+        email: user.email,
+      },
+    };
+  }
+
+  private async signTokens(payload: JwtPayload) {
+    const accessExpiresIn = this.config.get<string>('JWT_ACCESS_EXPIRES_IN', '15m') as never;
+    const refreshExpiresIn = this.config.get<string>('JWT_REFRESH_EXPIRES_IN', '30d') as never;
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwt.signAsync(payload, {
+        secret: this.config.getOrThrow<string>('JWT_ACCESS_SECRET'),
+        expiresIn: accessExpiresIn,
+      }),
+      this.jwt.signAsync(payload, {
+        secret: this.config.getOrThrow<string>('JWT_REFRESH_SECRET'),
+        expiresIn: refreshExpiresIn,
+      }),
+    ]);
+
+    return { accessToken, refreshToken };
+  }
+
+  private generateOtp() {
+    return String(Math.floor(100000 + Math.random() * 900000));
+  }
+
+  private async getIntSetting(key: string, fallback: number) {
+    const setting = await this.prisma.platformSetting.findUnique({ where: { key } });
+    return setting ? Number.parseInt(setting.value, 10) : fallback;
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@aranyam/shared-types": ["packages/shared-types/src/index.ts"],
+      "@aranyam/validation": ["packages/validation/src/index.ts"],
+      "@aranyam/api-client": ["packages/api-client/src/index.ts"],
+      "@aranyam/design-tokens": ["packages/design-tokens/src/index.ts"]
+    }
+  }
+}

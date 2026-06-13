@@ -1,0 +1,37 @@
+{
+  "name": "@aranyam/customer-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build --webpack",
+    "start": "next start -p 3000",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@aranyam/api-client": "*",
+    "@aranyam/shared-types": "*",
+    "@aranyam/validation": "*",
+    "@hookform/resolvers": "^5.1.0",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@tanstack/react-query": "^5.81.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "next": "^16.2.9",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.58.0",
+    "tailwind-merge": "^2.6.0",
+    "zod": "^3.25.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.20",
+    "eslint-config-next": "^16.2.9",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^3.4.17"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "aranyam",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "npm@11.6.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npx nx run-many -t dev --parallel=3",
+    "dev:api": "npm run dev -w @aranyam/api",
+    "dev:customer": "npm run dev -w @aranyam/customer-web",
+    "dev:admin": "npm run dev -w @aranyam/admin-web",
+    "build": "npx nx run-many -t build",
+    "build:api": "npm run build -w @aranyam/api",
+    "build:customer": "npm run build -w @aranyam/customer-web",
+    "build:admin": "npm run build -w @aranyam/admin-web",
+    "lint": "npx nx run-many -t lint",
+    "format": "prettier --write \"{apps,packages}/**/*.{ts,tsx,js,json,css,md}\" \"*.md\"",
+    "prisma:generate": "npm run prisma:generate -w @aranyam/api",
+    "db:push": "npm run db:push -w @aranyam/api",
+    "db:migrate": "npm run db:migrate -w @aranyam/api",
+    "db:seed": "npm run db:seed -w @aranyam/api",
+    "db:triggers": "npm run db:triggers -w @aranyam/api"
+  },
+  "overrides": {
+    "postcss": "^8.5.15"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.0",
+    "@types/node": "^24.0.0",
+    "eslint": "^9.30.0",
+    "nx": "^22.7.5",
+    "prettier": "^3.6.0",
+    "typescript": "^5.8.0",
+    "typescript-eslint": "^8.35.0"
+  }
+}

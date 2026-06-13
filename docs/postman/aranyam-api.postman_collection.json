@@ -1,0 +1,1117 @@
+{
+  "info": {
+    "_postman_id": "4b1ff5d7-c3de-4f27-9dcf-2c410678a001",
+    "name": "Aranyam API - Phase 1",
+    "description": "Postman collection for the APIs currently implemented in the Aranyam Catering Platform. Start the API with `npm run dev:api`, then run Health, Admin Auth, and Customer Auth/Profile flows. For local OTP, copy the OTP printed by the API console log after calling Request OTP.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "adminEmail",
+      "value": "admin@aranyam.local",
+      "type": "string"
+    },
+    {
+      "key": "adminPassword",
+      "value": "Admin@12345",
+      "type": "string"
+    },
+    {
+      "key": "customerMobile",
+      "value": "9999999999",
+      "type": "string"
+    },
+    {
+      "key": "customerOtp",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminAccessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminRefreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerAccessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerRefreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "addressId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "menuItemId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "packageId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "packageVersionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "eventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "razorpayOrderId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Auth",
+      "item": [
+        {
+          "name": "POST Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('admin login succeeded', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.accessToken) pm.collectionVariables.set('adminAccessToken', json.accessToken);",
+                  "if (json.refreshToken) pm.collectionVariables.set('adminRefreshToken', json.refreshToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Admin Refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('admin refresh succeeded', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.accessToken) pm.collectionVariables.set('adminAccessToken', json.accessToken);",
+                  "if (json.refreshToken) pm.collectionVariables.set('adminRefreshToken', json.refreshToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{adminRefreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Admin Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/admin/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Customer Auth",
+      "item": [
+        {
+          "name": "POST Request OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobileNumber\": \"{{customerMobile}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/customer/request-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "customer",
+                "request-otp"
+              ]
+            },
+            "description": "In local development, the OTP is printed in the API terminal by ConsoleOtpProvider. Copy that OTP into the `customerOtp` collection variable before running Verify OTP."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Verify OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('customer OTP verification succeeded', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.accessToken) pm.collectionVariables.set('customerAccessToken', json.accessToken);",
+                  "if (json.refreshToken) pm.collectionVariables.set('customerRefreshToken', json.refreshToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mobileNumber\": \"{{customerMobile}}\",\n  \"otp\": \"{{customerOtp}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/customer/verify-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "customer",
+                "verify-otp"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Customer Refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('customer refresh succeeded', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.accessToken) pm.collectionVariables.set('customerAccessToken', json.accessToken);",
+                  "if (json.refreshToken) pm.collectionVariables.set('customerRefreshToken', json.refreshToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{customerRefreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/customer/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "customer",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Customer Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/customer/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "customer",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Customer Profile And Addresses",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{customerAccessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "GET Me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Me",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Customer\",\n  \"email\": \"test.customer@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Addresses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/me/addresses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "addresses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('address created', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('addressId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressType\": \"EVENT_VENUE\",\n  \"label\": \"Demo Venue\",\n  \"addressLine1\": \"123 Event Street\",\n  \"city\": \"Hyderabad\",\n  \"state\": \"Telangana\",\n  \"pincode\": \"500081\",\n  \"isDefault\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/me/addresses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "addresses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Update Address",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Updated Demo Venue\",\n  \"landmark\": \"Near the main gate\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/me/addresses/{{addressId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "addresses",
+                "{{addressId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Set Default Address",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/me/addresses/{{addressId}}/default",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "addresses",
+                "{{addressId}}",
+                "default"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Address",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/me/addresses/{{addressId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me",
+                "addresses",
+                "{{addressId}}"
+              ]
+            },
+            "description": "Deletes the address stored in the `addressId` collection variable."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Menu Catalog",
+      "item": [
+        {
+          "name": "GET Menu Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/menu/categories"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Menu Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/menu/items?categoryId={{categoryId}}&search="
+          },
+          "response": []
+        },
+        {
+          "name": "GET Menu Item",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/menu/items/{{menuItemId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Menu",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{adminAccessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "GET Admin Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/admin/menu/categories"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('categoryId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Category\",\n  \"description\": \"Created through Postman\",\n  \"displayOrder\": 20,\n  \"isActive\": true\n}"
+            },
+            "url": "{{baseUrl}}/admin/menu/categories"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Update Category",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated through Postman\"\n}"
+            },
+            "url": "{{baseUrl}}/admin/menu/categories/{{categoryId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Admin Menu Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/admin/menu/items?categoryId={{categoryId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Menu Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('menuItemId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"name\": \"Postman Dish\",\n  \"description\": \"Created through Postman\",\n  \"basePrice\": \"125.00\",\n  \"isVeg\": true,\n  \"isActive\": true\n}"
+            },
+            "url": "{{baseUrl}}/admin/menu/items"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Update Menu Item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"basePrice\": \"135.00\"\n}"
+            },
+            "url": "{{baseUrl}}/admin/menu/items/{{menuItemId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Menu Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/admin/menu/items/{{menuItemId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Packages",
+      "item": [
+        {
+          "name": "GET Packages",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.length) {",
+                  "  pm.collectionVariables.set('packageId', json[0].id);",
+                  "  if (json[0].activeVersion) pm.collectionVariables.set('packageVersionId', json[0].activeVersion.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/packages"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Active Package Version",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/packages/{{packageId}}/active-version"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Package Configuration",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/package-versions/{{packageVersionId}}/configuration"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Validate Selection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"selectedItems\": [\n    {\n      \"categoryId\": \"{{categoryId}}\",\n      \"menuItemId\": \"{{menuItemId}}\"\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/package-versions/{{packageVersionId}}/validate-selection"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Price Selection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"selectedItems\": [\n    {\n      \"categoryId\": \"{{categoryId}}\",\n      \"menuItemId\": \"{{menuItemId}}\"\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/package-versions/{{packageVersionId}}/price-selection"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Packages",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{adminAccessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "GET Admin Packages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/admin/packages"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Package",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('packageId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Package\",\n  \"description\": \"Created through Postman\",\n  \"displayOrder\": 20,\n  \"isActive\": true\n}"
+            },
+            "url": "{{baseUrl}}/admin/packages"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Update Package",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated through Postman\"\n}"
+            },
+            "url": "{{baseUrl}}/admin/packages/{{packageId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Package Version",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set('packageVersionId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"versionNo\": 1,\n  \"basePricePerPlate\": \"599.00\",\n  \"minGuestCount\": 10,\n  \"maxGuestCount\": 300,\n  \"isActive\": true,\n  \"publishedAt\": \"2026-06-14T00:00:00.000Z\"\n}"
+            },
+            "url": "{{baseUrl}}/admin/packages/{{packageId}}/versions"
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Package Version",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"basePricePerPlate\": \"649.00\"\n}"
+            },
+            "url": "{{baseUrl}}/admin/package-versions/{{packageVersionId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Upsert Category Rule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"minSelections\": 1,\n  \"maxSelections\": 2,\n  \"isMandatory\": true\n}"
+            },
+            "url": "{{baseUrl}}/admin/package-versions/{{packageVersionId}}/category-rules"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Upsert Package Menu Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"menuItemId\": \"{{menuItemId}}\",\n  \"isAvailable\": true\n}"
+            },
+            "url": "{{baseUrl}}/admin/package-versions/{{packageVersionId}}/menu-items"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Upsert Item Pricing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"menuItemId\": \"{{menuItemId}}\",\n  \"itemPrice\": \"135.00\",\n  \"includedValue\": \"115.00\"\n}"
+            },
+            "url": "{{baseUrl}}/admin/package-versions/{{packageVersionId}}/item-pricing"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Events And Orders",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{customerAccessToken}}", "type": "string" }]
+      },
+      "item": [
+        {
+          "name": "GET Events",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/events" },
+          "response": []
+        },
+        {
+          "name": "POST Create Event",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const json = pm.response.json();", "if (json.id) pm.collectionVariables.set('eventId', json.id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"packageVersionId\": \"{{packageVersionId}}\",\n  \"addressId\": \"{{addressId}}\",\n  \"eventName\": \"Postman Event\",\n  \"eventDate\": \"2026-08-20\",\n  \"eventTimeStart\": \"18:30\",\n  \"guestCount\": 50\n}" },
+            "url": "{{baseUrl}}/events"
+          },
+          "response": []
+        },
+        {
+          "name": "GET Event",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/events/{{eventId}}" },
+          "response": []
+        },
+        {
+          "name": "PATCH Event",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"specialNotes\": \"Updated through Postman\"\n}" }, "url": "{{baseUrl}}/events/{{eventId}}" },
+          "response": []
+        },
+        {
+          "name": "DELETE Event",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/events/{{eventId}}" },
+          "response": []
+        },
+        {
+          "name": "POST Order Quote",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"selectedItems\": [\n    { \"categoryId\": \"{{categoryId}}\", \"menuItemId\": \"{{menuItemId}}\" }\n  ]\n}" }, "url": "{{baseUrl}}/orders/quote" },
+          "response": []
+        },
+        {
+          "name": "POST Create Order",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const json = pm.response.json();", "if (json.id) pm.collectionVariables.set('orderId', json.id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"eventId\": \"{{eventId}}\",\n  \"selectedItems\": [\n    { \"categoryId\": \"{{categoryId}}\", \"menuItemId\": \"{{menuItemId}}\" }\n  ]\n}" }, "url": "{{baseUrl}}/orders" },
+          "response": []
+        },
+        {
+          "name": "GET Orders",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/orders" },
+          "response": []
+        },
+        {
+          "name": "GET Order",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/orders/{{orderId}}" },
+          "response": []
+        },
+        {
+          "name": "POST Cancel Order",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Customer cancellation\"\n}" }, "url": "{{baseUrl}}/orders/{{orderId}}/cancel" },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{customerAccessToken}}", "type": "string" }]
+      },
+      "item": [
+        {
+          "name": "POST Create Razorpay Order",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["const json = pm.response.json();", "if (json.paymentId) pm.collectionVariables.set('paymentId', json.paymentId);", "if (json.id) pm.collectionVariables.set('razorpayOrderId', json.id);"] } }],
+          "request": { "method": "POST", "header": [], "url": "{{baseUrl}}/orders/{{orderId}}/payments/razorpay-order" },
+          "response": []
+        },
+        {
+          "name": "POST Verify Payment",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"razorpayOrderId\": \"local_order_{{orderId}}\",\n  \"razorpayPaymentId\": \"local_payment_postman\",\n  \"razorpaySignature\": \"local_success\"\n}" }, "url": "{{baseUrl}}/payments/razorpay/verify" },
+          "response": []
+        },
+        {
+          "name": "POST Razorpay Webhook",
+          "auth": { "type": "noauth" },
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"event\": \"payment.captured\",\n  \"payload\": {}\n}" }, "url": "{{baseUrl}}/payments/razorpay/webhook" },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Operations And Reports",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{adminAccessToken}}", "type": "string" }]
+      },
+      "item": [
+        { "name": "GET Admin Orders", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/orders" }, "response": [] },
+        { "name": "GET Admin Order", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/orders/{{orderId}}" }, "response": [] },
+        {
+          "name": "PATCH Order Status",
+          "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"notes\": \"Kitchen started\"\n}" }, "url": "{{baseUrl}}/admin/orders/{{orderId}}/status" },
+          "response": []
+        },
+        {
+          "name": "POST Admin Cancel Order",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Operations cancellation\"\n}" }, "url": "{{baseUrl}}/admin/orders/{{orderId}}/cancel" },
+          "response": []
+        },
+        { "name": "GET Admin Payments", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/payments" }, "response": [] },
+        {
+          "name": "POST Refund",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"amount\": \"100.00\",\n  \"reason\": \"Partial service refund\"\n}" }, "url": "{{baseUrl}}/admin/payments/{{paymentId}}/refunds" },
+          "response": []
+        },
+        { "name": "GET Revenue Report", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/reports/revenue" }, "response": [] },
+        { "name": "GET Order Report", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/reports/orders" }, "response": [] },
+        { "name": "GET Payment Report", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/reports/payments" }, "response": [] }
+      ]
+    }
+  ]
+}

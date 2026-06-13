@@ -1,0 +1,51 @@
+{
+  "name": "@aranyam/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main.js",
+    "lint": "eslint \"src/**/*.ts\"",
+    "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
+    "db:push": "prisma db push --schema=prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema=prisma/schema.prisma",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:triggers": "prisma db execute --schema=prisma/schema.prisma --file=prisma/sql/updated-at-triggers.sql"
+  },
+  "dependencies": {
+    "@aranyam/shared-types": "*",
+    "@aranyam/validation": "*",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.0.0",
+    "@prisma/client": "^6.10.0",
+    "@sentry/node": "^9.30.0",
+    "bcrypt": "^6.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "decimal.js": "^10.5.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "razorpay": "^2.9.6",
+    "reflect-metadata": "^0.2.2",
+    "resend": "^4.6.0",
+    "rxjs": "^7.8.2",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/testing": "^11.0.0",
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^5.0.0",
+    "@types/passport-jwt": "^4.0.1",
+    "prisma": "^6.10.0",
+    "source-map-support": "^0.5.21",
+    "tsx": "^4.20.0"
+  }
+}
