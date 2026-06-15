@@ -1,5 +1,6 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthRateLimitGuard } from '../../common/guards/auth-rate-limit.guard';
 import { AuthService } from './auth.service';
 import { AdminLoginDto } from './dto/admin-login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -13,12 +14,14 @@ export class AuthController {
 
   @Post('customer/request-otp')
   @HttpCode(200)
+  @UseGuards(AuthRateLimitGuard)
   requestCustomerOtp(@Body() dto: RequestOtpDto) {
     return this.auth.requestCustomerOtp(dto);
   }
 
   @Post('customer/verify-otp')
   @HttpCode(200)
+  @UseGuards(AuthRateLimitGuard)
   verifyCustomerOtp(@Body() dto: VerifyOtpDto) {
     return this.auth.verifyCustomerOtp(dto);
   }
@@ -37,6 +40,7 @@ export class AuthController {
 
   @Post('admin/login')
   @HttpCode(200)
+  @UseGuards(AuthRateLimitGuard)
   loginAdmin(@Body() dto: AdminLoginDto) {
     return this.auth.loginAdmin(dto);
   }

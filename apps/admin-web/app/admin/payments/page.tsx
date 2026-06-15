@@ -1,9 +1,26 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { StatusBadge } from '../../../components/status-badge';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
 import { apiRequest } from '../../../lib/api';
 import { useAdminSessionStore } from '../../../store/session.store';
+
 export default function Payments() {
-  const session = useAdminSessionStore((s) => s.session); const [rows, setRows] = useState<any[]>([]);
-  useEffect(() => { if (session) apiRequest<any[]>('/admin/payments', {}, session.accessToken).then(setRows); }, [session]);
-  return <main className="p-5 md:p-8"><h1 className="text-3xl font-semibold">Payments</h1><div className="mt-6 overflow-x-auto"><table className="w-full text-left text-sm"><thead><tr className="border-b"><th className="p-3">Order</th><th>Status</th><th>Gateway</th><th className="text-right">Amount</th></tr></thead><tbody>{rows.map((r) => <tr key={r.id} className="border-b bg-white"><td className="p-3">{r.order.orderNumber}</td><td>{r.paymentStatus}</td><td>{r.razorpayPaymentId || r.razorpayOrderId}</td><td className="text-right">₹{r.amount}</td></tr>)}</tbody></table></div></main>;
+  const session = useAdminSessionStore((state) => state.session);
+  const [rows, setRows] = useState<any[]>([]);
+  const [selected, setSelected] = useState<any>();
+  const [amount, setAmount] = useState('');
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState('');
+  const load = () => session && apiRequest<any[]>('/admin/payments', {}, session.accessToken).then(setRows);
+  useEffect(() => { load(); }, [session]);
+  async function refund(event: React.FormEvent) {
+    event.preventDefault(); setError('');
+    try {
+      await apiRequest(`/admin/payments/${selected.id}/refunds`, { method: 'POST', body: JSON.stringify({ amount, reason }) }, session!.accessToken);
+      setSelected(undefined); setAmount(''); setReason(''); await load();
+    } catch (reasonValue) { setError((reasonValue as Error).message); }
+  }
+  return <main className="admin-page"><p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Gateway ledger</p><h1 className="admin-title mt-2">Payments and refunds</h1><div className="admin-card mt-7 overflow-x-auto p-0"><table className="admin-table"><thead><tr><th>Order</th><th>Attempt</th><th>Status</th><th>Method</th><th>Refunds</th><th className="text-right">Amount</th><th /></tr></thead><tbody>{rows.map((row) => <tr key={row.id}><td className="font-semibold">{row.order.orderNumber}<span className="block text-xs font-normal text-muted-foreground">{row.order.user.mobileNumber}</span></td><td className="max-w-48 truncate text-xs text-muted-foreground">{row.razorpayPaymentId || row.razorpayOrderId}</td><td><StatusBadge value={row.paymentStatus} />{row.failureReason && <p className="mt-1 max-w-52 text-xs text-red-600">{row.failureReason}</p>}</td><td>{row.paymentMethod || '—'}</td><td>{row.refunds.length ? row.refunds.map((refund: any) => <div key={refund.id} className="mb-1"><StatusBadge value={refund.refundStatus} /> <span className="text-xs">₹{refund.amount}</span></div>) : '—'}</td><td className="text-right font-semibold">₹{row.amount}</td><td>{['PAID','PARTIALLY_REFUNDED'].includes(row.paymentStatus) && <Button variant="outline" onClick={() => { setSelected(row); setAmount(row.amount); }}>Refund</Button>}</td></tr>)}</tbody></table></div>{selected && <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 p-4"><form onSubmit={refund} className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"><h2 className="text-2xl font-semibold">Issue refund</h2><p className="mt-1 text-sm text-muted-foreground">{selected.order.orderNumber} · paid ₹{selected.amount}</p><div className="mt-5 space-y-3"><Input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" placeholder="Refund amount" required /><textarea className="min-h-24 w-full rounded-xl border p-3 text-sm" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Reason" maxLength={500} />{error && <p className="text-sm text-red-600">{error}</p>}<div className="flex gap-3"><Button type="button" variant="outline" className="flex-1" onClick={() => setSelected(undefined)}>Cancel</Button><Button className="flex-1">Submit refund</Button></div></div></form></div>}</main>;
 }

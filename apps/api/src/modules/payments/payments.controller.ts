@@ -1,5 +1,6 @@
-import { Body, Controller, Headers, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Headers, Param, Post, RawBodyRequest, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import type { Request } from 'express';
 import { JwtPayload } from '../../common/auth/jwt-payload';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CustomerAuthGuard } from '../../common/guards/customer-auth.guard';
@@ -21,7 +22,12 @@ export class PaymentsController {
   verify(@CurrentUser() user: JwtPayload, @Body() dto: VerifyPaymentDto) { return this.payments.verify(user.sub, dto); }
 
   @Post('payments/razorpay/webhook')
-  webhook(@Body() payload: Record<string, any>, @Headers('x-razorpay-signature') signature?: string) {
-    return this.payments.webhook(payload, signature);
+  webhook(
+    @Req() request: RawBodyRequest<Request>,
+    @Body() payload: Record<string, any>,
+    @Headers('x-razorpay-signature') signature?: string,
+    @Headers('x-razorpay-event-id') eventId?: string,
+  ) {
+    return this.payments.webhook(request.rawBody ?? Buffer.from(JSON.stringify(payload)), payload, signature, eventId);
   }
 }

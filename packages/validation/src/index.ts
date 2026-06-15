@@ -25,6 +25,12 @@ export const updateProfileSchema = z.object({
 });
 
 export const addressTypeSchema = z.enum(['HOME', 'OFFICE', 'EVENT_VENUE', 'OTHER']);
+const latitudeSchema = z
+  .string()
+  .refine((value) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= -90 && Number(value) <= 90, 'Enter a valid latitude');
+const longitudeSchema = z
+  .string()
+  .refine((value) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= -180 && Number(value) <= 180, 'Enter a valid longitude');
 
 export const createAddressSchema = z.object({
   addressType: addressTypeSchema.default('HOME'),
@@ -35,8 +41,8 @@ export const createAddressSchema = z.object({
   state: z.string().trim().min(1).max(100),
   pincode: z.string().trim().regex(/^\d{6}$/, 'Enter a valid 6-digit pincode'),
   landmark: z.string().trim().max(255).optional().nullable(),
-  latitude: z.string().optional().nullable(),
-  longitude: z.string().optional().nullable(),
+  latitude: latitudeSchema.optional().nullable(),
+  longitude: longitudeSchema.optional().nullable(),
   isDefault: z.boolean().optional(),
 });
 
@@ -74,21 +80,33 @@ export const createPackageSchema = z.object({
 
 export const updatePackageSchema = createPackageSchema.partial();
 
-export const createPackageVersionSchema = z
-  .object({
-    versionNo: z.number().int().min(1),
-    basePricePerPlate: moneyStringSchema,
-    minGuestCount: z.number().int().min(1).default(10),
-    maxGuestCount: z.number().int().min(1).optional().nullable(),
-    isActive: z.boolean().default(true),
-    publishedAt: z.string().datetime().optional().nullable(),
-  })
+const packageVersionSchema = z.object({
+  versionNo: z.number().int().min(1),
+  basePricePerPlate: moneyStringSchema,
+  minGuestCount: z.number().int().min(1).default(10),
+  maxGuestCount: z.number().int().min(1).optional().nullable(),
+  isActive: z.boolean().default(true),
+  publishedAt: z.string().datetime().optional().nullable(),
+});
+
+export const createPackageVersionSchema = packageVersionSchema
   .refine((value) => !value.maxGuestCount || value.maxGuestCount >= value.minGuestCount, {
     message: 'Maximum guest count must be greater than or equal to minimum guest count',
     path: ['maxGuestCount'],
   });
 
-export const updatePackageVersionSchema = createPackageVersionSchema.partial();
+export const updatePackageVersionSchema = packageVersionSchema
+  .partial()
+  .refine(
+    (value) =>
+      !value.maxGuestCount ||
+      value.minGuestCount === undefined ||
+      value.maxGuestCount >= value.minGuestCount,
+    {
+      message: 'Maximum guest count must be greater than or equal to minimum guest count',
+      path: ['maxGuestCount'],
+    },
+  );
 
 export const upsertPackageCategoryRuleSchema = z
   .object({
@@ -138,6 +156,24 @@ export const orderQuoteSchema = z.object({
   selectedItems: z.array(selectedMenuItemSchema).min(1),
 });
 
+export const createRefundSchema = z.object({
+  amount: moneyStringSchema,
+  reason: z.string().trim().max(500).optional(),
+});
+
+export const createOrderNoteSchema = z.object({
+  body: z.string().trim().min(1).max(2000),
+});
+
+export const updateSettingsSchema = z.object({
+  settings: z.array(
+    z.object({
+      key: z.string().trim().min(1).max(100),
+      value: z.string().max(500),
+    }),
+  ),
+});
+
 export type RequestOtpInput = z.infer<typeof requestOtpSchema>;
 export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
 export type AdminLoginInput = z.infer<typeof adminLoginSchema>;
@@ -158,3 +194,6 @@ export type UpsertPackageItemPricingInput = z.infer<typeof upsertPackageItemPric
 export type PackageSelectionInput = z.infer<typeof packageSelectionSchema>;
 export type EventDraftInput = z.infer<typeof eventDraftSchema>;
 export type OrderQuoteInput = z.infer<typeof orderQuoteSchema>;
+export type CreateRefundInput = z.infer<typeof createRefundSchema>;
+export type CreateOrderNoteInput = z.infer<typeof createOrderNoteSchema>;
+export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>;

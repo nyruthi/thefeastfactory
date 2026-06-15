@@ -67,6 +67,22 @@ enum CancellationActor {
   ADMIN
 }
 
+enum NotificationType {
+  ORDER_CONFIRMED
+  ORDER_IN_PROGRESS
+  ORDER_READY
+  ORDER_DELIVERED
+  ORDER_CANCELLED
+  PAYMENT_FAILED
+  REFUND_UPDATED
+}
+
+enum DocumentType {
+  PAYMENT_RECEIPT
+  GST_INVOICE
+  REFUND_CREDIT_NOTE
+}
+
 // =============================================================================
 // CUSTOMER DOMAIN
 // =============================================================================
@@ -85,6 +101,8 @@ model User {
   addresses     UserAddress[]
   events        Event[]
   orders        Order[]
+  notifications Notification[]
+  documents     OrderDocument[]
 
   @@index([mobileNumber])
   @@index([isActive])
@@ -349,6 +367,9 @@ model Order {
   selectedItems   OrderSelectedItem[]
   payments        Payment[]
   statusHistory   OrderStatusHistory[]
+  notes           OrderNote[]
+  notifications   Notification[]
+  documents       OrderDocument[]
   cancelledByAdmin AdminUser?       @relation("OrderCancelledByAdmin", fields: [cancelledByAdminId], references: [id])
 
   @@index([orderNumber])
@@ -421,6 +442,7 @@ model Payment {
   // Relations
   order           Order         @relation(fields: [orderId], references: [id])
   refunds         Refund[]
+  documents       OrderDocument[]
 
   @@index([orderId])
   @@index([paymentStatus])
@@ -450,6 +472,7 @@ model Refund {
 
   // Relations
   payment         Payment      @relation(fields: [paymentId], references: [id])
+  documents       OrderDocument[]
 
   @@index([paymentId])
   @@index([refundStatus])
@@ -475,6 +498,7 @@ model AdminUser {
   // Relations
   orderStatusHistory  OrderStatusHistory[]
   cancelledOrders     Order[]    @relation("OrderCancelledByAdmin")
+  orderNotes          OrderNote[]
 
   @@index([email])
   @@index([isActive])
@@ -498,6 +522,74 @@ model OrderStatusHistory {
   @@index([orderId])
   @@index([orderId, changedAt])
   @@map("order_status_history")
+}
+
+model PaymentWebhookEvent {
+  id              String    @id @default(uuid())
+  providerEventId String    @unique @map("provider_event_id") @db.VarChar(150)
+  eventType       String    @map("event_type") @db.VarChar(100)
+  payload         Json
+  processedAt     DateTime? @map("processed_at")
+  processingError String?   @map("processing_error") @db.VarChar(1000)
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@index([eventType])
+  @@index([processedAt])
+  @@map("payment_webhook_events")
+}
+
+model OrderNote {
+  id        String    @id @default(uuid())
+  orderId   String    @map("order_id")
+  authorId  String    @map("author_id")
+  body      String    @db.VarChar(2000)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  order     Order     @relation(fields: [orderId], references: [id])
+  author    AdminUser @relation(fields: [authorId], references: [id])
+
+  @@index([orderId, createdAt])
+  @@map("order_notes")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  orderId   String?          @map("order_id")
+  type      NotificationType
+  title     String           @db.VarChar(150)
+  message   String           @db.VarChar(500)
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user      User             @relation(fields: [userId], references: [id])
+  order     Order?           @relation(fields: [orderId], references: [id])
+
+  @@index([userId, readAt, createdAt])
+  @@index([orderId])
+  @@map("notifications")
+}
+
+model OrderDocument {
+  id             String       @id @default(uuid())
+  orderId        String       @map("order_id")
+  userId         String       @map("user_id")
+  paymentId      String?      @map("payment_id")
+  refundId       String?      @map("refund_id")
+  documentType   DocumentType @map("document_type")
+  documentNumber String       @unique @map("document_number") @db.VarChar(50)
+  snapshot       Json
+  generatedAt    DateTime     @default(now()) @map("generated_at")
+
+  order          Order        @relation(fields: [orderId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+  payment        Payment?     @relation(fields: [paymentId], references: [id])
+  refund         Refund?      @relation(fields: [refundId], references: [id])
+
+  @@index([orderId, documentType])
+  @@index([userId, generatedAt])
+  @@map("order_documents")
 }
 
 // =============================================================================

@@ -1,30 +1,210 @@
 'use client';
 
+import { CheckCircle2, LockKeyhole, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import Script from 'next/script';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { OrderProgress } from '../../components/order-progress';
 import { Button } from '../../components/ui/button';
 import { apiRequest } from '../../lib/api';
 import { useOrderBuilderStore } from '../../store/order-builder.store';
 import { useSessionStore } from '../../store/session.store';
 
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => {
+      open: () => void;
+      on: (event: string, handler: (response: any) => void) => void;
+    };
+  }
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
-  const session = useSessionStore((s) => s.session);
-  const eventId = useOrderBuilderStore((s) => s.eventId);
-  const selectedItems = useOrderBuilderStore((s) => s.selectedItems);
-  const reset = useOrderBuilderStore((s) => s.reset);
+  const session = useSessionStore((state) => state.session);
+  const event = useOrderBuilderStore((state) => state.event);
+  const cartPackage = useOrderBuilderStore((state) => state.package);
+  const selectedItems = useOrderBuilderStore((state) => state.selectedItems);
+  const reset = useOrderBuilderStore((state) => state.reset);
   const [quote, setQuote] = useState<any>();
   const [error, setError] = useState('');
-  useEffect(() => { if (session && eventId) apiRequest('/orders/quote', { method: 'POST', body: JSON.stringify({ eventId, selectedItems }) }, session.accessToken).then(setQuote).catch((e) => setError(e.message)); }, [session, eventId, selectedItems]);
-  async function pay() {
-    try {
-      const order = await apiRequest<any>('/orders', { method: 'POST', body: JSON.stringify({ eventId, selectedItems }) }, session!.accessToken);
-      const gateway = await apiRequest<any>(`/orders/${order.id}/payments/razorpay-order`, { method: 'POST' }, session!.accessToken);
-      if (gateway.localMode) {
-        await apiRequest('/payments/razorpay/verify', { method: 'POST', body: JSON.stringify({ razorpayOrderId: gateway.id, razorpayPaymentId: `local_payment_${Date.now()}`, razorpaySignature: 'local_success' }) }, session!.accessToken);
-        reset(); router.push(`/payment/status?orderId=${order.id}&status=success`);
-      }
-    } catch (e) { setError((e as Error).message); }
+  const [paying, setPaying] = useState(false);
+
+  const payloadItems = selectedItems.map(({ categoryId, menuItemId }) => ({ categoryId, menuItemId }));
+
+  useEffect(() => {
+    if (!session || !event?.eventId || !selectedItems.length) return;
+    setError('');
+    apiRequest(
+      '/orders/quote',
+      { method: 'POST', body: JSON.stringify({ eventId: event.eventId, selectedItems: payloadItems }) },
+      session.accessToken,
+    )
+      .then(setQuote)
+      .catch((reason) => setError(reason.message));
+  }, [session, event?.eventId, selectedItems]);
+
+  async function verifyPayment(orderId: string, response: Record<string, string>) {
+    await apiRequest(
+      '/payments/razorpay/verify',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          razorpayOrderId: response.razorpay_order_id,
+          razorpayPaymentId: response.razorpay_payment_id,
+          razorpaySignature: response.razorpay_signature,
+        }),
+      },
+      session!.accessToken,
+    );
+    reset();
+    router.push(`/payment/status?orderId=${orderId}&status=success`);
   }
-  return <main className="mx-auto max-w-3xl px-5 py-12">{quote ? <><h1 className="text-3xl font-semibold">Order summary</h1><div className="mt-8 divide-y rounded-md border bg-white">{quote.items.map((i: any) => <div key={i.menuItemId} className="flex justify-between p-4"><span>{i.menuItemName}</span><span>{Number(i.adjustmentAmount) ? `+₹${i.adjustmentAmount}` : 'Included'}</span></div>)}</div><dl className="mt-6 grid grid-cols-2 gap-3 text-sm"><dt>Base per plate</dt><dd className="text-right">₹{quote.basePerPlatePrice}</dd><dt>Customization</dt><dd className="text-right">₹{quote.totalCustomizationCharges}</dd><dt className="font-semibold">Total for {quote.guestCount} guests</dt><dd className="text-right text-xl font-semibold">₹{quote.totalAmount}</dd></dl>{error && <p className="mt-4 text-red-600">{error}</p>}<Button className="mt-8 w-full" onClick={pay}>Pay and confirm</Button></> : <p>{error || 'Calculating trusted quote...'}</p>}</main>;
+
+  async function pay() {
+    if (!session || !event) return;
+    setError('');
+    setPaying(true);
+    try {
+      const order = await apiRequest<any>(
+        '/orders',
+        { method: 'POST', body: JSON.stringify({ eventId: event.eventId, selectedItems: payloadItems }) },
+        session.accessToken,
+      );
+      const gateway = await apiRequest<any>(
+        `/orders/${order.id}/payments/razorpay-order`,
+        { method: 'POST' },
+        session.accessToken,
+      );
+
+      if (gateway.localMode) {
+        await verifyPayment(order.id, {
+          razorpay_order_id: gateway.id,
+          razorpay_payment_id: `local_payment_${Date.now()}`,
+          razorpay_signature: 'local_success',
+        });
+        return;
+      }
+
+      if (!window.Razorpay) throw new Error('Secure payment window is still loading. Please try again.');
+      const checkout = new window.Razorpay({
+        key: gateway.keyId,
+        amount: gateway.amount,
+        currency: gateway.currency,
+        name: 'Aranyam Catering',
+        description: `${cartPackage?.packageName ?? 'Catering'} for ${quote.guestCount} guests`,
+        order_id: gateway.id,
+        prefill: {
+          name: session.user.name ?? '',
+          email: session.user.email ?? '',
+          contact: session.user.mobileNumber,
+        },
+        theme: { color: '#1b513a' },
+        modal: {
+          confirm_close: true,
+          ondismiss: () => {
+            setError('Payment window closed. Your order is still saved and you can retry safely.');
+            setPaying(false);
+          },
+        },
+        handler: async (response: Record<string, string>) => {
+          try {
+            await verifyPayment(order.id, response);
+          } catch (reason) {
+            setError((reason as Error).message);
+            setPaying(false);
+          }
+        },
+      });
+      checkout.on('payment.failed', (response) => {
+        setError(response?.error?.description || 'Payment failed. You can retry without creating another order.');
+        setPaying(false);
+      });
+      checkout.open();
+    } catch (reason) {
+      setError((reason as Error).message);
+      setPaying(false);
+    }
+  }
+
+  if (!session) {
+    return (
+      <main className="page-shell">
+        <div className="surface-card mx-auto max-w-xl p-8 text-center">
+          <h1 className="font-serif text-3xl font-semibold">Sign in to checkout</h1>
+          <p className="mt-3 text-muted-foreground">Your cart is saved on this device.</p>
+          <Button asChild className="mt-6"><Link href="/login">Continue with mobile</Link></Button>
+        </div>
+      </main>
+    );
+  }
+
+  if (!event || !cartPackage || !selectedItems.length) {
+    return (
+      <main className="page-shell">
+        <div className="surface-card mx-auto max-w-xl p-8 text-center">
+          <h1 className="font-serif text-3xl font-semibold">Your order needs a little more detail</h1>
+          <p className="mt-3 text-muted-foreground">Review the cart to complete your package, event, and menu.</p>
+          <Button asChild className="mt-6"><Link href="/cart">Return to cart</Link></Button>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="page-shell pb-28">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
+      <OrderProgress current={3} />
+      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px]">
+        <section>
+          <p className="eyebrow">Secure checkout</p>
+          <h1 className="mt-3 font-serif text-5xl font-semibold">One final review.</h1>
+          <p className="mt-3 text-muted-foreground">Your quote is calculated from the live package rules and saved as an order snapshot.</p>
+
+          {quote ? (
+            <div className="surface-card mt-8 overflow-hidden">
+              <div className="border-b bg-white/60 p-6">
+                <h2 className="font-serif text-2xl font-semibold">{quote.packageName}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{quote.guestCount} guests · {event.addressLabel}</p>
+              </div>
+              <div className="divide-y">
+                {quote.items.map((item: any) => (
+                  <div key={item.menuItemId} className="flex items-center justify-between gap-4 px-6 py-4">
+                    <div><p className="font-semibold">{item.menuItemName}</p><p className="text-xs text-muted-foreground">{item.categoryName}</p></div>
+                    <span className="text-sm font-semibold">{Number(item.adjustmentAmount) ? `+₹${item.adjustmentAmount}` : 'Included'}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="mt-8 h-80 animate-pulse rounded-xl bg-white/60" />
+          )}
+        </section>
+
+        <aside className="surface-card h-fit p-7 lg:sticky lg:top-28">
+          <p className="eyebrow">Payment summary</p>
+          {quote && (
+            <>
+              <div className="mt-6 space-y-3 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Base per plate</span><span>₹{quote.basePerPlatePrice}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Premium additions</span><span>₹{quote.totalCustomizationCharges}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Final per plate</span><span>₹{quote.finalPerPlatePrice}</span></div>
+              </div>
+              <div className="my-5 h-px bg-border" />
+              <div className="flex items-end justify-between"><span className="font-semibold">Total</span><span className="font-serif text-4xl font-semibold">₹{quote.totalAmount}</span></div>
+              <Button className="mt-7 w-full" onClick={pay} disabled={paying}>
+                <LockKeyhole className="mr-2 h-4 w-4" /> {paying ? 'Opening payment…' : 'Pay securely'}
+              </Button>
+            </>
+          )}
+          {error && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+          <div className="mt-6 space-y-3 border-t pt-5 text-xs text-muted-foreground">
+            <p className="flex gap-2"><ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> Payment details are handled securely by Razorpay.</p>
+            <p className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-primary" /> Your order is confirmed only after payment verification.</p>
+          </div>
+        </aside>
+      </div>
+    </main>
+  );
 }

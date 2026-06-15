@@ -1,6 +1,6 @@
 # External Integrations
 
-The project is wired with environment variables for external services, but local development can start with placeholders.
+The active provider scope is Razorpay, MSG91, Google Cloud Storage, and Google Maps. Local development remains usable with provider fallbacks.
 
 ## MSG91 OTP
 
@@ -39,20 +39,6 @@ Steps:
 6. Subscribe to payment and refund events used by the API.
 7. Copy the webhook secret into `RAZORPAY_WEBHOOK_SECRET`.
 
-## Resend
-
-Needed variables:
-
-- `RESEND_API_KEY`
-- `EMAIL_FROM`
-
-Steps:
-
-1. Create or log in to a Resend account.
-2. Verify the sending domain.
-3. Create an API key.
-4. Set `EMAIL_FROM` to a verified sender address.
-
 ## Google Cloud Storage
 
 Needed variables:
@@ -68,15 +54,33 @@ Steps:
 3. Create a service account with limited storage permissions.
 4. Download the service account JSON for local development.
 5. Set `GOOGLE_APPLICATION_CREDENTIALS` to the local JSON path.
+6. Grant the service account object create/delete permissions.
+7. Configure public read access for the `menu/` object prefix and CORS for approved app origins.
 
-## Sentry
+The API accepts JPEG, PNG, and WebP images up to 5 MB. When storage credentials are blank, it stores development uploads under `.local-uploads/`.
 
-Needed variables:
+## Google Maps Address Picker
 
-- `SENTRY_DSN`
+Needed variable:
+
+- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`
 
 Steps:
 
-1. Create a Sentry project for the API and each frontend app.
-2. Copy the DSN into the matching env file.
-3. Keep DSN empty locally if error reporting is not needed yet.
+1. Enable Maps JavaScript API, Places API (New), and Geocoding API in Google Cloud.
+2. Create a browser API key.
+3. Restrict the key to the customer application's local and deployed HTTP referrers.
+4. Restrict API access to the three enabled Maps APIs. The customer app uses `PlaceAutocompleteElement`; the legacy Places API is not required.
+5. Add the key to `apps/customer-web/.env.local`.
+6. Keep the key blank when testing manual address entry without Google Maps.
+
+Chrome requests location permission only after the customer selects **Use my location**. Deployed environments must use HTTPS for browser geolocation.
+
+## Deferred Providers
+
+- Resend is not active. Receipts and invoices are authenticated downloads, and order milestones use in-app notifications.
+- Sentry is not active or required for the current release.
+
+## Invoice Configuration
+
+GST invoices require platform settings for legal business name, registered address, GSTIN, state code, tax rates, SAC code, document prefixes, support contacts, and legal footer. Until the required identity fields are complete, only non-tax payment receipts are generated.

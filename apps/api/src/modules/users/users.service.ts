@@ -165,6 +165,8 @@ export class UsersService {
       state: dto.state,
       pincode: dto.pincode,
       landmark: dto.landmark,
+      latitude: dto.latitude ? new Prisma.Decimal(dto.latitude) : undefined,
+      longitude: dto.longitude ? new Prisma.Decimal(dto.longitude) : undefined,
       isDefault,
     };
   }
@@ -179,6 +181,12 @@ export class UsersService {
       ...(dto.state !== undefined ? { state: dto.state } : {}),
       ...(dto.pincode !== undefined ? { pincode: dto.pincode } : {}),
       ...(dto.landmark !== undefined ? { landmark: dto.landmark } : {}),
+      ...(dto.latitude !== undefined
+        ? { latitude: dto.latitude ? new Prisma.Decimal(dto.latitude) : null }
+        : {}),
+      ...(dto.longitude !== undefined
+        ? { longitude: dto.longitude ? new Prisma.Decimal(dto.longitude) : null }
+        : {}),
       ...(dto.isDefault !== undefined ? { isDefault: dto.isDefault } : {}),
     };
   }

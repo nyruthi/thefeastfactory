@@ -4,7 +4,7 @@ This plan is the execution guide for building the Catering & Event Ordering Plat
 
 ## Implementation Status
 
-Last updated: June 14, 2026
+Last updated: June 16, 2026
 
 - [x] Phase 0 - Preflight and dependency installation
 - [x] Phase 1 - Local PostgreSQL, Prisma schema, seed data, and DB timestamp triggers
@@ -43,11 +43,30 @@ Last updated: June 14, 2026
 - [x] Phase 7 - Admin order and reports APIs
 - [x] Phase 8 - Customer web app
 - [x] Phase 9 - Admin web app
-- [ ] Phase 10 - External integrations
+- [x] Phase 9.1 - Customer cart and experience enhancement
+- [x] Phase 9.2 - Public menu and Google Maps address picker
+- [x] Phase 10 - External integrations
+- [x] Phase 10.1 - Admin experience enhancement
+- [x] Phase 10.2 - Operations features
 - [ ] Phase 11 - Automated testing
 - [ ] Phase 12 - Deployment preparation
 
-Current next implementation target: **Phase 10 - External Integrations**, followed by automated testing and deployment preparation.
+Current next implementation target: **Phase 11 - Automated Testing**, followed by deployment preparation.
+
+Latest customer experience additions:
+
+- Persistent cart/draft order across refreshes
+- Cart review route with package, event, menu, and live estimate summaries
+- Incomplete-cart recovery and package-change compatibility handling
+- Menu maximum-selection enforcement and category progress
+- Draft event editing without duplicate event creation
+- Real Razorpay browser checkout wiring with local-mode fallback and pending-payment retry
+- Visual refresh for the customer shell, home, package, event, menu, cart, and checkout screens
+- Production Razorpay attempts, raw-body webhooks, reconciliation, and full/partial refunds
+- MSG91 OTP activation with console fallback
+- Validated Google Cloud Storage menu-image uploads with local fallback
+- Responsive admin operations workspace with calendar, queues, notes, settings, and payment tooling
+- Customer in-app notifications and authenticated receipts/invoices/credit notes
 
 Implemented API collection:
 
@@ -729,6 +748,56 @@ Open `http://localhost:3000`.
 
 Implemented routes include login, OTP, profile, addresses, package browsing, event creation, menu selection, checkout, local payment confirmation, order history, and order details.
 
+### Phase 9.1 - Customer Cart And Experience Enhancement [COMPLETED]
+
+Goal: turn the linear order builder into a resilient customer cart and improve the ordering UI before external providers are activated.
+
+Implementation:
+
+1. Persist package, event, guest count, and selected menu items in Zustand.
+2. Add `/cart` with empty, incomplete, and checkout-ready states.
+3. Reset incompatible event/menu state when a package version changes.
+4. Enforce category maximums while selecting dishes.
+5. Allow customers to remove dishes and resume incomplete carts.
+6. Update existing draft events when customers edit cart event details.
+7. Allow payment retry for an existing `PENDING_PAYMENT` order.
+8. Wire real Razorpay Checkout when provider keys are configured, retaining local payment mode.
+9. Refresh customer navigation and the core order journey with responsive, accessible layouts.
+
+Acceptance checks:
+
+```bash
+npm run build:customer
+npm run build:api
+```
+
+### Phase 9.2 - Public Menu And Google Maps Address Picker [COMPLETED]
+
+Goal: let customers browse the complete menu without starting an order and select precise saved venues from Google Maps.
+
+Implementation:
+
+1. Add a public `/menu` catalogue using the existing menu APIs.
+2. Hide menu pricing in the catalogue UI while preserving existing API and package pricing behavior.
+3. Add category, search, and vegetarian/non-vegetarian filters.
+4. Add Menu to desktop and mobile navigation, with Orders and Addresses shortcuts in Profile.
+5. Embed Google Maps and Places API (New) search in the address page.
+6. Support place search, map click, draggable pin, and explicit current-location permission.
+7. Reverse-geocode selected coordinates into editable address fields.
+8. Persist validated latitude and longitude using existing address columns.
+9. Preserve full manual address entry when Maps or location access is unavailable.
+
+Environment:
+
+- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`
+
+Acceptance checks:
+
+```bash
+npm run build:customer
+npm run build:api
+```
+
 ## Phase 9 - Admin Web App [COMPLETED]
 
 Goal: build the admin portal for operations.
@@ -795,7 +864,7 @@ npm run dev:admin
 
 Open `http://localhost:3001`.
 
-## Phase 10 - External Integrations
+## Phase 10 - External Integrations [COMPLETED]
 
 Goal: plug in real service providers behind already-defined environment variables.
 
@@ -838,21 +907,6 @@ Steps:
 6. Add webhook secret to `apps/api/.env`.
 7. Test successful and failed payments.
 
-### Resend
-
-Variables:
-
-- `RESEND_API_KEY`
-- `EMAIL_FROM`
-
-Steps:
-
-1. Create Resend account.
-2. Verify sending domain.
-3. Create API key.
-4. Add a verified sender address.
-5. Implement order confirmation email after payment success.
-
 ### Google Cloud Storage
 
 Variables:
@@ -868,19 +922,54 @@ Steps:
 3. Create service account with limited bucket permissions.
 4. Download local service account JSON.
 5. Set `GOOGLE_APPLICATION_CREDENTIALS` to JSON path.
-6. Add upload endpoint for dish images.
+6. Use the validated admin upload endpoint for public menu images.
 
-### Sentry
+### Google Maps
 
-Variables:
+1. Keep Maps JavaScript API, Places API (New), and Geocoding API enabled.
+2. Replace the demo key before production.
+3. Restrict the browser key by approved HTTP referrers and enabled APIs.
 
-- `SENTRY_DSN`
+### Deferred Providers
 
-Steps:
+- Resend email delivery is deferred; customer updates use in-app notifications.
+- Sentry observability is deferred; it is not required for the current release.
 
-1. Create Sentry projects for API and both web apps.
-2. Add DSN values to env files.
-3. Verify a test captured error in development or staging.
+### Production Integration Requirements
+
+1. Razorpay reuses open payment attempts, reconciles browser callbacks, verifies raw-body webhooks, and processes payment/refund events idempotently.
+2. Full and partial refunds are initiated through Razorpay and remain pending until provider confirmation.
+3. MSG91 is selected only when its approved credentials are complete; console OTP remains available locally.
+4. Google Cloud Storage accepts only validated JPEG, PNG, and WebP menu images up to 5 MB.
+5. Missing provider credentials preserve local development fallbacks.
+
+## Phase 10.1 - Admin Experience Enhancement [COMPLETED]
+
+Goal: provide a responsive operations workspace rather than basic CRUD pages.
+
+Implementation:
+
+1. Responsive branded shell, active navigation, breadcrumbs, account controls, logout, and session refresh.
+2. Reusable status badges, cards, tables, filters, dialogs, loading states, empty states, and errors.
+3. Dashboard metrics, upcoming events, payment health, and operations queues.
+4. Filtered order management with venue links, menu summaries, status timelines, notes, and documents.
+5. Payment attempt history, failure details, and full/partial refund controls.
+6. Menu image uploads and improved catalogue presentation.
+7. Editable platform/business settings with integration readiness that never exposes secrets.
+
+## Phase 10.2 - Operations Features [COMPLETED]
+
+Goal: support day-to-day fulfilment and customer communication.
+
+Implementation:
+
+1. Thirty-day operations calendar and upcoming-event queue.
+2. Private internal order notes with author and timestamp.
+3. Customer in-app notifications with unread counts and mark-read actions.
+4. Authenticated PDF payment receipts, GST invoices, and refund credit notes generated from immutable snapshots.
+5. GST invoices remain disabled until legal business name, address, GSTIN, and state code are configured.
+6. Milestone notifications cover confirmation, preparation, readiness, delivery, cancellation, payment failure, and refunds.
+7. Email and SMS milestone notifications remain out of scope.
 
 ## Phase 11 - Automated Testing
 

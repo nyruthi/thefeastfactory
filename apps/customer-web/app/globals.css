@@ -3,16 +3,45 @@
 @tailwind utilities;
 
 :root {
-  --background: 40 20% 98%;
-  --foreground: 210 20% 12%;
-  --primary: 154 54% 24%;
+  --background: 42 45% 97%;
+  --foreground: 151 24% 12%;
+  --primary: 151 48% 20%;
   --primary-foreground: 0 0% 100%;
-  --muted: 42 18% 92%;
-  --muted-foreground: 215 14% 36%;
-  --border: 210 14% 88%;
+  --accent: 35 78% 56%;
+  --accent-foreground: 151 34% 13%;
+  --muted: 40 25% 91%;
+  --muted-foreground: 155 9% 39%;
+  --border: 40 22% 84%;
+}
+
+* {
+  border-color: hsl(var(--border));
 }
 
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 8% 2%, hsl(35 80% 85% / 0.55), transparent 25rem),
+    radial-gradient(circle at 92% 16%, hsl(145 30% 84% / 0.5), transparent 28rem);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: hsl(var(--accent) / 0.35);
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-[0.2em] text-primary;
+  }
+
+  .surface-card {
+    @apply rounded-xl border border-white/70 bg-white/80 shadow-[0_18px_60px_-35px_rgba(24,62,45,0.45)] backdrop-blur;
+  }
+
+  .page-shell {
+    @apply mx-auto w-full max-w-7xl px-5 py-10 lg:px-8 lg:py-14;
+  }
 }

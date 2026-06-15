@@ -3,12 +3,11 @@ import {
   CancellationActor,
   EventStatus,
   OrderStatus,
-  PaymentStatus,
-  Prisma,
-  RefundStatus,
 } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { OrdersService } from '../orders/orders.service';
+import { PaymentsService } from '../payments/payments.service';
+import { OperationsService } from '../operations/operations.service';
 import { AdminCancelOrderDto } from './dto/admin-cancel-order.dto';
 import { AdminOrdersQueryDto } from './dto/admin-orders-query.dto';
 import { CreateRefundDto } from './dto/create-refund.dto';
@@ -26,7 +25,12 @@ const transitions: Record<OrderStatus, OrderStatus[]> = {
 
 @Injectable()
 export class AdminOrdersService {
-  constructor(private readonly prisma: PrismaService, private readonly orders: OrdersService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly orders: OrdersService,
+    private readonly payments: PaymentsService,
+    private readonly operations: OperationsService,
+  ) {}
 
   async list(query: AdminOrdersQueryDto) {
     const rows = await this.prisma.order.findMany({
@@ -79,6 +83,14 @@ export class AdminOrdersService {
       if (dto.status === OrderStatus.DELIVERED) {
         await tx.event.update({ where: { id: order.eventId }, data: { status: EventStatus.COMPLETED } });
       }
+      const notification = this.operations.notificationForStatus(dto.status);
+      if (notification) {
+        await this.operations.notify(tx, {
+          userId: order.userId,
+          orderId: order.id,
+          ...notification,
+        });
+      }
       return updated;
     });
     return this.orders.serializeOrder(row);
@@ -105,6 +117,15 @@ export class AdminOrdersService {
         },
       }),
       this.prisma.event.update({ where: { id: order.eventId }, data: { status: EventStatus.CANCELLED } }),
+      this.prisma.notification.create({
+        data: {
+          userId: order.userId,
+          orderId: order.id,
+          type: 'ORDER_CANCELLED',
+          title: 'Order cancelled',
+          message: 'Your catering order has been cancelled by the operations team.',
+        },
+      }),
     ]);
     return this.get(id);
   }
@@ -122,35 +143,6 @@ export class AdminOrdersService {
   }
 
   async refund(adminId: string, paymentId: string, dto: CreateRefundDto) {
-    const payment = await this.prisma.payment.findUnique({
-      where: { id: paymentId },
-      include: { refunds: true, order: true },
-    });
-    if (!payment || payment.paymentStatus !== PaymentStatus.PAID) throw new BadRequestException('Paid payment not found');
-    const amount = new Prisma.Decimal(dto.amount);
-    const refunded = payment.refunds
-      .filter((row) => row.refundStatus === RefundStatus.SUCCESS)
-      .reduce((sum, row) => sum.plus(row.amount), new Prisma.Decimal(0));
-    if (amount.lte(0) || refunded.plus(amount).gt(payment.amount)) throw new BadRequestException('Invalid refund amount');
-    const totalRefunded = refunded.plus(amount);
-    const status = totalRefunded.eq(payment.amount) ? PaymentStatus.REFUNDED : PaymentStatus.PARTIALLY_REFUNDED;
-    const refund = await this.prisma.$transaction(async (tx) => {
-      const created = await tx.refund.create({
-        data: {
-          paymentId,
-          amount,
-          refundStatus: RefundStatus.SUCCESS,
-          reason: dto.reason,
-          initiatedById: adminId,
-          razorpayRefundId: `local_refund_${Date.now()}`,
-          processedAt: new Date(),
-          gatewayResponse: { localMode: true },
-        },
-      });
-      await tx.payment.update({ where: { id: paymentId }, data: { paymentStatus: status } });
-      await tx.order.update({ where: { id: payment.orderId }, data: { paymentStatus: status } });
-      return created;
-    });
-    return { ...refund, amount: refund.amount.toFixed(2) };
+    return this.payments.createRefund(adminId, paymentId, dto.amount, dto.reason);
   }
 }

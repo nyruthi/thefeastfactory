@@ -1084,6 +1084,19 @@
       ]
     },
     {
+      "name": "Customer Notifications And Documents",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{customerAccessToken}}", "type": "string" }]
+      },
+      "item": [
+        { "name": "GET Notifications", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/me/notifications" }, "response": [] },
+        { "name": "GET Notification Unread Count", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/me/notifications/unread-count" }, "response": [] },
+        { "name": "POST Mark All Notifications Read", "request": { "method": "POST", "header": [], "url": "{{baseUrl}}/me/notifications/read-all" }, "response": [] },
+        { "name": "GET Order Documents", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/orders/{{orderId}}/documents" }, "response": [] }
+      ]
+    },
+    {
       "name": "Admin Operations And Reports",
       "auth": {
         "type": "bearer",
@@ -1108,6 +1121,17 @@
           "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"amount\": \"100.00\",\n  \"reason\": \"Partial service refund\"\n}" }, "url": "{{baseUrl}}/admin/payments/{{paymentId}}/refunds" },
           "response": []
         },
+        { "name": "GET Operations Calendar", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/operations/calendar" }, "response": [] },
+        { "name": "GET Operations Queue", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/operations/queue" }, "response": [] },
+        { "name": "GET Order Notes", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/orders/{{orderId}}/notes" }, "response": [] },
+        {
+          "name": "POST Order Note",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"body\": \"Kitchen team confirmed preparation schedule.\"\n}" }, "url": "{{baseUrl}}/admin/orders/{{orderId}}/notes" },
+          "response": []
+        },
+        { "name": "GET Platform Settings", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/settings" }, "response": [] },
+        { "name": "GET Integration Readiness", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/integrations/readiness" }, "response": [] },
+        { "name": "GET Admin Order Documents", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/orders/{{orderId}}/documents" }, "response": [] },
         { "name": "GET Revenue Report", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/reports/revenue" }, "response": [] },
         { "name": "GET Order Report", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/reports/orders" }, "response": [] },
         { "name": "GET Payment Report", "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/admin/reports/payments" }, "response": [] }

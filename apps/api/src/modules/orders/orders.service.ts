@@ -2,12 +2,17 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { CancellationActor, EventStatus, OrderStatus, PaymentStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PricingService } from '../pricing/pricing.service';
+import { OperationsService } from '../operations/operations.service';
 import { CancelOrderDto } from './dto/cancel-order.dto';
 import { OrderSelectionDto } from './dto/order-selection.dto';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService, private readonly pricing: PricingService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pricing: PricingService,
+    private readonly operations: OperationsService,
+  ) {}
 
   async quote(userId: string, dto: OrderSelectionDto) {
     const event = await this.getEvent(userId, dto.eventId);
@@ -16,7 +21,11 @@ export class OrdersService {
 
   async create(userId: string, dto: OrderSelectionDto) {
     const event = await this.getEvent(userId, dto.eventId);
-    if (event.orders.length) throw new BadRequestException('An order already exists for this event');
+    const existingOrder = event.orders[0];
+    if (existingOrder?.orderStatus === OrderStatus.PENDING_PAYMENT) {
+      return this.get(userId, existingOrder.id);
+    }
+    if (existingOrder) throw new BadRequestException('An order already exists for this event');
     const quote = await this.pricing.quote(event.packageVersionId, event.guestCount, dto.selectedItems);
     const leadHours = Math.floor((event.eventDate.getTime() - Date.now()) / 3_600_000);
     return this.prisma.$transaction(async (tx) => {
@@ -99,6 +108,10 @@ export class OrdersService {
         include: { selectedItems: true, payments: true, statusHistory: true },
       });
       await tx.event.update({ where: { id: order.eventId }, data: { status: EventStatus.CANCELLED } });
+      const notification = this.operations.notificationForStatus(OrderStatus.CANCELLED);
+      if (notification) {
+        await this.operations.notify(tx, { userId, orderId: id, ...notification });
+      }
       return row;
     });
     return this.serializeOrder(updated);

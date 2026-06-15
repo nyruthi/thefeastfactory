@@ -12,6 +12,7 @@
     "@aranyam/api-client": "*",
     "@aranyam/shared-types": "*",
     "@aranyam/validation": "*",
+    "@googlemaps/js-api-loader": "^2.1.1",
     "@hookform/resolvers": "^5.1.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@tanstack/react-query": "^5.81.0",

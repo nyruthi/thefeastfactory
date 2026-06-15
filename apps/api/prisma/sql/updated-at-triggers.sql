@@ -90,6 +90,12 @@ BEFORE UPDATE ON public.refunds
 FOR EACH ROW
 EXECUTE FUNCTION public.set_updated_at_to_db_time();
 
+DROP TRIGGER IF EXISTS trg_order_notes_set_updated_at ON public.order_notes;
+CREATE TRIGGER trg_order_notes_set_updated_at
+BEFORE UPDATE ON public.order_notes
+FOR EACH ROW
+EXECUTE FUNCTION public.set_updated_at_to_db_time();
+
 DROP TRIGGER IF EXISTS trg_admin_users_set_updated_at ON public.admin_users;
 CREATE TRIGGER trg_admin_users_set_updated_at
 BEFORE UPDATE ON public.admin_users
