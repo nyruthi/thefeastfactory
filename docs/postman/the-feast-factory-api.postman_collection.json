@@ -1,8 +1,8 @@
 {
   "info": {
     "_postman_id": "4b1ff5d7-c3de-4f27-9dcf-2c410678a001",
-    "name": "Aranyam API - Phase 1",
-    "description": "Postman collection for the APIs currently implemented in the Aranyam Catering Platform. Start the API with `npm run dev:api`, then run Health, Admin Auth, and Customer Auth/Profile flows. For local OTP, copy the OTP printed by the API console log after calling Request OTP.",
+    "name": "The Feast Factory API - Phase 1",
+    "description": "Postman collection for the APIs currently implemented in The Feast Factory platform. Start the API with `npm run dev:api`, then run Health, Admin Auth, and Customer Auth/Profile flows. For local OTP, copy the OTP printed by the API console log after calling Request OTP.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -13,7 +13,7 @@
     },
     {
       "key": "adminEmail",
-      "value": "admin@aranyam.local",
+      "value": "admin@thefeastfactory.local",
       "type": "string"
     },
     {

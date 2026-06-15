@@ -40,6 +40,6 @@ The trigger step installs database-owned `updated_at` timestamp triggers. The se
 Starter admin:
 
 ```text
-Email: admin@aranyam.local
+Email: admin@thefeastfactory.local
 Password: Admin@12345
 ```

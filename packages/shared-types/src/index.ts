@@ -4,6 +4,8 @@ export type ApiHealth = {
   timestamp: string;
 };
 
+export * from './options';
+
 export type Money = {
   amount: string;
   currency: 'INR';

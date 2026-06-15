@@ -396,7 +396,7 @@ export class PaymentsService {
         amount,
         currency: this.currency(),
         receipt: receipt.slice(0, 40),
-        notes: { source: 'aranyam' },
+        notes: { source: 'the-feast-factory' },
       });
       return { id: created.id, amount: Number(created.amount), currency: created.currency };
     } catch {

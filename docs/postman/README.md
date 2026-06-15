@@ -1,6 +1,6 @@
 # Postman Collections
 
-Import `aranyam-api.postman_collection.json` into Postman to test the APIs currently implemented.
+Import `the-feast-factory-api.postman_collection.json` into Postman to test the APIs currently implemented.
 
 ## Local Flow
 

@@ -13,7 +13,7 @@ export class HealthController {
 
     return {
       status: 'ok',
-      service: 'aranyam-api',
+      service: 'the-feast-factory-api',
       timestamp: new Date().toISOString(),
     };
   }

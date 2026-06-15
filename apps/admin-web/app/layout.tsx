@@ -4,8 +4,8 @@ import { QueryProvider } from '../lib/query-provider';
 import { AdminShell } from '../components/admin-shell';
 
 export const metadata: Metadata = {
-  title: 'Aranyam Admin',
-  description: 'Operations dashboard for catering orders.',
+  title: 'The Feast Factory Admin',
+  description: 'Operations dashboard for The Feast Factory catering orders.',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

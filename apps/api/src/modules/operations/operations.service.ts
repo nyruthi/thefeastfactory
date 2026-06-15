@@ -253,8 +253,8 @@ export class OperationsService {
   private snapshot(order: any, settings: Record<string, string>) {
     return {
       business: {
-        legalName: settings.business_legal_name || 'Aranyam Catering',
-        tradeName: settings.business_trade_name || 'Aranyam',
+        legalName: settings.business_legal_name || 'The Feast Factory',
+        tradeName: settings.business_trade_name || 'The Feast Factory',
         address: settings.business_address || '',
         gstin: settings.business_gstin || '',
         stateCode: settings.business_state_code || '',

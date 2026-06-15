@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --background: 42 45% 97%;
-  --foreground: 151 24% 12%;
-  --primary: 151 48% 20%;
+  --background: 34 42% 97%;
+  --foreground: 355 28% 13%;
+  --primary: 350 58% 27%;
   --primary-foreground: 0 0% 100%;
-  --accent: 35 78% 56%;
-  --accent-foreground: 151 34% 13%;
-  --muted: 40 25% 91%;
-  --muted-foreground: 155 9% 39%;
-  --border: 40 22% 84%;
+  --accent: 39 68% 57%;
+  --accent-foreground: 355 35% 14%;
+  --muted: 22 28% 92%;
+  --muted-foreground: 355 13% 39%;
+  --border: 18 24% 84%;
 }
 
 * {
@@ -23,8 +23,8 @@ body {
   color: hsl(var(--foreground));
   min-height: 100vh;
   background-image:
-    radial-gradient(circle at 8% 2%, hsl(35 80% 85% / 0.55), transparent 25rem),
-    radial-gradient(circle at 92% 16%, hsl(145 30% 84% / 0.5), transparent 28rem);
+    radial-gradient(circle at 8% 2%, hsl(39 75% 82% / 0.52), transparent 25rem),
+    radial-gradient(circle at 92% 16%, hsl(350 55% 84% / 0.46), transparent 28rem);
   background-attachment: fixed;
 }
 
@@ -38,7 +38,7 @@ body {
   }
 
   .surface-card {
-    @apply rounded-xl border border-white/70 bg-white/80 shadow-[0_18px_60px_-35px_rgba(24,62,45,0.45)] backdrop-blur;
+    @apply rounded-xl border border-white/70 bg-white/85 shadow-[0_18px_60px_-35px_rgba(111,29,45,0.45)] backdrop-blur;
   }
 
   .page-shell {

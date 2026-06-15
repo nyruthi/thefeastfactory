@@ -1,6 +1,6 @@
 'use client';
 
-import type { AddressType, UserAddress } from '@aranyam/shared-types';
+import { indianStateOptions, type AddressType, type UserAddress } from '@aranyam/shared-types';
 import { createAddressSchema } from '@aranyam/validation';
 import { CheckCircle2, MapPin, Plus } from 'lucide-react';
 import Link from 'next/link';
@@ -183,13 +183,18 @@ export default function AddressesPage() {
             </label>
             <label>
               <span className="mb-2 block text-sm font-semibold">State</span>
-              <Input
-                placeholder="State"
-                maxLength={100}
+              <select
+                className="h-12 w-full rounded-lg border bg-white/90 px-4 text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
                 value={form.state}
                 onChange={(event) => setForm({ ...form, state: event.target.value })}
                 required
-              />
+              >
+                <option value="">Select state</option>
+                {form.state && !indianStateOptions.includes(form.state as (typeof indianStateOptions)[number]) && (
+                  <option value={form.state}>{form.state}</option>
+                )}
+                {indianStateOptions.map((state) => <option key={state} value={state}>{state}</option>)}
+              </select>
             </label>
             <label>
               <span className="mb-2 block text-sm font-semibold">Pincode</span>

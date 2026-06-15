@@ -1,6 +1,11 @@
 'use client';
 
-import type { PackageConfiguration, UserAddress } from '@aranyam/shared-types';
+import {
+  eventTypeOptions,
+  servingTimePresets,
+  type PackageConfiguration,
+  type UserAddress,
+} from '@aranyam/shared-types';
 import { CalendarDays, LogIn, MapPin, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -27,9 +32,11 @@ function NewEventContent() {
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     addressId: '',
-    eventName: '',
+    eventType: 'Birthday',
+    customEventName: '',
     eventDate: '',
     eventTimeStart: '18:00',
+    servingPreset: '',
     guestCount: cartPackage?.minGuestCount ?? 10,
     specialNotes: '',
   });
@@ -69,6 +76,18 @@ function NewEventContent() {
       .catch((reason) => setError(reason.message));
   }, [session]);
 
+  useEffect(() => {
+    if (!cartEvent?.eventName) return;
+    const known = eventTypeOptions.find((option) => option === cartEvent.eventName);
+    setForm((current) => ({
+      ...current,
+      eventType: known ?? 'Other',
+      customEventName: known ? '' : cartEvent.eventName ?? '',
+      eventDate: cartEvent.eventDate,
+      eventTimeStart: cartEvent.eventTimeStart ?? current.eventTimeStart,
+    }));
+  }, [cartEvent?.eventId]);
+
   if (!packageVersionId) {
     return (
       <main className="page-shell">
@@ -101,17 +120,26 @@ function NewEventContent() {
     setSubmitting(true);
     try {
       const address = addresses.find((item) => item.id === form.addressId);
+      const eventName = form.eventType === 'Other' ? form.customEventName.trim() : form.eventType;
       const created = await apiRequest<any>(
         cartEvent ? `/events/${cartEvent.eventId}` : '/events',
         {
           method: cartEvent ? 'PATCH' : 'POST',
-          body: JSON.stringify({ ...form, packageVersionId, guestCount: Number(form.guestCount) }),
+          body: JSON.stringify({
+            addressId: form.addressId,
+            eventName,
+            eventDate: form.eventDate,
+            eventTimeStart: form.eventTimeStart,
+            guestCount: Number(form.guestCount),
+            specialNotes: form.specialNotes,
+            packageVersionId,
+          }),
         },
         session!.accessToken,
       );
       setEvent({
         eventId: created.id,
-        eventName: form.eventName,
+        eventName,
         eventDate: form.eventDate,
         eventTimeStart: form.eventTimeStart,
         addressLabel: address?.label || address?.addressLine1 || 'Event venue',
@@ -143,15 +171,30 @@ function NewEventContent() {
           ) : (
             <form onSubmit={submit} className="mt-8 grid gap-5 sm:grid-cols-2">
               <label className="sm:col-span-2">
-                <span className="mb-2 block text-sm font-semibold">Event name</span>
-                <Input placeholder="e.g. Riya's engagement dinner" value={form.eventName} onChange={(event) => setForm({ ...form, eventName: event.target.value })} />
+                <span className="mb-2 block text-sm font-semibold">Event type</span>
+                <select className="h-12 w-full rounded-lg border bg-white/90 px-4 text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15" value={form.eventType} onChange={(event) => setForm({ ...form, eventType: event.target.value, customEventName: event.target.value === 'Other' ? form.customEventName : '' })}>
+                  {eventTypeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                </select>
               </label>
+              {form.eventType === 'Other' && (
+                <label className="sm:col-span-2">
+                  <span className="mb-2 block text-sm font-semibold">Custom event name</span>
+                  <Input placeholder="e.g. Riya's engagement dinner" value={form.customEventName} onChange={(event) => setForm({ ...form, customEventName: event.target.value })} required />
+                </label>
+              )}
               <label>
                 <span className="mb-2 block text-sm font-semibold">Date</span>
                 <Input type="date" min={minimumDate} value={form.eventDate} onChange={(event) => setForm({ ...form, eventDate: event.target.value })} required />
               </label>
               <label>
-                <span className="mb-2 block text-sm font-semibold">Serving time</span>
+                <span className="mb-2 block text-sm font-semibold">Serving preset</span>
+                <select className="h-12 w-full rounded-lg border bg-white/90 px-4 text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15" value={form.servingPreset} onChange={(event) => { const preset = servingTimePresets.find((item) => item.label === event.target.value); setForm({ ...form, servingPreset: event.target.value, eventTimeStart: preset?.time ?? form.eventTimeStart }); }}>
+                  <option value="">Custom time</option>
+                  {servingTimePresets.map((preset) => <option key={preset.label} value={preset.label}>{preset.label} · {preset.time}</option>)}
+                </select>
+              </label>
+              <label>
+                <span className="mb-2 block text-sm font-semibold">Exact serving time</span>
                 <Input type="time" value={form.eventTimeStart} onChange={(event) => setForm({ ...form, eventTimeStart: event.target.value })} required />
               </label>
               <label>

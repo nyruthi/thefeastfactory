@@ -40,10 +40,10 @@ export function CustomerShell({ children }: Readonly<{ children: React.ReactNode
         <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 lg:px-8">
           <Link href="/" className="group flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-sm">
-              A
+              F
             </span>
             <span>
-              <span className="block font-serif text-xl font-semibold leading-none text-primary">Aranyam</span>
+              <span className="block font-serif text-xl font-semibold leading-none text-primary">The Feast Factory</span>
               <span className="mt-1 block text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
                 Celebrations, served
               </span>

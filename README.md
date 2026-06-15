@@ -1,6 +1,6 @@
-# Aranyam Catering Platform
+# The Feast Factory Platform
 
-Phase 1 base project for the catering and event ordering platform.
+Phase 1 base project for The Feast Factory catering and event ordering platform.
 
 ## Apps
 
@@ -59,11 +59,12 @@ Default local URLs:
 - API docs: `http://localhost:4000/docs`
 - Customer web: `http://localhost:3000`
 - Admin web: `http://localhost:3001`
+- Production customer domain: `https://thefeastfactory.in`
 
 ## External Integration Setup
 
-See [docs/integrations.md](docs/integrations.md) for the keys and dashboard steps needed for MSG91, Razorpay, Resend, Google Cloud Storage, and Sentry.
+See [docs/integrations.md](docs/integrations.md) for the keys and dashboard steps needed for MSG91, Razorpay, Google Cloud Storage, and Google Maps.
 
 ## Postman
 
-Import [docs/postman/aranyam-api.postman_collection.json](docs/postman/aranyam-api.postman_collection.json) to test the currently implemented health, auth, profile, and address APIs.
+Import [docs/postman/the-feast-factory-api.postman_collection.json](docs/postman/the-feast-factory-api.postman_collection.json) to test the currently implemented health, auth, profile, and address APIs.

@@ -1,6 +1,7 @@
 export const colors = {
-  customerPrimary: 'hsl(154 54% 24%)',
-  adminPrimary: 'hsl(198 74% 28%)',
+  customerPrimary: 'hsl(350 58% 27%)',
+  adminPrimary: 'hsl(350 58% 27%)',
+  accent: 'hsl(39 68% 57%)',
   foreground: 'hsl(210 20% 12%)',
   border: 'hsl(210 14% 88%)',
 } as const;

@@ -92,7 +92,7 @@ export default function CheckoutPage() {
         key: gateway.keyId,
         amount: gateway.amount,
         currency: gateway.currency,
-        name: 'Aranyam Catering',
+        name: 'The Feast Factory',
         description: `${cartPackage?.packageName ?? 'Catering'} for ${quote.guestCount} guests`,
         order_id: gateway.id,
         prefill: {

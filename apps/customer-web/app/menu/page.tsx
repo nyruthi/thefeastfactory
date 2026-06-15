@@ -48,7 +48,7 @@ export default function PublicMenuPage() {
         <p className="eyebrow">Our food</p>
         <h1 className="mt-3 font-serif text-5xl font-semibold">Browse every dish, anytime.</h1>
         <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
-          Explore the Aranyam menu before choosing a package. Package availability and selections are confirmed
+          Explore The Feast Factory menu before choosing a package. Package availability and selections are confirmed
           when you begin an order.
         </p>
       </div>
@@ -126,7 +126,7 @@ export default function PublicMenuPage() {
                   </span>
                 </div>
                 <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">
-                  {item.description || 'A thoughtfully prepared Aranyam favourite for your celebration.'}
+                  {item.description || 'A thoughtfully prepared Feast Factory favourite for your celebration.'}
                 </p>
               </div>
             </article>

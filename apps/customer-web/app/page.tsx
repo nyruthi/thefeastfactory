@@ -37,7 +37,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="surface-card relative overflow-hidden border-white/10 bg-white/10 p-6 text-white backdrop-blur-xl">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">The Aranyam promise</p>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">The Feast Factory promise</p>
               <div className="mt-6 space-y-5">
                 {['Curated vegetarian and non-vegetarian menus', 'Clear package rules and live pricing', 'Event details, payment, and tracking in one place'].map((item) => (
                   <div key={item} className="flex gap-3">

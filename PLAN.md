@@ -1,6 +1,6 @@
-# Aranyam Implementation Plan
+# The Feast Factory Implementation Plan
 
-This plan is the execution guide for building the Catering & Event Ordering Platform from the current codebase. It is written so any developer or AI coding agent can continue the project without needing the original conversation.
+This plan is the execution guide for building The Feast Factory catering and event ordering platform from the current codebase. It is written so any developer or AI coding agent can continue the project without needing the original conversation.
 
 ## Implementation Status
 
@@ -70,7 +70,7 @@ Latest customer experience additions:
 
 Implemented API collection:
 
-- `docs/postman/aranyam-api.postman_collection.json`
+- `docs/postman/the-feast-factory-api.postman_collection.json`
 - Includes health, customer auth, admin auth, profile, and address endpoints.
 - Add every new API endpoint to this collection in the same phase that implements it.
 
@@ -129,7 +129,7 @@ Before each phase:
 5. Keep changes scoped to the active phase.
 6. After each phase, run the verification commands listed for that phase.
 7. Update this `PLAN.md` only if the plan materially changes.
-8. Update `docs/postman/aranyam-api.postman_collection.json` whenever an API endpoint is added, changed, or removed.
+8. Update `docs/postman/the-feast-factory-api.postman_collection.json` whenever an API endpoint is added, changed, or removed.
 
 Do not modify the original `.docx` or `.pdf` product documents.
 
@@ -193,7 +193,7 @@ cp .env.example apps/admin-web/.env.local
 ```bash
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/aranyam?schema=public"
 API_PORT=4000
-API_CORS_ORIGINS="http://localhost:3000,http://localhost:3001"
+API_CORS_ORIGINS="http://localhost:3000,http://localhost:3001,https://thefeastfactory.in,https://www.thefeastfactory.in,https://admin.thefeastfactory.in"
 JWT_ACCESS_SECRET="replace-with-local-access-secret-min-16"
 JWT_REFRESH_SECRET="replace-with-local-refresh-secret-min-16"
 ```
@@ -283,7 +283,7 @@ Expected health response includes:
 ```json
 {
   "status": "ok",
-  "service": "aranyam-api"
+  "service": "the-feast-factory-api"
 }
 ```
 
@@ -517,7 +517,7 @@ Steps:
 6. [x] Added all implemented menu and package endpoints to:
 
 ```text
-docs/postman/aranyam-api.postman_collection.json
+docs/postman/the-feast-factory-api.postman_collection.json
 ```
 
 7. [x] Added idempotent sample catalog/package seed data.
@@ -1036,6 +1036,7 @@ Steps:
 3. Add Vercel project configuration notes:
    - `apps/customer-web`
    - `apps/admin-web`
+   - Customer domain: `thefeastfactory.in`
    - `NEXT_PUBLIC_API_URL`
    - `NEXT_PUBLIC_RAZORPAY_KEY_ID`
 

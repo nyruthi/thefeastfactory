@@ -3,19 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --background: 42 35% 97%;
-  --foreground: 158 28% 12%;
-  --primary: 153 47% 24%;
+  --background: 34 38% 97%;
+  --foreground: 355 28% 13%;
+  --primary: 350 58% 27%;
   --primary-foreground: 0 0% 100%;
-  --muted: 45 24% 92%;
-  --muted-foreground: 154 11% 38%;
-  --border: 42 18% 84%;
+  --muted: 22 27% 92%;
+  --muted-foreground: 355 13% 39%;
+  --border: 18 24% 84%;
 }
 
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   min-width: 320px;
+  background-image:
+    radial-gradient(circle at 0% 0%, hsl(39 75% 84% / 0.38), transparent 24rem),
+    radial-gradient(circle at 100% 6%, hsl(350 55% 84% / 0.35), transparent 26rem);
+  background-attachment: fixed;
 }
 
 button,
@@ -32,7 +36,7 @@ textarea {
   }
 
   .admin-card {
-    @apply rounded-2xl border bg-white p-5 shadow-[0_10px_35px_rgba(29,55,42,0.05)];
+    @apply rounded-2xl border bg-white/90 p-5 shadow-[0_10px_35px_rgba(111,29,45,0.08)] backdrop-blur;
   }
 
   .admin-title {

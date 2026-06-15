@@ -4,8 +4,8 @@ import { QueryProvider } from '../lib/query-provider';
 import { CustomerShell } from '../components/customer-shell';
 
 export const metadata: Metadata = {
-  title: 'Aranyam Catering',
-  description: 'Plan catering events, customize menus, and place orders.',
+  title: 'The Feast Factory',
+  description: 'Plan catering events, customize menus, and place orders with The Feast Factory.',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

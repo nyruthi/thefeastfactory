@@ -69,7 +69,7 @@ Steps:
 
 1. Enable Maps JavaScript API, Places API (New), and Geocoding API in Google Cloud.
 2. Create a browser API key.
-3. Restrict the key to the customer application's local and deployed HTTP referrers.
+3. Restrict the key to the customer application's local and deployed HTTP referrers, including `http://localhost:3000/*`, `https://thefeastfactory.in/*`, and `https://www.thefeastfactory.in/*`.
 4. Restrict API access to the three enabled Maps APIs. The customer app uses `PlaceAutocompleteElement`; the legacy Places API is not required.
 5. Add the key to `apps/customer-web/.env.local`.
 6. Keep the key blank when testing manual address entry without Google Maps.

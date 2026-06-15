@@ -26,8 +26,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new RequestLoggingInterceptor());
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Aranyam Catering API')
-    .setDescription('Phase 1 catering and event ordering API')
+    .setTitle('The Feast Factory API')
+    .setDescription('Catering and event ordering API for The Feast Factory')
     .setVersion('0.1.0')
     .addBearerAuth()
     .build();

@@ -50,9 +50,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const navigation = (
     <>
       <Link href="/admin/dashboard" className="flex items-center gap-3 px-3 py-2" onClick={() => setOpen(false)}>
-        <span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary text-lg font-bold text-white">A</span>
+        <span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary text-lg font-bold text-white">F</span>
         <span>
-          <span className="block font-serif text-xl font-semibold text-primary">Aranyam</span>
+          <span className="block font-serif text-xl font-semibold text-primary">The Feast Factory</span>
           <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Operations</span>
         </span>
       </Link>
