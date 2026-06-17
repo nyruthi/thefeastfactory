@@ -7,6 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { OrderProgress } from '../../../components/order-progress';
 import { Button } from '../../../components/ui/button';
+import { StatePanel } from '../../../components/ui/state-panel';
 import { apiRequest } from '../../../lib/api';
 import { useOrderBuilderStore } from '../../../store/order-builder.store';
 
@@ -42,7 +43,7 @@ export default function PackagePage() {
     router.push(`/events/new?packageVersionId=${version.id}`);
   }
 
-  if (error) return <main className="page-shell"><p className="rounded-lg bg-red-50 p-4 text-red-700">{error}</p></main>;
+  if (error) return <main className="page-shell"><StatePanel tone="danger" title="Package could not load" description={error} actionHref="/packages" actionLabel="Back to packages" /></main>;
   if (!version) return <main className="page-shell"><div className="h-96 animate-pulse rounded-[2rem] bg-white/60" /></main>;
 
   return (

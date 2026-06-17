@@ -4,6 +4,7 @@ import { refundReasonOptions } from '@aranyam/shared-types';
 import { useEffect, useState } from 'react';
 import { StatusBadge } from '../../../components/status-badge';
 import { Button } from '../../../components/ui/button';
+import { Field, Select, Textarea } from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
 import { apiRequest } from '../../../lib/api';
 import { useAdminSessionStore } from '../../../store/session.store';
@@ -70,12 +71,18 @@ export default function Payments() {
             <h2 className="text-2xl font-semibold">Issue refund</h2>
             <p className="mt-1 text-sm text-muted-foreground">{selected.order.orderNumber} · paid ₹{selected.amount}</p>
             <div className="mt-5 space-y-3">
-              <Input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" placeholder="Refund amount" required />
-              <select className="h-10 w-full rounded-lg border bg-white px-3 text-sm" value={reason} onChange={(event) => setReason(event.target.value)}>
-                {refundReasonOptions.map((option) => <option key={option}>{option}</option>)}
-              </select>
+              <Field label="Refund amount">
+                <Input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" placeholder="Refund amount" required />
+              </Field>
+              <Field label="Reason">
+                <Select value={reason} onChange={(event) => setReason(event.target.value)}>
+                  {refundReasonOptions.map((option) => <option key={option}>{option}</option>)}
+                </Select>
+              </Field>
               {reason === 'Other' && (
-                <textarea className="min-h-24 w-full rounded-xl border p-3 text-sm" value={customReason} onChange={(event) => setCustomReason(event.target.value)} placeholder="Custom refund reason" maxLength={500} required />
+                <Field label="Custom refund reason">
+                  <Textarea value={customReason} onChange={(event) => setCustomReason(event.target.value)} placeholder="Custom refund reason" maxLength={500} required />
+                </Field>
               )}
               {error && <p className="text-sm text-red-600">{error}</p>}
               <div className="flex gap-3">

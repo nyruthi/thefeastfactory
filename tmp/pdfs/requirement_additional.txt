@@ -1,0 +1,263 @@
+
+
+=== PAGE 1 ===
+Catering & Event Food Ordering Platform
+MVP Feature Scope Document
+Project Overview
+The proposed solution is a mobile and web-based catering management platform that enables
+customers to plan events, customize menus, place catering orders, make payments, and track
+deliveries. The platform also provides an administrative dashboard for managing vendors,
+menus, customers, and orders.
+The MVP focuses on delivering the core functionality required to launch, validate the business
+model, and start acquiring customers.
+1. Customer Mobile Application
+User Authentication
+Features
+• Mobile number login with OTP verification
+• Google Sign-In
+• User profile management
+• Saved addresses
+• Account settings
+Event Creation
+Features
+• Create new event
+• Select event type
+o Birthday Party
+o Wedding
+o Corporate Event
+o Housewarming
+o Family Gathering
+o Custom Event
+
+=== PAGE 2 ===
+• Select event date and time
+• Enter guest count
+• Add event location
+• Add event notes
+Menu Discovery
+Features
+• Browse food categories
+• Search dishes
+• Filter by cuisine
+• Filter by Veg / Non-Veg
+• View dish details
+• View pricing information
+Food Categories
+• Starters
+• Main Course
+• Desserts
+• Beverages
+• Snacks
+• Combo Meals
+Menu Customization
+Features
+• Add dishes to event menu
+• Remove dishes from menu
+• Customize platter selections
+• Select serving quantities
+• View menu summary
+Dynamic Pricing
+Features
+
+=== PAGE 3 ===
+• Per plate pricing
+• Guest count based pricing
+• Automatic price calculations
+• Real-time order total updates
+Cart Management
+Features
+• Add menu items to cart
+• Review selected event menu
+• Update quantities
+• Add special instructions
+• Save cart before checkout
+Checkout & Payments
+Features
+• Delivery address selection
+• Order summary
+• Secure checkout
+• Online payments
+Supported Payment Methods
+• UPI
+• Credit Cards
+• Debit Cards
+• Net Banking
+Order Tracking
+Features
+• Order confirmation
+• Order status tracking
+• Preparation updates
+
+=== PAGE 4 ===
+• Delivery updates
+• Order completion notifications
+Status Flow
+• Pending
+• Confirmed
+• Preparing
+• Dispatched
+• Delivered
+Notifications
+Features
+• Order confirmations
+• Payment confirmations
+• Delivery updates
+• Event reminders
+Channels
+• Push Notifications
+• SMS Notifications
+• WhatsApp Notifications
+Customer Support
+Features
+• Contact support
+• Call support
+• WhatsApp support
+• Help & FAQs
+Order History
+Features
+
+=== PAGE 5 ===
+• View previous orders
+• View order details
+• Repeat previous orders
+• Download invoices
+2. Admin Management Portal
+Admin Authentication
+Features
+• Secure admin login
+• Role-based access control
+• Permission management
+Vendor Management
+Features
+• Add vendors
+• Edit vendor profiles
+• Manage vendor availability
+• Assign vendors to orders
+Menu Management
+Features
+• Create menu categories
+• Add dishes
+• Edit dishes
+• Manage pricing
+• Manage dish availability
+Order Management
+
+=== PAGE 6 ===
+Features
+• View all orders
+• Assign vendors
+• Update order status
+• Track order progress
+• Manage cancellations
+Customer Management
+Features
+• View customer profiles
+• View customer orders
+• Customer activity tracking
+• Customer support management
+Reports & Analytics
+Features
+• Revenue reports
+• Order reports
+• Customer reports
+• Popular menu reports
+• Vendor performance reports
+3. Backend Services
+Core Platform Services
+Features
+• User management
+• Event management
+• Menu management
+• Pricing engine
+
+=== PAGE 7 ===
+• Order management
+• Payment management
+• Notification management
+Security
+Features
+• Secure authentication
+• Role-based permissions
+• Data encryption
+• Secure API access
+4. Third-Party Integrations
+OTP Provider
+• Mobile verification
+• Login authentication
+Payment Gateway
+• UPI payments
+• Card payments
+• Payment verification
+Notification Services
+• Push notifications
+• SMS notifications
+• WhatsApp notifications
+Cloud Storage
+• Menu images
+• User documents
+• Application assets
+
+=== PAGE 8 ===
+Future Enhancements (Phase 2)
+The following features are recommended after MVP launch and user validation:
+AI Menu Recommendation
+• Budget-based menu suggestions
+• Guest count optimization
+• Smart platter recommendations
+Loyalty & Rewards
+• Reward points
+• Cashback system
+• Coupon management
+Referral Program
+• User referrals
+• Referral rewards
+• Referral tracking
+Event Templates
+• Birthday packages
+• Corporate packages
+• Wedding packages
+• Quick-start templates
+Saved Menus
+• Save favorite menus
+• Reuse previous configurations
+Future Enhancements (Phase 3)
+Enterprise Ordering Portal
+• Corporate accounts
+
+=== PAGE 9 ===
+• Approval workflows
+• GST invoicing
+• Department billing
+Vendor Marketplace
+• Multiple catering partners
+• Vendor comparison
+• Ratings and reviews
+AI Event Planner
+• Automated event planning
+• Budget recommendations
+• Food quantity forecasting
+• Event checklist generation
+Advanced Analytics
+• Customer insights
+• Demand forecasting
+• Revenue intelligence
+• Vendor performance analytics
+MVP Deliverables
+Mobile Application
+• Android App
+• iOS App (optional based on project scope)
+Admin Portal
+• Web-based administration dashboard
+Backend System
+• APIs
+• Database
+• Authentication
+• Integrations
+
+=== PAGE 10 ===
+Integrations
+• OTP Service
+• Payment Gateway
+• Notification Services
+The MVP is designed to provide a complete end-to-end catering ordering experience while
+maintaining a lean scope suitable for rapid launch and market validation.

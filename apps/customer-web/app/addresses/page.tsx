@@ -3,10 +3,11 @@
 import { indianStateOptions, type AddressType, type UserAddress } from '@aranyam/shared-types';
 import { createAddressSchema } from '@aranyam/validation';
 import { CheckCircle2, MapPin, Plus } from 'lucide-react';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from '../../components/ui/button';
+import { Checkbox, Field, Select } from '../../components/ui/form';
 import { Input } from '../../components/ui/input';
+import { AuthRequiredPanel } from '../../components/ui/state-panel';
 import { AddressMapPicker } from '../../components/address-map-picker';
 import { apiRequest } from '../../lib/api';
 import { useSessionStore } from '../../store/session.store';
@@ -50,15 +51,7 @@ export default function AddressesPage() {
   }, [session]);
 
   if (!session) {
-    return (
-      <main className="page-shell">
-        <div className="surface-card mx-auto max-w-xl p-8 text-center">
-          <h1 className="font-serif text-3xl font-semibold">Sign in to manage venues</h1>
-          <p className="mt-3 text-muted-foreground">Saved addresses make event planning quicker.</p>
-          <Button asChild className="mt-6"><Link href="/login">Continue with mobile</Link></Button>
-        </div>
-      </main>
-    );
+    return <AuthRequiredPanel title="Sign in to manage venues" description="Saved addresses make event planning faster and keep checkout from asking for venue details again." returnHref="/addresses" />;
   }
 
   async function add(event: React.FormEvent) {
@@ -130,10 +123,8 @@ export default function AddressesPage() {
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            <label>
-              <span className="mb-2 block text-sm font-semibold">Address type</span>
-              <select
-                className="h-12 w-full rounded-lg border bg-white/90 px-4 text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
+            <Field label="Address type">
+              <Select
                 value={form.addressType}
                 onChange={(event) => setForm({ ...form, addressType: event.target.value as AddressType })}
               >
@@ -141,19 +132,17 @@ export default function AddressesPage() {
                 <option value="OFFICE">Office</option>
                 <option value="EVENT_VENUE">Event venue</option>
                 <option value="OTHER">Other</option>
-              </select>
-            </label>
-            <label>
-              <span className="mb-2 block text-sm font-semibold">Label</span>
+              </Select>
+            </Field>
+            <Field label="Label">
               <Input
                 placeholder="e.g. Home or Garden venue"
                 maxLength={50}
                 value={form.label}
                 onChange={(event) => setForm({ ...form, label: event.target.value })}
               />
-            </label>
-            <label className="sm:col-span-2 lg:col-span-1">
-              <span className="mb-2 block text-sm font-semibold">Address line 1</span>
+            </Field>
+            <Field label="Address line 1" className="sm:col-span-2 lg:col-span-1">
               <Input
                 placeholder="House, flat, building, or street"
                 maxLength={255}
@@ -161,18 +150,16 @@ export default function AddressesPage() {
                 onChange={(event) => setForm({ ...form, addressLine1: event.target.value })}
                 required
               />
-            </label>
-            <label className="sm:col-span-2 lg:col-span-1">
-              <span className="mb-2 block text-sm font-semibold">Address line 2 <span className="font-normal text-muted-foreground">(optional)</span></span>
+            </Field>
+            <Field label="Address line 2" optional className="sm:col-span-2 lg:col-span-1">
               <Input
                 placeholder="Area or locality"
                 maxLength={255}
                 value={form.addressLine2}
                 onChange={(event) => setForm({ ...form, addressLine2: event.target.value })}
               />
-            </label>
-            <label>
-              <span className="mb-2 block text-sm font-semibold">City</span>
+            </Field>
+            <Field label="City">
               <Input
                 placeholder="City"
                 maxLength={100}
@@ -180,11 +167,9 @@ export default function AddressesPage() {
                 onChange={(event) => setForm({ ...form, city: event.target.value })}
                 required
               />
-            </label>
-            <label>
-              <span className="mb-2 block text-sm font-semibold">State</span>
-              <select
-                className="h-12 w-full rounded-lg border bg-white/90 px-4 text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
+            </Field>
+            <Field label="State">
+              <Select
                 value={form.state}
                 onChange={(event) => setForm({ ...form, state: event.target.value })}
                 required
@@ -194,10 +179,9 @@ export default function AddressesPage() {
                   <option value={form.state}>{form.state}</option>
                 )}
                 {indianStateOptions.map((state) => <option key={state} value={state}>{state}</option>)}
-              </select>
-            </label>
-            <label>
-              <span className="mb-2 block text-sm font-semibold">Pincode</span>
+              </Select>
+            </Field>
+            <Field label="Pincode">
               <Input
                 placeholder="6-digit pincode"
                 inputMode="numeric"
@@ -208,27 +192,24 @@ export default function AddressesPage() {
                 onChange={(event) => setForm({ ...form, pincode: event.target.value.replace(/\D/g, '') })}
                 required
               />
-            </label>
-            <label>
-              <span className="mb-2 block text-sm font-semibold">Landmark <span className="font-normal text-muted-foreground">(optional)</span></span>
+            </Field>
+            <Field label="Landmark" optional>
               <Input
                 placeholder="Nearby landmark"
                 maxLength={255}
                 value={form.landmark}
                 onChange={(event) => setForm({ ...form, landmark: event.target.value })}
               />
-            </label>
+            </Field>
           </div>
 
-          <label className="mt-5 flex items-center gap-3 rounded-lg border bg-white/60 p-3 text-sm">
-            <input
-              type="checkbox"
-              className="h-4 w-4 accent-primary"
-              checked={form.isDefault}
-              onChange={(event) => setForm({ ...form, isDefault: event.target.checked })}
-            />
-            Make this my default address
-          </label>
+          <Checkbox
+            className="mt-5"
+            label="Make this my default address"
+            description="We will preselect this venue when planning your next event."
+            checked={form.isDefault}
+            onCheckedChange={(checked) => setForm({ ...form, isDefault: checked })}
+          />
 
           {form.latitude && form.longitude && (
             <p className="mt-3 text-xs text-muted-foreground">

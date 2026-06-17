@@ -4,6 +4,7 @@ import type { MenuCategory, MenuItem } from '@aranyam/shared-types';
 import { Leaf, Search, Utensils } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Input } from '../../components/ui/input';
+import { StatePanel } from '../../components/ui/state-panel';
 import { apiRequest } from '../../lib/api';
 import { cn } from '../../lib/utils';
 
@@ -99,7 +100,7 @@ export default function PublicMenuPage() {
         </div>
       </section>
 
-      {error && <p className="mt-6 rounded-lg bg-red-50 p-4 text-sm text-red-700">{error}</p>}
+      {error && <StatePanel className="mt-6" tone="danger" title="Menu could not load" description={error} actionHref="/packages" actionLabel="Browse packages" />}
       {loading ? (
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="h-72 animate-pulse rounded-xl bg-white/60" />)}

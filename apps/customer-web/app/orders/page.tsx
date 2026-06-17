@@ -1,7 +1,9 @@
 'use client';
 
+import { ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { AuthRequiredPanel, StatePanel } from '../../components/ui/state-panel';
 import { apiRequest } from '../../lib/api';
 import { useSessionStore } from '../../store/session.store';
 
@@ -9,6 +11,44 @@ export default function OrdersPage() {
   const session = useSessionStore((s) => s.session);
   const [orders, setOrders] = useState<any[]>([]);
   useEffect(() => { if (session) apiRequest<any[]>('/orders', {}, session.accessToken).then(setOrders); }, [session]);
-  if (!session) return <main className="mx-auto max-w-5xl px-5 py-12">Please log in to view orders.</main>;
-  return <main className="mx-auto max-w-5xl px-5 py-12 pb-24"><h1 className="text-3xl font-semibold">Your orders</h1><div className="mt-8 space-y-3">{orders.map((o) => <Link key={o.id} href={`/orders/${o.id}`} className="flex items-center justify-between rounded-md border bg-white p-4"><div><strong>{o.orderNumber}</strong><p className="text-sm text-muted-foreground">{o.packageName} · {o.guestCount} guests</p></div><div className="text-right"><p>{o.orderStatus}</p><strong>₹{o.totalAmount}</strong></div></Link>)}</div></main>;
+  if (!session) return <AuthRequiredPanel title="Sign in to view your orders" description="Order history, receipts, and live tracking are available after mobile verification." returnHref="/orders" />;
+  return (
+    <main className="page-shell pb-28">
+      <p className="eyebrow">Your history</p>
+      <h1 className="mt-3 font-serif text-5xl font-semibold">Orders</h1>
+      {orders.length ? (
+        <div className="mt-8 grid gap-4">
+          {orders.map((order) => (
+            <Link key={order.id} href={`/orders/${order.id}`} className="surface-card flex flex-wrap items-center justify-between gap-4 p-5 transition hover:border-primary/30">
+              <div className="flex items-center gap-4">
+                <span className="grid h-11 w-11 place-items-center rounded-full bg-primary/10 text-primary">
+                  <ClipboardList className="h-5 w-5" />
+                </span>
+                <div>
+                  <strong>{order.orderNumber}</strong>
+                  <p className="mt-1 text-sm text-muted-foreground">{order.packageName} · {order.guestCount} guests</p>
+                </div>
+              </div>
+              <div className="text-left sm:text-right">
+                <p className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">{order.orderStatus.replaceAll('_', ' ')}</p>
+                <strong className="mt-2 block">₹{order.totalAmount}</strong>
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <StatePanel
+          className="mt-8"
+          icon={ClipboardList}
+          eyebrow="No orders yet"
+          title="Your first catering order will appear here"
+          description="Choose a package, add your event details, and complete checkout to start tracking."
+          actionHref="/packages"
+          actionLabel="Browse packages"
+          secondaryHref="/menu"
+          secondaryLabel="Preview menu"
+        />
+      )}
+    </main>
+  );
 }

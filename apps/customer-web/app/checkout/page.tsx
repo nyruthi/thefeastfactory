@@ -1,12 +1,12 @@
 'use client';
 
 import { CheckCircle2, LockKeyhole, ShieldCheck } from 'lucide-react';
-import Link from 'next/link';
 import Script from 'next/script';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { OrderProgress } from '../../components/order-progress';
 import { Button } from '../../components/ui/button';
+import { AuthRequiredPanel, StatePanel } from '../../components/ui/state-panel';
 import { apiRequest } from '../../lib/api';
 import { useOrderBuilderStore } from '../../store/order-builder.store';
 import { useSessionStore } from '../../store/session.store';
@@ -129,25 +129,22 @@ export default function CheckoutPage() {
   }
 
   if (!session) {
-    return (
-      <main className="page-shell">
-        <div className="surface-card mx-auto max-w-xl p-8 text-center">
-          <h1 className="font-serif text-3xl font-semibold">Sign in to checkout</h1>
-          <p className="mt-3 text-muted-foreground">Your cart is saved on this device.</p>
-          <Button asChild className="mt-6"><Link href="/login">Continue with mobile</Link></Button>
-        </div>
-      </main>
-    );
+    return <AuthRequiredPanel title="Sign in to place your order" description="Your cart is saved on this device. Sign in to attach the order to your mobile number and unlock secure payment." returnHref="/checkout" />;
   }
 
   if (!event || !cartPackage || !selectedItems.length) {
     return (
       <main className="page-shell">
-        <div className="surface-card mx-auto max-w-xl p-8 text-center">
-          <h1 className="font-serif text-3xl font-semibold">Your order needs a little more detail</h1>
-          <p className="mt-3 text-muted-foreground">Review the cart to complete your package, event, and menu.</p>
-          <Button asChild className="mt-6"><Link href="/cart">Return to cart</Link></Button>
-        </div>
+        <StatePanel
+          icon={CheckCircle2}
+          eyebrow="Checkout checklist"
+          title="Your order needs a little more detail"
+          description="Complete the package, event details, and menu selection before opening secure payment."
+          actionHref="/cart"
+          actionLabel="Return to cart"
+          secondaryHref="/packages"
+          secondaryLabel="Browse packages"
+        />
       </main>
     );
   }
@@ -211,7 +208,11 @@ export default function CheckoutPage() {
               </Button>
             </>
           )}
-          {error && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+          {error && (
+            <div role="alert" className="mt-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm leading-6 text-red-800">
+              {error}
+            </div>
+          )}
           <div className="mt-6 space-y-3 border-t pt-5 text-xs text-muted-foreground">
             <p className="flex gap-2"><ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> Payment details are handled securely by Razorpay.</p>
             <p className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-primary" /> Your order is confirmed only after payment verification.</p>

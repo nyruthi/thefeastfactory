@@ -1,0 +1,889 @@
+
+
+=== PAGE 1 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+PROJECT PROPOSAL
+Aranyam Smart Catering &
+Food Experience Platform
+A Purpose-Built Digital Ordering & Customer Engagement Platform
+for Android & iOS
+Prepared for
+Rakesh | Amogham Foods Pvt. Ltd.
+Aranyam Jungle Theme Restaurant
+Prepared by
+TesseractTT
+Web · Mobile Applications · AI Agents · Business Automation
+June 2026
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 1
+
+=== PAGE 2 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+Contents
+01 Executive Summary
+02 Understanding Aranyam's Business
+03 Industry Challenges & Opportunities
+04 Why Aranyam Needs Its Own Platform
+05 Proposed Solution
+06 Customer Journey
+07 Platform Features — Customer Application
+08 Smart Recommendation Engine
+09 Admin Dashboard & Operations Platform
+10 Technology Architecture
+11 Security & Scalability
+12 Core Project Team
+13 Development Methodology
+14 Quality Assurance Process
+15 Risk Management Strategy
+16 Project Timeline
+17 Commercial Proposal
+18 Support & Maintenance
+19 Future Expansion Opportunities
+20 Relevant Experience & Delivered Solutions
+21 Why Choose Us
+22 Next Steps & Closing Statement
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 2
+
+=== PAGE 3 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+01 / EXECUTIVE SUMMARY
+Executive Summary
+The food and catering industry in India is undergoing a structural shift. Consumers increasingly expect to
+discover, configure, and order catering services entirely through digital channels — on their own
+schedule, with full transparency over pricing, menu options, and logistics. For a brand like Aranyam that
+has built a strong reputation across multiple locations in Telangana, a dedicated digital platform is not an
+optional enhancement. It is the next essential stage of business growth.
+This proposal outlines the design and development of the Aranyam Smart Catering & Food Experience
+Platform — a purpose-built Android and iOS mobile application and web-based admin dashboard that
+enables Aranyam to serve customers directly, manage operations centrally, and build lasting customer
+relationships without dependency on third-party aggregators.
+The platform is not a generic food ordering application. It is designed specifically for the complexity of
+large-format catering — guiding customers through event date, guest count, dietary preferences,
+occasion type, and budget before intelligently recommending platters, menu combinations, and service
+types that match their requirements. This is the experience that Aranyam's customers deserve, and that
+no third-party platform can deliver for your specific business.
+What This Platform Delivers
+• A direct digital channel for catering and food orders — owned entirely by Aranyam.
+• A guided, intelligent ordering experience that reduces enquiry calls and manual
+coordination.
+• Real-time operational visibility for the Aranyam team through a centralised admin
+dashboard.
+• The foundation for customer retention, repeat business, and data-driven growth.
+• Complete independence from third-party commission structures.
+We have already built the Aranyam website. We know the brand, the menu, the locations, and the
+experience you want your customers to have. This platform is the natural and most significant next step
+in Aranyam's digital journey — and we are the team best positioned to build it.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 3
+
+=== PAGE 4 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+02 / UNDERSTANDING ARANYAM'S BUSINESS
+Understanding Aranyam's Business
+Aranyam is not a conventional quick-service restaurant. It is a destination dining and catering brand, built
+on the identity of a jungle theme, authentic flavours, and the ability to serve large groups for significant
+occasions — corporate events, family celebrations, weddings, and community gatherings. Amogham
+Foods Pvt. Ltd. has successfully established Aranyam across multiple locations in Telangana, building a
+customer base that values both the experience and the food.
+Business Model
+• Large-format catering for events, occasions, and group orders is a core revenue stream.
+• Walk-in and dine-in service across multiple locations.
+• A structured menu covering a wide range of categories — veg and non-veg — at defined
+per-person pricing tiers.
+• A growing customer base who return for occasions and recommend Aranyam to their networks.
+Current Digital Presence
+Aranyam has an established website — built by our team — that presents the brand, menu, gallery, and
+locations effectively. However, the existing digital infrastructure does not support direct online ordering,
+catering configuration, or payment collection. Enquiries are primarily handled through phone calls or
+WhatsApp — a process that requires significant manual effort and introduces risk of errors, delays, and
+lost orders.
+The Opportunity
+The gap between Aranyam's brand reputation and its current digital ordering capability represents the
+opportunity this platform is designed to address. A customer who has experienced Aranyam's food and
+wants to book catering for their daughter's engagement should be able to do so entirely on their phone
+— in under five minutes, with full confidence in pricing, menu options, and availability. That experience
+does not exist today. This platform builds it.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 4
+
+=== PAGE 5 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+03 / INDUSTRY CHALLENGES & OPPORTUNITIES
+Industry Challenges & Opportunities
+The Changing Landscape of Food & Catering in India
+India's food service industry is experiencing one of its most significant transformations. Mobile
+penetration, digital payments, and consumer expectations shaped by e-commerce have permanently
+altered how people discover and order food — including for large-scale events.
+Challenge Industry Reality Aranyam's Opportunity
+Commission Dependency Third-party platforms charge 15–30% A direct platform eliminates
+per transaction, significantly eroding commissions entirely, improving
+margins for high-value catering orders. margins on every order.
+Lack of Catering-Specific Generic food delivery apps are A custom platform guides
+UX designed for individual meals, not customers through the complete
+complex multi-platter event catering. catering configuration process.
+Data Ownership Aggregator platforms retain customer Direct orders build Aranyam's own
+data, ordering history, and contact customer database and ordering
+information — not the restaurant. intelligence.
+Manual Coordination Phone and WhatsApp-based order Automated ordering reduces
+Overhead intake is time-consuming, error-prone, manual effort and allows the team
+and difficult to scale. to focus on delivery.
+Customer Retention Customers on third-party platforms A dedicated app enables push
+are the platform's customers — not notifications, loyalty mechanics, and
+yours. direct re-engagement.
+The Mobile-First Reality
+Over 85% of food-related digital interactions in India originate on a mobile device. Customers expect to
+browse, configure, and pay without ever needing to make a phone call. This expectation is as true for a
+large catering order as it is for a single meal. Restaurants that provide a seamless mobile ordering
+experience consistently outperform those that do not — in order volume, customer retention, and
+average order value.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 5
+
+=== PAGE 6 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+04 / WHY ARANYAM NEEDS ITS OWN PLATFORM
+Why Aranyam Needs Its Own Platform
+A dedicated digital platform is not simply a convenience feature. For a brand of Aranyam's scale and
+positioning, it is a strategic business infrastructure decision with measurable long-term implications.
+Six Strategic Reasons
+Own the Customer Relationship
+1
+Every customer who orders through Aranyam's app is Aranyam's customer — with contact
+details, order history, and preferences owned entirely by you, not a third-party platform.
+Capture the Full Catering Opportunity
+2 No aggregator platform supports the complexity of large-scale event catering with per-person
+pricing, dietary splits, platter customisation, and location-based service types. Only a
+purpose-built platform can do this.
+Eliminate Third-Party Commission Costs
+3
+A direct ordering channel removes platform fees on every transaction. For high-value catering
+orders, this impact is significant and compounding.
+Operational Efficiency at Scale
+4
+As order volumes grow, a centralised digital operations platform — with real-time order
+management, menu control, and reporting — becomes essential infrastructure, not optional.
+Build a Loyal, Returning Customer Base
+5
+Push notifications, reorder functionality, coupons, and personalised recommendations transform
+one-time customers into repeat business — something no third-party platform enables.
+Establish a Scalable Digital Foundation
+6
+A well-architected platform grows with the business — new locations, new menu categories,
+loyalty programmes, and future AI-driven enhancements can all be built on this foundation.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 6
+
+=== PAGE 7 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+05 / PROPOSED SOLUTION
+Proposed Solution
+Aranyam Smart Catering & Food Experience Platform
+The Aranyam Smart Catering & Food Experience Platform is a fully integrated, purpose-built digital
+ordering ecosystem designed around Aranyam's specific menu structure, catering model, and customer
+journey. It consists of three interconnected components working as a single, unified system.
+Component Purpose Audience
+Customer Mobile Application End-to-end guided catering and food Aranyam's customers —
+ordering — from event configuration to Android & iOS
+payment and tracking.
+Admin & Operations Centralised order management, menu Aranyam's operations and
+Dashboard control, customer intelligence, and management team
+business reporting.
+Backend Platform & Scalable API, database, cloud services, and Internal — managed by
+Infrastructure integrations powering both the app and the development team
+dashboard.
+The platform is designed to be scalable across all current Aranyam locations and extendable to additional
+locations or business units as the company grows. The technology choices prioritise reliability,
+performance in Indian network conditions, and total cost of ownership over time.
+Design Philosophy
+• Customer-first: every screen and interaction is designed around how Aranyam's customers
+think and behave.
+• Brand-authentic: the jungle identity, visual language, and tone of Aranyam are embedded
+throughout the application.
+• Operations-aware: the platform is built with equal attention to the experience of the
+Aranyam team as to the customer.
+• Scalable from day one: architecture decisions anticipate growth, not just current volume.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 7
+
+=== PAGE 8 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+06 / CUSTOMER JOURNEY
+Customer Journey
+The customer journey is designed to be guided, intelligent, and frictionless. A customer planning a large
+catering event has specific needs that differ significantly from a customer ordering a single meal. This
+platform is built to serve both — while doing justice to the complexity of catering.
+Phase 1 — Discovery & Authentication
+01 02 03 04
+Download App Phone OTP Login Profile Setup Home Screen
+Play Store / App Store Mobile number + OTP Name, preferences Explore & begin order
+Phase 2 — Intelligent Order Configuration
+The customer is guided through a structured six-step configuration wizard before the menu is presented.
+This captures the information the recommendation engine needs to surface the most relevant options.
+01 02 03 04 05 06
+Event Date Guest Count Occasion Type Meal Type Location Budget / Person
+Calendar selection Veg / Non-Veg / Wedding, Breakfast, lunch, Delivery address Tier selection
+Mixed corporate, etc. dinner
+Phase 3 — Smart Recommendations & Menu Customisation
+01 02 03 04
+Recommended Platters Service Type Menu Customise Add-ons
+AI-matched to inputs Counter / Live / Buffet Replace, add, remove Extras & upgrades
+Phase 4 — Checkout & Post-Order
+01 02 03 04 05
+Cart Review Coupons Payment Order Tracking History & Reorder
+Full order summary Apply offers UPI / Card / Wallet Live status updates One-tap repeat
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 8
+
+=== PAGE 9 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+07 / PLATFORM FEATURES — CUSTOMER APPLICATION
+Platform Features — Customer Application
+Authentication & Profile
+Feature / Module Description
+Phone OTP Login Customers authenticate using their mobile number and a one-time
+password — no username or password to remember. The standard for
+Indian consumer applications.
+User Profile Management Full name, saved addresses, dietary preferences, and notification settings
+— all editable from the customer's profile.
+Order Configuration
+Feature / Module Description
+Event Date Selection Calendar-based date selection for the catering event, driving availability
+and logistics planning.
+Guest Count & Dietary Split Capture total guest count with a breakdown between vegetarian,
+non-vegetarian, and mixed preferences.
+Occasion Selection Categorised occasion types — wedding, engagement, corporate event,
+birthday, religious function, and others — used to refine menu
+recommendations.
+Meal Type Selection Breakfast, lunch, hi-tea, dinner — meal type drives platter and menu
+recommendations.
+Delivery Location Address input with saved locations for repeat customers. Location data
+used for service-type availability.
+Budget Per Person Tiered budget selection that filters menu recommendations to options
+within the customer's specified range.
+Smart Menu & Platter Experience
+Feature / Module Description
+Smart Menu The platform intelligently surfaces menu items, platter combinations,
+Recommendations and service types based on the complete configuration: occasion, guest
+count, meal type, location, and budget.
+Service Type Recommends appropriate service formats — counter service, live
+Recommendation counters, buffet setup — based on occasion and guest count.
+Curated Platter Pre-configured platters matched to the customer's inputs, with clear
+Recommendations per-person pricing and item breakdowns.
+Menu Customisation Customers can modify any recommended platter — adding, removing,
+or adjusting individual dishes within budget constraints.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 9
+
+=== PAGE 10 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+Feature / Module Description
+Dish Replacement Replace any dish in a platter with an alternative from the same category,
+maintaining the overall platter pricing.
+Add-Ons Optional extras, upgrades, and supplementary items that can be added
+to any order.
+Cart, Checkout & Payments
+Feature / Module Description
+Cart Management Full itemised cart with real-time price calculation, GST display, and a
+clear order summary before checkout.
+Coupon & Offer Application Apply promotional codes and active offers at checkout with instant
+discount calculation.
+Online Payment Full payment gateway integration supporting UPI, debit and credit cards,
+net banking, and digital wallets — via Razorpay.
+Order Confirmation Immediate confirmation with order reference number and summary
+delivered via push notification and in-app display.
+Post-Order Experience
+Feature / Module Description
+Real-Time Order Tracking Live order status progression: Confirmed → Preparing → Dispatched →
+Delivered. Customers have full visibility at all times.
+Push Notifications Automated notifications for order confirmation, status changes,
+promotional offers, and reorder reminders.
+Order History Complete history of all past orders with itemised details, total amounts,
+and downloadable invoices.
+Reorder Functionality One-tap repeat of any previous order, with the option to modify before
+confirmation.
+Customer Support In-app support access for order-related enquiries, escalation, and
+communication with the Aranyam team.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 10
+
+=== PAGE 11 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+08 / SMART RECOMMENDATION ENGINE
+Smart Recommendation Engine
+The recommendation engine is the intelligence layer of the platform — the feature that transforms a
+menu-browsing experience into a personalised catering advisor. Rather than presenting every dish to
+every customer and expecting them to configure their own order from scratch, the engine analyses the
+customer's inputs and surfaces the options most likely to match their needs.
+Recommendation Inputs
+Input Signal Data Captured How It Influences Recommendations
+Guest Count Total guests + veg/non-veg/mixed Scales platter sizes, suggests
+split appropriate service formats, filters by
+capacity.
+Occasion Type Wedding, corporate, birthday, etc. Matches occasion-appropriate platters
+and presentation styles.
+Meal Type Breakfast, lunch, hi-tea, dinner Filters to meal-appropriate categories
+and items.
+Delivery Location Customer address / area Confirms service availability and
+informs logistics recommendations.
+Budget Per Person Selected tier (e.g., ₹300, ₹500, Restricts recommendations to items
+₹800+) and platters within budget. Shows
+upgrade options above the tier.
+Dietary Preference Veg-only, non-veg, mixed Filters menu recommendations and
+platter compositions accordingly.
+What the Engine Recommends
+• Curated platters best suited to the occasion, headcount, and budget tier.
+• Service type — buffet, live counter, or counter service — based on guest count and occasion
+formality.
+• Menu item combinations with balanced veg/non-veg ratios aligned to the dietary split.
+• Add-on options and upgrades relevant to the occasion type.
+A Practical Example
+• Customer inputs: 200 guests, wedding, dinner, Hyderabad delivery, ₹600 per person, 60%
+veg / 40% non-veg.
+• The engine surfaces: 3 curated platters at the ₹500–700 range, recommends a buffet service
+format, presents a balanced menu of 8 veg and 5 non-veg items, and offers a live counter
+upgrade as an add-on.
+• The customer configures their entire wedding catering order in under 10 minutes — without
+a single phone call.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 11
+
+=== PAGE 12 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+The recommendation logic is configured and maintained through the admin dashboard, giving the
+Aranyam team full control over which platters are recommended for which occasions, and the ability to
+update recommendations as the menu evolves.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 12
+
+=== PAGE 13 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+09 / ADMIN DASHBOARD & OPERATIONS PLATFORM
+Admin Dashboard & Operations Platform
+The admin dashboard is a secure, web-based operations platform accessible from any browser. It is
+designed for non-technical users — no developer involvement is required for day-to-day operations. The
+dashboard gives the Aranyam management and operations team complete control over every dimension
+of the business.
+Dashboard Overview
+Feature / Module Description
+Operations Dashboard At-a-glance view of today's orders, total revenue, pending fulfilments, and
+key operational metrics. Designed for the first thing the team opens each
+morning.
+Order Management
+Feature / Module Description
+Order Management View, filter, and manage all incoming orders in real time. Update order
+status, assign to locations, and access full order details.
+Order Tracking Management Update live order status visible to the customer — Confirmed,
+Preparing, Dispatched, Delivered — from the admin interface.
+Menu & Catalogue Management
+Feature / Module Description
+Menu Management Add new dishes, update descriptions, modify prices, and toggle item
+availability without any developer involvement.
+Platter Management Create, edit, and manage curated platters — including item composition,
+pricing, and occasion tagging for the recommendation engine.
+Category Management Manage menu categories, ordering, and display logic across the
+customer application.
+Add-On Management Configure available add-ons, their pricing, and their association with
+specific platters or occasions.
+Customer & Engagement Management
+Feature / Module Description
+Customer Management View the complete customer database, individual order histories,
+contact details, and preferences.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 13
+
+=== PAGE 14 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+Feature / Module Description
+Coupon Management Create, activate, deactivate, and monitor promotional codes and offers
+— including percentage discounts, fixed amounts, and minimum order
+thresholds.
+Notification Management Send targeted push notifications to all customers or specific segments —
+promotional, operational, or seasonal.
+Business Intelligence & Configuration
+Feature / Module Description
+Reports & Analytics Daily, weekly, and monthly sales reports. Identify top-selling platters,
+peak ordering periods, customer retention rates, and location-level
+performance.
+Location Management Manage all Aranyam locations — operating hours, service availability,
+delivery radius, and location-specific pricing.
+Pricing Management Configure per-person pricing tiers, budget category thresholds, and
+occasion-specific pricing rules.
+Content Management Update application banners, promotional content, occasion imagery,
+and homepage featured items.
+User Role Management Define staff roles and permissions — control who on the Aranyam team
+can access which parts of the admin dashboard.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 14
+
+=== PAGE 15 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+10 / TECHNOLOGY ARCHITECTURE
+Technology Architecture
+The technology stack is selected for reliability, scalability, cost-efficiency, and fitness for the Indian
+market. We favour established, production-proven technologies with strong support ecosystems — not
+experimental frameworks. The exact stack may be refined during the discovery phase based on detailed
+technical requirements.
+Layer Technology Rationale
+Customer App React Native A single codebase for Android and iOS — ensuring
+consistent experience, faster delivery, and easier
+maintenance without duplicating effort.
+Admin Dashboard React.js + Tailwind CSS The same technology as the existing Aranyam
+website — reducing ramp-up time and ensuring
+design consistency.
+Backend API Node.js + Express.js Lightweight, fast, and widely deployed at scale.
+Handles concurrent order processing reliably.
+Database Supabase (PostgreSQL) Relational database — ideal for the structured data
+of orders, menus, customers, and reporting.
+Supabase provides a managed, scalable
+environment.
+Authentication Firebase Auth (Phone OTP) Industry-standard OTP authentication for Indian
+consumer applications. Fast, reliable, and familiar
+to users.
+Payment Gateway Razorpay The most trusted payment gateway in India.
+Supports UPI, debit/credit cards, net banking, and
+wallets.
+File & Media Supabase Storage Menu imagery, invoices, and receipts — stored
+Storage securely and served with low latency.
+Push Notifications Firebase Cloud Messaging Cross-platform push notifications for Android and
+iOS — free, reliable, and widely integrated.
+Admin Hosting Vercel Continuous deployment, global CDN, and
+zero-configuration hosting — the same
+infrastructure powering the current Aranyam
+website.
+App Distribution Google Play + Apple App Official distribution channels for Android and iOS
+Store — full market reach across both platforms.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 15
+
+=== PAGE 16 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+11 / SECURITY & SCALABILITY
+Security & Scalability
+Security
+• All API endpoints protected by authentication tokens (JWT-based). Unauthenticated requests are
+rejected at the API gateway.
+• Customer data is stored in a managed, encrypted PostgreSQL database. Sensitive fields (payment
+tokens, personal details) are never stored in plaintext.
+• Payment processing is handled entirely by Razorpay — no card or UPI credentials pass through or
+are stored on the platform's servers.
+• OTP authentication reduces account compromise risk compared to password-based systems.
+• Role-based access control in the admin dashboard ensures staff members access only the
+functions relevant to their role.
+• HTTPS enforced across all client-server communications.
+Scalability
+• The backend API is stateless — horizontally scalable as order volume grows.
+• Supabase (PostgreSQL) provides managed database scaling, connection pooling, and automated
+backups.
+• The mobile application is designed with offline-resilient patterns — gracefully handling
+intermittent connectivity common in Indian networks.
+• The architecture supports the addition of new locations, new menu categories, and new business
+units without structural rework.
+• Firebase Cloud Messaging handles notification delivery at scale — from tens to hundreds of
+thousands of users without infrastructure changes.
+Data & Privacy
+• Customer data is collected, stored, and used in accordance with applicable Indian data protection
+standards.
+• Customers have the ability to manage their profile data and request deletion from within the
+application.
+• Payment data handling adheres to Razorpay's PCI-DSS compliant infrastructure.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 16
+
+=== PAGE 17 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+12 / CORE PROJECT TEAM
+Core Project Team
+A focused, senior team — each member owning a distinct, critical layer of the platform. This is not a large
+agency with rotating junior resources. You work directly with the engineers building your product, from
+the first design decision to the final deployment.
+Pranith Konda Laxman Sandeep
+Founder & Lead Product Engineer Backend & Mobile Engineer Database & Infrastructure
+Engineer
+Responsibilities Responsibilities
+Responsibilities
+• Product Strategy & • Mobile App Development
+Architecture • Backend API Development • Database Architecture &
+• UI/UX Design • Authentication Systems Design
+• Frontend Development • Payment Gateway • Data Modelling
+• Project Planning & Integration • Backend Infrastructure
+Communication • Data Management &
+Core Skills
+• Deployment Management Optimisation
+Node.js · Express.js · React Native ·
+Core Skills Firebase Core Skills
+Supabase · PostgreSQL · Firebase
+React · React Native · Tailwind CSS ·
+Firebase · Product Design
+How We Work
+• Pranith Konda serves as the single point of contact for all client communication. You do not
+manage multiple contacts or experience handoff gaps.
+• Every team member has worked together previously, including on the Aranyam website —
+coordination overhead is low and workflows are established.
+• We operate with a commitment to transparency: challenges are communicated immediately,
+scope changes are discussed before being acted on, and delivery progress is documented.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 17
+
+=== PAGE 18 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+13 / DEVELOPMENT METHODOLOGY
+Development Methodology
+We follow a structured, phase-based delivery approach. Each phase concludes with a defined deliverable
+that is reviewed and approved before the subsequent phase begins. There is no large reveal at the end of
+the project — you maintain visibility and control throughout.
+Discovery & Planning
+01 Requirements workshop, user flow mapping, technical architecture review, content inventory
+(menu data, imagery, location details), scope documentation, and project plan. Output: signed
+requirements document and confirmed scope.
+UI/UX Design
+02 Full application screen designs presented for review and approval before development begins.
+Includes customer app flows, admin dashboard layouts, and brand application guidelines.
+Output: approved design system and screen library.
+Core Development — Phase A
+03
+Authentication, user profiles, order configuration wizard, database schema, and API foundations.
+Output: working order configuration flow.
+Core Development — Phase B
+04
+Smart recommendation engine, platter builder, menu customisation, cart management, and
+checkout. Output: complete customer ordering flow.
+Core Development — Phase C
+05
+Payment integration, push notifications, order tracking, order history, and admin dashboard.
+Output: full platform functionality.
+Testing & Quality Assurance
+06
+Functional testing across devices and OS versions, payment sandbox testing, performance
+testing, and client review and sign-off. Output: QA sign-off report.
+Deployment & Launch
+07
+Production infrastructure setup, Play Store and App Store submission and approval
+management, and admin panel handover and training. Output: live application on both stores.
+Post-Launch Support
+08
+Monitoring, bug resolution, performance optimisation, and team support during the initial
+post-launch period. Output: stable production system.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 18
+
+=== PAGE 19 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+14 / QUALITY ASSURANCE PROCESS
+Quality Assurance Process
+Quality is integrated into every phase of development — not treated as a final gate before launch. The
+following QA processes are applied throughout the project.
+QA Area What We Test When
+Functional Testing Every feature tested against defined End of each development phase
+acceptance criteria before being
+considered complete.
+Device & OS Application tested across multiple During Phase B and Phase C
+Compatibility Android versions and iOS versions to
+ensure consistent behaviour.
+Payment Flow Testing Complete payment journeys tested in Prior to production deployment
+sandbox and staging environments
+before any live payment processing.
+Performance Testing Load times, screen transition Prior to launch
+performance, and API response times
+assessed under expected usage
+conditions.
+User Acceptance Testing Client-facing review sessions at the End of each phase
+conclusion of each phase. Aranyam team
+members test real flows before sign-off.
+App Store Compliance Both the Android and iOS builds are Prior to submission
+reviewed against platform guidelines
+before submission, minimising rejection
+risk.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 19
+
+=== PAGE 20 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+15 / RISK MANAGEMENT STRATEGY
+Risk Management Strategy
+Proactive risk management is a discipline, not a disclaimer. The following risks are the most relevant to
+this project, alongside the strategies we apply to manage them.
+Risk Likelihood Mitigation Strategy
+Scope expansion after Medium Comprehensive scope documentation and sign-off at the
+development begins conclusion of the discovery phase. Any changes follow a
+documented change-request process with impact
+assessment before action.
+Delayed content provision Medium A detailed content requirement checklist is shared at
+from client project kickoff. Content deadlines are tracked as part of
+the project plan, with clear impact flagged if milestones
+are missed.
+Razorpay KYC and registration Low–Medi Razorpay registration is initiated by the client at project
+delays um kickoff. Development proceeds with sandbox testing in
+parallel, so payment integration is not blocked.
+Apple App Store review delays Low–Medi Apple review timelines (typically 1–3 business days) are
+or rejection um built into the launch plan. Submissions are reviewed
+internally against Apple guidelines prior to submission to
+minimise rejection risk.
+Third-party service downtime Low All selected services publish high-availability SLAs.
+(Firebase, Razorpay, Graceful degradation is built into critical flows so that
+Supabase) temporary service interruptions do not result in data loss
+or broken user journeys.
+Requirement misalignment Low Design approval is obtained before development. Client
+post-development review sessions are conducted at the end of each
+development phase. Misalignment is identified and
+corrected at phase boundaries, not after full delivery.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 20
+
+=== PAGE 21 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+16 / PROJECT TIMELINE
+Project Timeline
+Timeline to Be Finalised During the Discovery Phase
+• A detailed, phase-by-phase project timeline will be prepared and agreed upon as the first
+output of the discovery and planning phase.
+• Accurate timeline estimation requires a fully confirmed scope, content availability
+commitments from the Aranyam team, and resolution of third-party dependencies such as
+payment gateway registration.
+• We provide realistic timelines that we stand behind — not optimistic estimates made before
+the full scope is understood.
+• Any timeline presented before discovery is complete would not serve you well. Our
+commitment is to a timeline that is honest, achievable, and mutually agreed.
+Factors That Influence the Timeline
+• Scope complexity confirmed during discovery: the final feature list and integration requirements
+directly determine development duration.
+• Content readiness: menu data, photography, location details, and branding assets provided by the
+Aranyam team are critical path items. Delays in content provision delay delivery.
+• Third-party dependencies: Razorpay registration and KYC, Firebase project setup, and App
+Store/Play Store account availability.
+• App Store review: Apple's review process is outside our control. Typical review times range from
+24 hours to several business days. This is planned for explicitly in our launch schedule.
+• Client review and approval cycles: design approvals and phase sign-offs that take longer than
+planned extend subsequent phases. We design our review process to be efficient and
+well-structured.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 21
+
+=== PAGE 22 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+17 / COMMERCIAL PROPOSAL
+Commercial Proposal
+Commercial Terms to Be Finalised After Scope Confirmation
+• A detailed commercial proposal — including project investment, payment milestones, and
+engagement terms — will be presented following the discovery phase, once scope is
+confirmed and documented.
+• Pricing a project before scope is defined introduces risk for both parties. We will not provide
+a number that we cannot stand behind, or that may change materially once the work begins.
+• Our commercial model is fixed-price, milestone-based. You know exactly what you are
+paying at each stage of the project, and each payment is tied to a defined, approved
+deliverable.
+What You Can Expect From Our Commercial Proposal
+• A fixed total project investment — no open-ended billing, no hourly surprises.
+• Milestone-based payment schedule aligned to phase completions: payment is made against
+delivered and approved work, not against time elapsed.
+• A clear definition of what is included in the project scope and what would constitute an approved
+scope change.
+• Post-launch support terms defined and agreed before the project begins — no ambiguity about
+what happens after go-live.
+• Transparency on any third-party costs (e.g., Razorpay transaction fees, Supabase hosting) that fall
+outside the development investment.
+Commercial Structure
+As a general principle, we structure payments across four to five milestones aligned to key project
+events: project commencement, design approval, development completion, QA sign-off, and post-launch
+stability. The specific milestone structure will be presented in the formal commercial proposal.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 22
+
+=== PAGE 23 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+18 / SUPPORT & MAINTENANCE
+Support & Maintenance
+Initial Post-Launch Support Period
+Following the live launch of the platform, we provide a dedicated post-launch support period (duration to
+be confirmed in the commercial agreement) during which we monitor the system, address any issues
+arising from production usage, and ensure the platform is performing as expected.
+• Resolution of bugs or issues identified under real production conditions not present during
+testing.
+• Performance monitoring and tuning based on actual usage patterns.
+• Operational training and guidance for the Aranyam admin team.
+• Assistance with any Play Store or App Store communications following launch.
+Ongoing Maintenance & Enhancement
+Following the initial support period, we offer structured ongoing maintenance and enhancement
+services. The scope and commercial terms of ongoing engagement are agreed separately. This typically
+covers:
+• Regular platform updates for OS compatibility (Android and iOS version updates).
+• Security patches and dependency updates.
+• Performance monitoring and database optimisation as data volumes grow.
+• Feature enhancements as the business evolves.
+Long-Term Partnership
+We approach this engagement as a long-term technology partnership, not a project-and-exit relationship.
+The platform we build today is designed to evolve with Aranyam's business — and we want to be the
+team that builds that future alongside you.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 23
+
+=== PAGE 24 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+19 / FUTURE EXPANSION OPPORTUNITIES
+Future Expansion Opportunities
+The platform architecture is designed to support significant expansion beyond the initial launch scope.
+The following represent strategic opportunities that can be built on the existing foundation without
+architectural rework.
+Opportunity Description Business Value
+Loyalty & Rewards Points-based loyalty system rewarding Increases customer retention and
+Programme repeat orders, with tier progression and average order frequency.
+redemption against future orders.
+AI-Powered Machine learning models trained on Increases order conversion and
+Recommendation historical order data to improve platter average order value.
+Enhancement and menu recommendations over time.
+Multi-Language Support Telugu and Hindi language options Expands accessible customer
+within the customer application. base across Telangana.
+WhatsApp Business Automated order confirmations, status Meets customers on the channel
+Integration updates, and promotional messages via they already use most.
+WhatsApp API.
+Corporate & Bulk Order A dedicated web portal for corporate Opens a higher-value,
+Portal clients placing recurring or high-volume lower-acquisition-cost B2B
+catering orders. revenue stream.
+New Location The admin dashboard and platform Supports geographic expansion
+Onboarding architecture support adding new without platform rebuilds.
+Aranyam locations with minimal
+configuration.
+Catering Partner Tools for managing external catering Scales fulfilment capacity without
+Management partners or sub-contractors for large proportional overhead.
+events beyond Aranyam's direct
+capacity.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 24
+
+=== PAGE 25 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+20 / RELEVANT EXPERIENCE & DELIVERED SOLUTIONS
+Relevant Experience & Delivered Solutions
+Project 01: Aranyam Official Website
+Design and development of the comprehensive digital infrastructure for Aranyam. This project
+established a premium online presence tailored to the jungle-themed brand identity, significantly
+enhancing multi-location customer engagement through a mobile-first architectural approach.
+STRATEGIC HIGHLIGHTS
+• High-performance responsive design optimized for all device classes.
+• Interactive digital menu showcase with location-specific availability.
+• Immersive brand storytelling integrated with user-centric conversion paths.
+• Advanced gallery modules featuring high-resolution visual experiences.
+• Core web vitals optimization for low-latency loading in variable network conditions.
+Project 02: Customer Intelligence Platform
+An enterprise-grade analytics ecosystem leveraging machine learning to derive actionable insights from
+customer data. The platform utilizes advanced segmentation and sentiment analysis to facilitate
+data-driven decision-making and personalized marketing strategies.
+STRATEGIC HIGHLIGHTS
+• Automated customer segmentation for targeted engagement campaigns.
+• Proprietary K-Means clustering models for behavioral pattern recognition.
+• Real-time sentiment analysis engine for customer feedback monitoring.
+• Scalable CSV data processing pipelines for high-volume ingestion.
+• Custom interactive dashboards providing executive-level operational visibility.
+• Integrated tech stack utilizing Flutter, Firebase, and specialized ML frameworks.
+https://drive.google.com/file/d/1RkmpTbfZ0PYetVKWzZfIxAjxUAIlftDd/view?usp=drive_link
+Project 03: RescueNet
+A mission-critical decentralized communication platform engineered for resilience in crisis environments.
+RescueNet enables peer-to-peer SOS signaling and multi-agency coordination in scenarios where
+standard telecommunications infrastructure has failed.
+https://drive.google.com/file/d/1RkmpTbfZ0PYetVKWzZfIxAjxUAIlftDd/view?usp=share_link
+STRATEGIC HIGHLIGHTS
+• Offline-first SOS communication protocols for guaranteed message delivery.
+• Dynamic mesh networking architecture for decentralized connectivity.
+• Dedicated first-responder interface for rapid emergency triage.
+• Centralized command dashboard for global situational awareness.
+• Asynchronous cloud synchronization for data integrity upon restoration of service.
+• Hybrid implementation using Flutter and React for cross-platform reliability
+.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 25
+
+=== PAGE 26 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+IMAGES
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 26
+
+=== PAGE 27 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 27
+
+=== PAGE 28 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 28
+
+=== PAGE 29 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 29
+
+=== PAGE 30 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 30
+
+=== PAGE 31 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 31
+
+=== PAGE 32 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+21 / WHY CHOOSE US
+Why Choose Us
+We Have Already Delivered for Aranyam
+The Aranyam website was built by our team — from concept to live production. It is the official digital
+presence of the brand across all three locations. That project demonstrated our ability to understand a
+brand, execute to a high standard, and deliver on time. You are not evaluating an unknown team. You are
+choosing whether to extend a relationship that has already produced results.
+We Know Your Brand
+We know the jungle identity. We know the menu structure, the categories, the locations, and the kind of
+experience Aranyam wants its customers to have. This knowledge does not need to be transferred,
+explained, or rebuilt. For any other team, the first month of this project would be spent getting to where
+we already are.
+End-to-End Ownership
+We design it, build it, test it, launch it, and support it. One team. One point of contact. There are no
+handoffs between a UI agency, a separate backend developer, and a third-party DevOps service. When
+something needs attention — at any layer — the same people who built it are available to resolve it.
+Honesty About Where We Are
+This is our first project of this scale. We are a focused, skilled team that has delivered real work —
+including for Aranyam — and we are committed to applying the same discipline and ownership to this
+platform. We do not have a decade of enterprise deployments behind us, and we will not claim to. What
+we have is an established working relationship with your brand, a clear technical approach, and a
+commitment to transparency about every aspect of how we work.
+Local Context
+We are a Telangana-based team. We understand the local market, UPI payment behaviour, Telugu
+customer expectations, and the cultural context of the occasions Aranyam serves. That understanding
+goes into product decisions — not just code.
+Long-Term Commitment
+We are not here to deliver a project and move on. We want to be the technology team that grows with
+Aranyam — building the loyalty programme, the corporate portal, the recommendation enhancements
+— as the business scales. The platform we build now is the foundation for everything that follows.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 32
+
+=== PAGE 33 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+22 / CONFIDENTIALITY & OWNERSHIP NOTICE
+Confidentiality & Ownership Notice
+This Project Proposal, prepared exclusively by TesseractTT for Amogham Foods Pvt. Ltd., is a confidential
+document intended solely for the evaluation and discussion of the proposed Aranyam Smart Catering &
+Food Experience Platform.
+Proprietary Information
+The contents of this document, including all business recommendations, technical concepts, detailed
+workflows, feature planning, architecture suggestions, and strategic insights, constitute proprietary
+intellectual property developed by TesseractTT.
+Permitted Use
+This proposal is provided in confidence. Internal sharing with authorized company stakeholders, including
+directors, partners, advisors, decision-makers, and management teams, is expressly permitted for the
+sole purpose of project evaluation.
+Restrictions
+Unauthorized reproduction, distribution, publication, or commercial reuse of this document or its
+contents, in whole or in part, is strictly prohibited without the prior written consent of TesseractTT.
+Intellectual Property
+All intellectual property, underlying concepts, and strategic recommendations contained within this
+proposal remain the exclusive property of TesseractTT until a formal, mutually executed agreement
+governing the project scope and intellectual property assignment is in place between the parties.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 33
+
+=== PAGE 34 ===
+TesseractTT | Aranyam Smart Catering & Food Experience PlatformConfidential | June 2026
+23 / NEXT STEPS & CLOSING STATEMENT
+Next Steps
+If this proposal aligns with Aranyam's vision for its digital platform, we recommend the following as
+immediate next steps:
+Proposal Review & Discussion
+A meeting between the Aranyam team and TesseractTT to review this proposal, address any
+01
+questions, and confirm the direction for the project.
+Discovery Kickoff Scheduling
+02
+Agreement on a date for the discovery and planning session — the first formal phase of the
+engagement — where scope, requirements, and timeline are confirmed in detail.
+Commercial Agreement
+03
+Following scope confirmation from the discovery session, we present the formal commercial
+proposal. On mutual agreement, the engagement commences.
+Third-Party Registration
+04
+Razorpay registration and KYC initiated by the client immediately upon project commencement,
+to ensure payment integration is not a constraint on the development schedule.
+Content Preparation
+05 Aranyam team prepares the content required for the platform: menu items, descriptions,
+pricing, high-quality photography, and location details — aligned to the content checklist
+provided at kickoff.
+We have built Aranyam's digital presence. Now let's build its digital future.
+The Aranyam Smart Catering & Food Experience Platform represents a significant step forward for how
+Aranyam engages with its customers, manages its operations, and grows its business. The opportunity is
+clear. The technology is ready. The team is in place.
+We are ready to begin when you are.
+Pranith Konda
+Founder & Lead Product Engineer | TesseractTT
++91 70957740769 | pranithkondakp@gmail.com | pranithkonda.vercel.app
+Laxman (Backend & Mobile) +91 8897027525 | Sandeep (Database & Infrastructure) +91 7337528369
+This proposal is confidential and prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.
+Prepared exclusively for Rakesh | Amogham Foods Pvt. Ltd.Page 34

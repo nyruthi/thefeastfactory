@@ -4,6 +4,7 @@ import type { PackageSummary } from '@aranyam/shared-types';
 import { ArrowRight, Check, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { StatePanel } from '../../components/ui/state-panel';
 import { apiRequest } from '../../lib/api';
 
 export default function PackagesPage() {
@@ -30,7 +31,7 @@ export default function PackagesPage() {
         </div>
       </div>
 
-      {error && <p className="mt-8 rounded-lg bg-red-50 p-4 text-sm text-red-700">{error}</p>}
+      {error && <StatePanel className="mt-8" tone="danger" title="Packages could not load" description={error} actionHref="/menu" actionLabel="Browse menu instead" />}
       {!error && !packages.length && (
         <div className="mt-10 grid gap-4 md:grid-cols-3">
           {[1, 2, 3].map((item) => <div key={item} className="h-80 animate-pulse rounded-xl bg-white/60" />)}

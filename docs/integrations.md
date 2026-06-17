@@ -29,15 +29,38 @@ Needed variables:
 - `RAZORPAY_CURRENCY`
 - `NEXT_PUBLIC_RAZORPAY_KEY_ID`
 
+Webhook URL:
+
+```text
+${API_PUBLIC_URL}/payments/razorpay/webhook
+```
+
+Examples:
+
+```text
+Local development through a tunnel:
+https://<your-ngrok-or-cloudflare-tunnel-domain>/payments/razorpay/webhook
+
+Production:
+https://<your-api-domain>/payments/razorpay/webhook
+```
+
+Use the backend/API domain for this URL. Do not use the customer web domain or admin web domain unless that same host is reverse-proxying API traffic to `apps/api`.
+
 Steps:
 
 1. Create or log in to a Razorpay merchant account.
 2. Use test mode while developing.
 3. Copy key ID and key secret from the Razorpay dashboard into `apps/api/.env`.
 4. Add the key ID to both frontend `.env.local` files as `NEXT_PUBLIC_RAZORPAY_KEY_ID`.
-5. Create a webhook endpoint pointing to `/payments/razorpay/webhook`.
-6. Subscribe to payment and refund events used by the API.
+5. Create a webhook endpoint using the full URL above.
+6. Subscribe to these events used by the API:
+   - `payment.captured`
+   - `payment.failed`
+   - `refund.processed`
+   - `refund.failed`
 7. Copy the webhook secret into `RAZORPAY_WEBHOOK_SECRET`.
+8. Restart the API after changing `apps/api/.env`.
 
 ## Google Cloud Storage
 

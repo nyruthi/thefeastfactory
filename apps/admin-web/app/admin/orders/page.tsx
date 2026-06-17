@@ -4,6 +4,7 @@ import { orderStatusOptions, paymentStatusOptions } from '@aranyam/shared-types'
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { StatusBadge } from '../../../components/status-badge';
+import { Select } from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
 import { apiRequest } from '../../../lib/api';
 import { useAdminSessionStore } from '../../../store/session.store';
@@ -44,14 +45,14 @@ export default function AdminOrders() {
       <h1 className="admin-title mt-2">Orders</h1>
       <div className="admin-card mt-7 grid gap-3 md:grid-cols-3">
         <Input value={mobile} onChange={(event) => setMobile(event.target.value)} placeholder="Search customer mobile" />
-        <select className="h-10 rounded-lg border bg-white px-3 text-sm" value={status} onChange={(event) => setStatus(event.target.value)}>
+        <Select value={status} onChange={(event) => setStatus(event.target.value)}>
           <option value="">All order statuses</option>
           {orderStatusOptions.map((value) => <option key={value}>{value}</option>)}
-        </select>
-        <select className="h-10 rounded-lg border bg-white px-3 text-sm" value={paymentStatus} onChange={(event) => setPaymentStatus(event.target.value)}>
+        </Select>
+        <Select value={paymentStatus} onChange={(event) => setPaymentStatus(event.target.value)}>
           <option value="">All payment statuses</option>
           {paymentStatusOptions.map((value) => <option key={value}>{value}</option>)}
-        </select>
+        </Select>
       </div>
 
       <div className="admin-card mt-5 overflow-x-auto p-0">

@@ -6,13 +6,15 @@ import {
   type PackageConfiguration,
   type UserAddress,
 } from '@aranyam/shared-types';
-import { CalendarDays, LogIn, MapPin, Users } from 'lucide-react';
+import { CalendarDays, MapPin, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { OrderProgress } from '../../../components/order-progress';
 import { Button } from '../../../components/ui/button';
+import { DateField, Field, Select, Textarea, TimeField } from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
+import { AuthRequiredPanel, StatePanel } from '../../../components/ui/state-panel';
 import { apiRequest } from '../../../lib/api';
 import { useOrderBuilderStore } from '../../../store/order-builder.store';
 import { useSessionStore } from '../../../store/session.store';
@@ -92,26 +94,22 @@ function NewEventContent() {
   if (!packageVersionId) {
     return (
       <main className="page-shell">
-        <div className="surface-card mx-auto max-w-xl p-8 text-center">
-          <h1 className="font-serif text-3xl font-semibold">Choose a package first</h1>
-          <p className="mt-3 text-muted-foreground">Your event details are matched to a package and its guest limits.</p>
-          <Button asChild className="mt-6"><Link href="/packages">Browse packages</Link></Button>
-        </div>
+        <StatePanel
+          icon={Users}
+          eyebrow="Package required"
+          title="Choose a package first"
+          description="Your event details are matched to a package so guest limits, courses, and pricing stay accurate."
+          actionHref="/packages"
+          actionLabel="Browse packages"
+          secondaryHref="/menu"
+          secondaryLabel="Preview menu"
+        />
       </main>
     );
   }
 
   if (!session) {
-    return (
-      <main className="page-shell">
-        <div className="surface-card mx-auto max-w-xl p-8 text-center">
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary"><LogIn /></span>
-          <h1 className="mt-5 font-serif text-3xl font-semibold">Sign in to save your event</h1>
-          <p className="mt-3 text-muted-foreground">Your selected package is waiting in the cart.</p>
-          <Button asChild className="mt-6"><Link href="/login">Continue with mobile</Link></Button>
-        </div>
-      </main>
-    );
+    return <AuthRequiredPanel title="Sign in to save your event" description="Your selected package is waiting. Sign in once, then your venue, cart, and checkout stay connected." returnHref={`/events/new?packageVersionId=${packageVersionId}`} />;
   }
 
   async function submit(formEvent: React.FormEvent) {
@@ -121,7 +119,7 @@ function NewEventContent() {
     setSubmitting(true);
     try {
       const address = addresses.find((item) => item.id === form.addressId);
-      const eventName = form.eventType === 'Other' ? form.customEventName.trim() : form.eventType;
+      const eventName = form.eventType === 'Other' ? form.customEventName.trim() || 'Other' : form.eventType;
       const created = await apiRequest<any>(
         cartEvent ? `/events/${cartEvent.eventId}` : '/events',
         {
@@ -171,48 +169,39 @@ function NewEventContent() {
             </div>
           ) : (
             <form onSubmit={submit} className="mt-8 grid gap-5 sm:grid-cols-2">
-              <label className="sm:col-span-2">
-                <span className="mb-2 block text-sm font-semibold">Event type</span>
-                <select className="h-12 w-full rounded-lg border bg-white/90 px-4 text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15" value={form.eventType} onChange={(event) => setForm({ ...form, eventType: event.target.value, customEventName: event.target.value === 'Other' ? form.customEventName : '' })}>
+              <Field label="Event type" className="sm:col-span-2">
+                <Select value={form.eventType} onChange={(event) => setForm({ ...form, eventType: event.target.value, customEventName: event.target.value === 'Other' ? form.customEventName : '' })}>
                   {eventTypeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
-                </select>
-              </label>
+                </Select>
+              </Field>
               {form.eventType === 'Other' && (
-                <label className="sm:col-span-2">
-                  <span className="mb-2 block text-sm font-semibold">Custom event name</span>
-                  <Input placeholder="e.g. Riya's engagement dinner" value={form.customEventName} onChange={(event) => setForm({ ...form, customEventName: event.target.value })} required />
-                </label>
+                <Field label="Custom event name" optional className="sm:col-span-2">
+                  <Input placeholder="e.g. Riya's engagement dinner" value={form.customEventName} onChange={(event) => setForm({ ...form, customEventName: event.target.value })} />
+                </Field>
               )}
-              <label>
-                <span className="mb-2 block text-sm font-semibold">Date</span>
-                <Input type="date" min={minimumDate} value={form.eventDate} onChange={(event) => setForm({ ...form, eventDate: event.target.value })} required />
-              </label>
-              <label>
-                <span className="mb-2 block text-sm font-semibold">Serving preset</span>
-                <select className="h-12 w-full rounded-lg border bg-white/90 px-4 text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15" value={form.servingPreset} onChange={(event) => { const preset = servingTimePresets.find((item) => item.label === event.target.value); setForm({ ...form, servingPreset: event.target.value, eventTimeStart: preset?.time ?? form.eventTimeStart }); }}>
+              <Field label="Date" hint="Bookings need at least 48 hours of lead time.">
+                <DateField min={minimumDate} value={form.eventDate} onValueChange={(eventDate) => setForm({ ...form, eventDate })} required />
+              </Field>
+              <Field label="Serving preset" hint="Pick a meal slot or keep a custom time.">
+                <Select value={form.servingPreset} onChange={(event) => { const preset = servingTimePresets.find((item) => item.label === event.target.value); setForm({ ...form, servingPreset: event.target.value, eventTimeStart: preset?.time ?? form.eventTimeStart }); }}>
                   <option value="">Custom time</option>
                   {servingTimePresets.map((preset) => <option key={preset.label} value={preset.label}>{preset.label} · {preset.time}</option>)}
-                </select>
-              </label>
-              <label>
-                <span className="mb-2 block text-sm font-semibold">Exact serving time</span>
-                <Input type="time" value={form.eventTimeStart} onChange={(event) => setForm({ ...form, eventTimeStart: event.target.value })} required />
-              </label>
-              <label>
-                <span className="mb-2 block text-sm font-semibold">Guest count</span>
+                </Select>
+              </Field>
+              <Field label="Exact serving time">
+                <TimeField value={form.eventTimeStart} onValueChange={(eventTimeStart) => setForm({ ...form, eventTimeStart })} required />
+              </Field>
+              <Field label="Guest count" hint={`Package allows ${cartPackage?.minGuestCount}-${cartPackage?.maxGuestCount ?? 'unlimited'} guests.`}>
                 <Input type="number" min={cartPackage?.minGuestCount} max={cartPackage?.maxGuestCount ?? undefined} value={form.guestCount} onChange={(event) => setForm({ ...form, guestCount: Number(event.target.value) })} required />
-                <span className="mt-1 block text-xs text-muted-foreground">Package allows {cartPackage?.minGuestCount}–{cartPackage?.maxGuestCount ?? 'unlimited'} guests</span>
-              </label>
-              <label>
-                <span className="mb-2 block text-sm font-semibold">Venue</span>
-                <select className="h-12 w-full rounded-lg border bg-white/90 px-4 text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15" value={form.addressId} onChange={(event) => setForm({ ...form, addressId: event.target.value })} required>
+              </Field>
+              <Field label="Venue">
+                <Select value={form.addressId} onChange={(event) => setForm({ ...form, addressId: event.target.value })} required>
                   {addresses.map((address) => <option key={address.id} value={address.id}>{address.label || address.addressLine1}</option>)}
-                </select>
-              </label>
-              <label className="sm:col-span-2">
-                <span className="mb-2 block text-sm font-semibold">Notes for our team</span>
-                <textarea className="min-h-28 w-full rounded-lg border bg-white/90 px-4 py-3 text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15" placeholder="Access instructions, serving preferences, or anything we should know" value={form.specialNotes} onChange={(event) => setForm({ ...form, specialNotes: event.target.value })} />
-              </label>
+                </Select>
+              </Field>
+              <Field label="Notes for our team" optional className="sm:col-span-2">
+                <Textarea placeholder="Access instructions, serving preferences, or anything we should know" value={form.specialNotes} onChange={(event) => setForm({ ...form, specialNotes: event.target.value })} />
+              </Field>
               {error && <p className="sm:col-span-2 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
               <Button className="sm:col-span-2" disabled={submitting}>{submitting ? 'Saving event…' : 'Continue to menu'}</Button>
             </form>
