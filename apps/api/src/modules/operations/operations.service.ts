@@ -13,6 +13,8 @@ import {
   RefundStatus,
 } from '@prisma/client';
 import PDFDocument from 'pdfkit';
+import { JwtPayload } from '../../common/auth/jwt-payload';
+import { OperatingRegionsService } from '../operating-regions/operating-regions.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateOrderNoteDto } from './dto/create-order-note.dto';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
@@ -46,6 +48,7 @@ export class OperationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly regions: OperatingRegionsService,
   ) {}
 
   notifications(userId: string) {
@@ -101,13 +104,19 @@ export class OperationsService {
     });
   }
 
-  async calendar(from?: string, to?: string) {
+  async calendar(admin: JwtPayload, from?: string, to?: string, requestedRegionId?: string, city?: string) {
+    const regionId = await this.regions.resolveAdminScope(admin, requestedRegionId);
     const start = from ? new Date(from) : new Date();
     const end = to ? new Date(to) : new Date(start.getTime() + 30 * 86_400_000);
     return this.prisma.event.findMany({
-      where: { eventDate: { gte: start, lte: end } },
+      where: {
+        eventDate: { gte: start, lte: end },
+        ...(regionId ? { regionId } : {}),
+        ...(city ? { address: { city: { contains: city, mode: 'insensitive' } } } : {}),
+      },
       include: {
         address: true,
+        region: true,
         user: { select: { id: true, name: true, mobileNumber: true } },
         orders: { select: { id: true, orderNumber: true, orderStatus: true, paymentStatus: true } },
       },
@@ -115,25 +124,26 @@ export class OperationsService {
     });
   }
 
-  async queue() {
+  async queue(admin: JwtPayload, requestedRegionId?: string) {
+    const regionId = await this.regions.resolveAdminScope(admin, requestedRegionId);
     const now = new Date();
     const upcoming = new Date(now.getTime() + 7 * 86_400_000);
     const [events, failedPayments, pendingRefunds] = await Promise.all([
       this.prisma.event.findMany({
-        where: { eventDate: { gte: now, lte: upcoming }, status: { not: 'CANCELLED' } },
-        include: { address: true, orders: true, user: true },
+        where: { eventDate: { gte: now, lte: upcoming }, status: { not: 'CANCELLED' }, ...(regionId ? { regionId } : {}) },
+        include: { address: true, region: true, orders: true, user: true },
         orderBy: { eventDate: 'asc' },
         take: 30,
       }),
       this.prisma.payment.findMany({
-        where: { paymentStatus: PaymentStatus.FAILED },
-        include: { order: { include: { user: true } } },
+        where: { paymentStatus: PaymentStatus.FAILED, ...(regionId ? { order: { regionId } } : {}) },
+        include: { order: { include: { user: true, region: true } } },
         orderBy: { updatedAt: 'desc' },
         take: 20,
       }),
       this.prisma.refund.findMany({
-        where: { refundStatus: { in: [RefundStatus.INITIATED, RefundStatus.PROCESSING] } },
-        include: { payment: { include: { order: true } } },
+        where: { refundStatus: { in: [RefundStatus.INITIATED, RefundStatus.PROCESSING] }, ...(regionId ? { payment: { order: { regionId } } } : {}) },
+        include: { payment: { include: { order: { include: { region: true } } } } },
         orderBy: { initiatedAt: 'asc' },
         take: 20,
       }),

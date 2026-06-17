@@ -1,10 +1,12 @@
 'use client';
 
+import type { OperatingRegion } from '@aranyam/shared-types';
 import Link from 'next/link';
 import { AlertTriangle, CalendarDays, ChevronLeft, ChevronRight, CreditCard, IndianRupee, ShoppingBag } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { StatusBadge } from '../../../components/status-badge';
 import { Button } from '../../../components/ui/button';
+import { Select } from '../../../components/ui/form';
 import { apiRequest } from '../../../lib/api';
 import { useAdminSessionStore } from '../../../store/session.store';
 
@@ -14,6 +16,9 @@ type CalendarEvent = {
   eventDate: string;
   eventTimeStart?: string | null;
   guestCount: number;
+  distanceKm?: string | null;
+  deliveryFee?: string;
+  region?: OperatingRegion | null;
   address: { city: string; addressLine1: string };
   user: { name?: string | null; mobileNumber: string };
   orders: Array<{
@@ -32,34 +37,44 @@ export default function Dashboard() {
   const session = useAdminSessionStore((state) => state.session);
   const [data, setData] = useState<any>();
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [regions, setRegions] = useState<OperatingRegion[]>([]);
+  const [regionId, setRegionId] = useState('');
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [error, setError] = useState('');
 
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)), [weekStart]);
   const weekEnd = weekDays[6];
+  const effectiveRegionId = session?.admin.role === 'OPERATIONS' ? session.admin.regionId ?? '' : regionId;
+  const regionQuery = effectiveRegionId ? `regionId=${effectiveRegionId}` : '';
 
   useEffect(() => {
     if (!session) return;
-    Promise.all([
-      apiRequest('/admin/reports/revenue', {}, session.accessToken),
-      apiRequest('/admin/reports/orders', {}, session.accessToken),
-      apiRequest('/admin/reports/payments', {}, session.accessToken),
-      apiRequest('/admin/operations/queue', {}, session.accessToken),
-    ])
-      .then(([revenue, orders, payments, queue]) => setData({ revenue, orders, payments, queue }))
-      .catch((reason) => setError((reason as Error).message));
+    apiRequest<OperatingRegion[]>('/admin/operating-regions?activeOnly=true', {}, session.accessToken).then(setRegions);
   }, [session]);
 
   useEffect(() => {
     if (!session) return;
+    const suffix = regionQuery ? `?${regionQuery}` : '';
+    Promise.all([
+      apiRequest(`/admin/reports/revenue${suffix}`, {}, session.accessToken),
+      apiRequest(`/admin/reports/orders${suffix}`, {}, session.accessToken),
+      apiRequest(`/admin/reports/payments${suffix}`, {}, session.accessToken),
+      apiRequest(`/admin/operations/queue${suffix}`, {}, session.accessToken),
+    ])
+      .then(([revenue, orders, payments, queue]) => setData({ revenue, orders, payments, queue }))
+      .catch((reason) => setError((reason as Error).message));
+  }, [session, regionQuery]);
+
+  useEffect(() => {
+    if (!session) return;
     apiRequest<CalendarEvent[]>(
-      `/admin/operations/calendar?from=${dateKey(weekStart)}&to=${dateKey(weekEnd)}`,
+      `/admin/operations/calendar?from=${dateKey(weekStart)}&to=${dateKey(weekEnd)}${regionQuery ? `&${regionQuery}` : ''}`,
       {},
       session.accessToken,
     )
       .then(setCalendarEvents)
       .catch((reason) => setError((reason as Error).message));
-  }, [session, weekStart, weekEnd]);
+  }, [session, weekStart, weekEnd, regionQuery]);
 
   const eventsByDay = useMemo(() => {
     const grouped = new Map<string, CalendarEvent[]>();
@@ -85,7 +100,17 @@ export default function Dashboard() {
         <h1 className="admin-title mt-2">Operations dashboard</h1>
         <p className="mt-2 text-muted-foreground">Revenue, upcoming events, payment health, and weekly order tracking in one view.</p>
       </div>
-      <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="admin-card mt-7 max-w-sm">
+        {session.admin.role === 'ADMIN' ? (
+          <Select value={regionId} onChange={(event) => setRegionId(event.target.value)}>
+            <option value="">All regions</option>
+            {regions.map((region) => <option value={region.id} key={region.id}>{region.name}</option>)}
+          </Select>
+        ) : (
+          <div className="text-sm font-semibold">{session.admin.region?.name ?? 'Region not assigned'}</div>
+        )}
+      </div>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric icon={IndianRupee} label="Net revenue" value={`₹${data.revenue.netRevenue ?? '0.00'}`} />
         <Metric icon={ShoppingBag} label="Total orders" value={data.orders.total ?? 0} />
         <Metric icon={CreditCard} label="Payments" value={data.payments.total ?? 0} />
@@ -138,6 +163,7 @@ export default function Dashboard() {
                           {order && <StatusBadge value={order.orderStatus} />}
                         </div>
                         <p className="mt-2 text-xs text-muted-foreground">{event.address.city} · {event.guestCount} guests</p>
+                        {event.region && <p className="mt-1 text-xs text-muted-foreground">{event.region.name} · {event.distanceKm} km</p>}
                         <p className="mt-1 text-xs text-muted-foreground">{event.user.name || event.user.mobileNumber}</p>
                         {order ? (
                           <Link href={`/admin/orders/${order.id}`} className="mt-3 inline-flex text-xs font-semibold text-primary">

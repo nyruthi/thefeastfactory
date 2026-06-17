@@ -46,6 +46,34 @@ async function main() {
 
   const passwordHash = await bcrypt.hash('Admin@12345', 12);
 
+  const regionSeeds = [
+    { code: 'HYDERABAD', name: 'Hyderabad', latitude: '17.38500000', longitude: '78.48670000' },
+    { code: 'KARIMNAGAR', name: 'Karimnagar', latitude: '18.43860000', longitude: '79.12880000' },
+    { code: 'WARANGAL', name: 'Warangal', latitude: '17.96890000', longitude: '79.59410000' },
+  ] as const;
+
+  for (const region of regionSeeds) {
+    await prisma.operatingRegion.upsert({
+      where: { code: region.code },
+      update: {
+        name: region.name,
+        centerLatitude: new Prisma.Decimal(region.latitude),
+        centerLongitude: new Prisma.Decimal(region.longitude),
+        serviceRadiusKm: new Prisma.Decimal('50.00'),
+        deliveryFeePerKm: new Prisma.Decimal('10.00'),
+        isActive: true,
+      },
+      create: {
+        code: region.code,
+        name: region.name,
+        centerLatitude: new Prisma.Decimal(region.latitude),
+        centerLongitude: new Prisma.Decimal(region.longitude),
+        serviceRadiusKm: new Prisma.Decimal('50.00'),
+        deliveryFeePerKm: new Prisma.Decimal('10.00'),
+      },
+    });
+  }
+
   await prisma.adminUser.upsert({
     where: { email: 'admin@thefeastfactory.local' },
     update: {},

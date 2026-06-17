@@ -1,15 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { PaymentStatus } from '@prisma/client';
+import { JwtPayload } from '../../common/auth/jwt-payload';
+import { OperatingRegionsService } from '../operating-regions/operating-regions.service';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class ReportsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly regions: OperatingRegionsService,
+  ) {}
 
-  async revenue() {
+  async revenue(admin: JwtPayload, requestedRegionId?: string) {
+    const regionId = await this.regions.resolveAdminScope(admin, requestedRegionId);
+    const paymentWhere = regionId ? { order: { regionId } } : {};
     const [paid, refunded] = await Promise.all([
-      this.prisma.payment.aggregate({ where: { paymentStatus: PaymentStatus.PAID }, _sum: { amount: true }, _count: true }),
-      this.prisma.refund.aggregate({ where: { refundStatus: 'SUCCESS' }, _sum: { amount: true }, _count: true }),
+      this.prisma.payment.aggregate({ where: { paymentStatus: PaymentStatus.PAID, ...paymentWhere }, _sum: { amount: true }, _count: true }),
+      this.prisma.refund.aggregate({ where: { refundStatus: 'SUCCESS', ...(regionId ? { payment: { order: { regionId } } } : {}) }, _sum: { amount: true }, _count: true }),
     ]);
     const gross = paid._sum.amount ?? 0;
     const refunds = refunded._sum.amount ?? 0;
@@ -21,24 +28,29 @@ export class ReportsService {
     };
   }
 
-  async orders() {
+  async orders(admin: JwtPayload, requestedRegionId?: string) {
+    const regionId = await this.regions.resolveAdminScope(admin, requestedRegionId);
+    const orderWhere = regionId ? { regionId } : {};
     const [byStatus, popularItems, total] = await Promise.all([
-      this.prisma.order.groupBy({ by: ['orderStatus'], _count: true }),
+      this.prisma.order.groupBy({ by: ['orderStatus'], where: orderWhere, _count: true }),
       this.prisma.orderSelectedItem.groupBy({
         by: ['menuItemName'],
+        where: regionId ? { order: { regionId } } : {},
         _count: true,
         orderBy: { _count: { menuItemName: 'desc' } },
         take: 10,
       }),
-      this.prisma.order.count(),
+      this.prisma.order.count({ where: orderWhere }),
     ]);
     return { total, byStatus, popularItems };
   }
 
-  async payments() {
+  async payments(admin: JwtPayload, requestedRegionId?: string) {
+    const regionId = await this.regions.resolveAdminScope(admin, requestedRegionId);
+    const paymentWhere = regionId ? { order: { regionId } } : {};
     const [byStatus, total] = await Promise.all([
-      this.prisma.payment.groupBy({ by: ['paymentStatus'], _count: true, _sum: { amount: true } }),
-      this.prisma.payment.count(),
+      this.prisma.payment.groupBy({ by: ['paymentStatus'], where: paymentWhere, _count: true, _sum: { amount: true } }),
+      this.prisma.payment.count({ where: paymentWhere }),
     ]);
     return {
       total,

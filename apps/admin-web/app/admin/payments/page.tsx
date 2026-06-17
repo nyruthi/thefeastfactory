@@ -1,6 +1,6 @@
 'use client';
 
-import { refundReasonOptions } from '@aranyam/shared-types';
+import { OperatingRegion, refundReasonOptions } from '@aranyam/shared-types';
 import { useEffect, useState } from 'react';
 import { StatusBadge } from '../../../components/status-badge';
 import { Button } from '../../../components/ui/button';
@@ -16,10 +16,18 @@ export default function Payments() {
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('Customer request');
   const [customReason, setCustomReason] = useState('');
+  const [regions, setRegions] = useState<OperatingRegion[]>([]);
+  const [regionId, setRegionId] = useState('');
   const [error, setError] = useState('');
-  const load = () => session && apiRequest<any[]>('/admin/payments', {}, session.accessToken).then(setRows);
+  const effectiveRegionId = session?.admin.role === 'OPERATIONS' ? session.admin.regionId ?? '' : regionId;
+  const load = () => session && apiRequest<any[]>(`/admin/payments${effectiveRegionId ? `?regionId=${effectiveRegionId}` : ''}`, {}, session.accessToken).then(setRows);
 
-  useEffect(() => { load(); }, [session]);
+  useEffect(() => {
+    if (!session) return;
+    apiRequest<OperatingRegion[]>('/admin/operating-regions?activeOnly=true', {}, session.accessToken).then(setRegions);
+  }, [session]);
+
+  useEffect(() => { load(); }, [session, effectiveRegionId]);
 
   async function refund(event: React.FormEvent) {
     event.preventDefault();
@@ -47,13 +55,23 @@ export default function Payments() {
     <main className="admin-page">
       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Gateway ledger</p>
       <h1 className="admin-title mt-2">Payments and refunds</h1>
-      <div className="admin-card mt-7 overflow-x-auto p-0">
+      <div className="admin-card mt-7 max-w-sm">
+        {session?.admin.role === 'ADMIN' ? (
+          <Select value={regionId} onChange={(event) => setRegionId(event.target.value)}>
+            <option value="">All regions</option>
+            {regions.map((region) => <option value={region.id} key={region.id}>{region.name}</option>)}
+          </Select>
+        ) : (
+          <div className="text-sm font-semibold">{session?.admin.region?.name ?? 'Region not assigned'}</div>
+        )}
+      </div>
+      <div className="admin-card mt-5 overflow-x-auto p-0">
         <table className="admin-table">
           <thead><tr><th>Order</th><th>Attempt</th><th>Status</th><th>Method</th><th>Refunds</th><th className="text-right">Amount</th><th /></tr></thead>
           <tbody>
             {rows.map((row) => (
               <tr key={row.id}>
-                <td className="font-semibold">{row.order.orderNumber}<span className="block text-xs font-normal text-muted-foreground">{row.order.user.mobileNumber}</span></td>
+                <td className="font-semibold">{row.order.orderNumber}<span className="block text-xs font-normal text-muted-foreground">{row.order.user.mobileNumber} · {row.order.region?.name ?? 'Unassigned'}</span></td>
                 <td className="max-w-48 truncate text-xs text-muted-foreground">{row.razorpayPaymentId || row.razorpayOrderId}</td>
                 <td><StatusBadge value={row.paymentStatus} />{row.failureReason && <p className="mt-1 max-w-52 text-xs text-red-600">{row.failureReason}</p>}</td>
                 <td>{row.paymentMethod || '—'}</td>

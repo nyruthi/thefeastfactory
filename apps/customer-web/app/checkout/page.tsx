@@ -200,6 +200,13 @@ export default function CheckoutPage() {
                   <span>₹{quote.totalCustomizationCharges}</span>
                 </div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Final per plate</span><span>₹{quote.finalPerPlatePrice}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Menu subtotal</span><span>₹{quote.subtotalAmount}</span></div>
+                <div className="rounded-xl bg-muted/60 p-3">
+                  <div className="flex justify-between font-medium"><span>Delivery fee</span><span>₹{quote.deliveryFee}</span></div>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    {quote.region?.name} kitchen · {quote.distanceKm} km · billed {quote.billableDistanceKm} km at ₹{quote.deliveryFeePerKm}/km
+                  </p>
+                </div>
               </div>
               <div className="my-5 h-px bg-border" />
               <div className="flex items-end justify-between"><span className="font-semibold">Total</span><span className="font-serif text-4xl font-semibold">₹{quote.totalAmount}</span></div>

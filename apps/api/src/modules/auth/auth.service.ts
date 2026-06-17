@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { AdminRole, User } from '@prisma/client';
+import { AdminRole, Prisma, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { JwtPayload } from '../../common/auth/jwt-payload';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -86,6 +86,7 @@ export class AuthService {
   async loginAdmin(dto: AdminLoginDto) {
     const admin = await this.prisma.adminUser.findUnique({
       where: { email: dto.email.toLowerCase() },
+      include: { region: true },
     });
 
     if (!admin?.isActive) {
@@ -102,7 +103,7 @@ export class AuthService {
       data: { lastLoginAt: new Date() },
     });
 
-    const payload: JwtPayload = { sub: admin.id, type: 'admin', role: admin.role };
+    const payload: JwtPayload = { sub: admin.id, type: 'admin', role: admin.role, regionId: admin.regionId };
     const tokens = await this.signTokens(payload);
 
     return {
@@ -112,6 +113,8 @@ export class AuthService {
         email: admin.email,
         name: admin.name,
         role: admin.role,
+        regionId: admin.regionId,
+        region: admin.region ? this.serializeRegion(admin.region) : null,
       },
     };
   }
@@ -138,12 +141,12 @@ export class AuthService {
       return this.createCustomerSession(user);
     }
 
-    const admin = await this.prisma.adminUser.findUnique({ where: { id: payload.sub } });
+    const admin = await this.prisma.adminUser.findUnique({ where: { id: payload.sub }, include: { region: true } });
     if (!admin?.isActive) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const tokens = await this.signTokens({ sub: admin.id, type: 'admin', role: admin.role });
+    const tokens = await this.signTokens({ sub: admin.id, type: 'admin', role: admin.role, regionId: admin.regionId });
     return {
       ...tokens,
       admin: {
@@ -151,6 +154,8 @@ export class AuthService {
         email: admin.email,
         name: admin.name,
         role: admin.role,
+        regionId: admin.regionId,
+        region: admin.region ? this.serializeRegion(admin.region) : null,
       },
     };
   }
@@ -195,5 +200,15 @@ export class AuthService {
   private async getIntSetting(key: string, fallback: number) {
     const setting = await this.prisma.platformSetting.findUnique({ where: { key } });
     return setting ? Number.parseInt(setting.value, 10) : fallback;
+  }
+
+  private serializeRegion(region: Prisma.OperatingRegionGetPayload<{}>) {
+    return {
+      ...region,
+      centerLatitude: region.centerLatitude.toFixed(8),
+      centerLongitude: region.centerLongitude.toFixed(8),
+      serviceRadiusKm: region.serviceRadiusKm.toFixed(2),
+      deliveryFeePerKm: region.deliveryFeePerKm.toFixed(2),
+    };
   }
 }

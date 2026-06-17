@@ -4,4 +4,5 @@ export type JwtPayload = {
   sub: string;
   type: JwtSubjectType;
   role?: 'ADMIN' | 'OPERATIONS';
+  regionId?: string | null;
 };

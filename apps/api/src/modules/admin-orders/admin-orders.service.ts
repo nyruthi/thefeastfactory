@@ -5,6 +5,8 @@ import {
   OrderStatus,
 } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { JwtPayload } from '../../common/auth/jwt-payload';
+import { OperatingRegionsService } from '../operating-regions/operating-regions.service';
 import { OrdersService } from '../orders/orders.service';
 import { PaymentsService } from '../payments/payments.service';
 import { OperationsService } from '../operations/operations.service';
@@ -30,42 +32,54 @@ export class AdminOrdersService {
     private readonly orders: OrdersService,
     private readonly payments: PaymentsService,
     private readonly operations: OperationsService,
+    private readonly regions: OperatingRegionsService,
   ) {}
 
-  async list(query: AdminOrdersQueryDto) {
+  async list(admin: JwtPayload, query: AdminOrdersQueryDto) {
+    const regionId = await this.regions.resolveAdminScope(admin, query.regionId);
+    const eventFilter = {
+      ...(query.dateFrom || query.dateTo
+        ? { eventDate: { ...(query.dateFrom ? { gte: new Date(query.dateFrom) } : {}), ...(query.dateTo ? { lte: new Date(query.dateTo) } : {}) } }
+        : {}),
+      ...(query.city ? { address: { city: { contains: query.city, mode: 'insensitive' as const } } } : {}),
+    };
     const rows = await this.prisma.order.findMany({
       where: {
+        ...(regionId ? { regionId } : {}),
         ...(query.orderStatus ? { orderStatus: query.orderStatus } : {}),
         ...(query.paymentStatus ? { paymentStatus: query.paymentStatus } : {}),
         ...(query.mobileNumber ? { user: { mobileNumber: { contains: query.mobileNumber } } } : {}),
-        ...(query.dateFrom || query.dateTo
-          ? { createdAt: { ...(query.dateFrom ? { gte: new Date(query.dateFrom) } : {}), ...(query.dateTo ? { lte: new Date(query.dateTo) } : {}) } }
-          : {}),
+        ...(Object.keys(eventFilter).length ? { event: eventFilter } : {}),
       },
-      include: { user: true, event: true, selectedItems: true, payments: true },
+      include: { user: true, event: { include: { address: true, region: true } }, region: true, selectedItems: true, payments: true },
       orderBy: { createdAt: 'desc' },
     });
     return rows.map((row) => this.orders.serializeOrder(row));
   }
 
-  async get(id: string) {
+  async get(admin: JwtPayload, id: string) {
+    const regionId = await this.regions.resolveAdminScope(admin);
     const row = await this.prisma.order.findUnique({
       where: { id },
       include: {
         user: true,
-        event: { include: { address: true } },
+        event: { include: { address: true, region: true } },
+        region: true,
         selectedItems: true,
         payments: { include: { refunds: true } },
         statusHistory: { include: { changedBy: true }, orderBy: { changedAt: 'asc' } },
       },
     });
     if (!row) throw new NotFoundException('Order not found');
+    if (regionId && row.regionId !== regionId) throw new NotFoundException('Order not found');
     return this.orders.serializeOrder(row);
   }
 
-  async updateStatus(adminId: string, id: string, dto: UpdateOrderStatusDto) {
+  async updateStatus(admin: JwtPayload, id: string, dto: UpdateOrderStatusDto) {
+    const regionId = await this.regions.resolveAdminScope(admin);
     const order = await this.prisma.order.findUnique({ where: { id } });
     if (!order) throw new NotFoundException('Order not found');
+    if (regionId && order.regionId !== regionId) throw new NotFoundException('Order not found');
     if (!transitions[order.orderStatus].includes(dto.status)) {
       throw new BadRequestException(`Cannot transition from ${order.orderStatus} to ${dto.status}`);
     }
@@ -75,7 +89,7 @@ export class AdminOrdersService {
         data: {
           orderStatus: dto.status,
           statusHistory: {
-            create: { fromStatus: order.orderStatus, toStatus: dto.status, changedById: adminId, notes: dto.notes },
+            create: { fromStatus: order.orderStatus, toStatus: dto.status, changedById: admin.sub, notes: dto.notes },
           },
         },
         include: { user: true, event: true, selectedItems: true, payments: true, statusHistory: true },
@@ -96,9 +110,11 @@ export class AdminOrdersService {
     return this.orders.serializeOrder(row);
   }
 
-  async cancel(adminId: string, id: string, dto: AdminCancelOrderDto) {
+  async cancel(admin: JwtPayload, id: string, dto: AdminCancelOrderDto) {
+    const regionId = await this.regions.resolveAdminScope(admin);
     const order = await this.prisma.order.findUnique({ where: { id } });
     if (!order) throw new NotFoundException('Order not found');
+    if (regionId && order.regionId !== regionId) throw new NotFoundException('Order not found');
     if (order.orderStatus === OrderStatus.CANCELLED || order.orderStatus === OrderStatus.DELIVERED) {
       throw new BadRequestException('Order cannot be cancelled');
     }
@@ -109,10 +125,10 @@ export class AdminOrdersService {
           orderStatus: OrderStatus.CANCELLED,
           cancelledAt: new Date(),
           cancelledBy: CancellationActor.ADMIN,
-          cancelledByAdminId: adminId,
+          cancelledByAdminId: admin.sub,
           cancellationReason: dto.reason,
           statusHistory: {
-            create: { fromStatus: order.orderStatus, toStatus: OrderStatus.CANCELLED, changedById: adminId, notes: dto.reason },
+            create: { fromStatus: order.orderStatus, toStatus: OrderStatus.CANCELLED, changedById: admin.sub, notes: dto.reason },
           },
         },
       }),
@@ -127,12 +143,14 @@ export class AdminOrdersService {
         },
       }),
     ]);
-    return this.get(id);
+    return this.get(admin, id);
   }
 
-  async listPayments() {
+  async listPayments(admin: JwtPayload, requestedRegionId?: string) {
+    const regionId = await this.regions.resolveAdminScope(admin, requestedRegionId);
     const rows = await this.prisma.payment.findMany({
-      include: { order: { include: { user: true } }, refunds: true },
+      where: regionId ? { order: { regionId } } : {},
+      include: { order: { include: { user: true, region: true } }, refunds: true },
       orderBy: { createdAt: 'desc' },
     });
     return rows.map((row) => ({
@@ -142,7 +160,12 @@ export class AdminOrdersService {
     }));
   }
 
-  async refund(adminId: string, paymentId: string, dto: CreateRefundDto) {
-    return this.payments.createRefund(adminId, paymentId, dto.amount, dto.reason);
+  async refund(admin: JwtPayload, paymentId: string, dto: CreateRefundDto) {
+    const regionId = await this.regions.resolveAdminScope(admin);
+    if (regionId) {
+      const payment = await this.prisma.payment.findUnique({ where: { id: paymentId }, include: { order: true } });
+      if (!payment || payment.order.regionId !== regionId) throw new NotFoundException('Payment not found');
+    }
+    return this.payments.createRefund(admin.sub, paymentId, dto.amount, dto.reason);
   }
 }

@@ -14,6 +14,7 @@ import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { OperationsModule } from './modules/operations/operations.module';
+import { OperatingRegionsModule } from './modules/operating-regions/operating-regions.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { OperationsModule } from './modules/operations/operations.module';
     ReportsModule,
     StorageModule,
     OperationsModule,
+    OperatingRegionsModule,
   ],
 })
 export class AppModule {}

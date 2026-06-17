@@ -1,17 +1,21 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { EventStatus } from '@prisma/client';
+import { OperatingRegionsService } from '../operating-regions/operating-regions.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 
 @Injectable()
 export class EventsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly regions: OperatingRegionsService,
+  ) {}
 
   list(userId: string) {
     return this.prisma.event.findMany({
       where: { userId },
-      include: { packageVersion: { include: { package: true } }, address: true },
+      include: { packageVersion: { include: { package: true } }, address: true, region: true },
       orderBy: { eventDate: 'desc' },
     });
   }
@@ -19,7 +23,7 @@ export class EventsService {
   async get(userId: string, id: string) {
     const event = await this.prisma.event.findFirst({
       where: { id, userId },
-      include: { packageVersion: { include: { package: true } }, address: true, orders: true },
+      include: { packageVersion: { include: { package: true } }, address: true, region: true, orders: true },
     });
     if (!event) throw new NotFoundException('Event not found');
     return event;
@@ -32,13 +36,16 @@ export class EventsService {
         userId,
         packageVersionId: dto.packageVersionId,
         addressId: dto.addressId,
+        regionId: validated.region.id,
         eventName: dto.eventName,
         eventDate: validated.eventDate,
         eventTimeStart: validated.eventTime,
         guestCount: dto.guestCount,
+        distanceKm: validated.distanceKm,
+        deliveryFee: validated.deliveryFee,
         specialNotes: dto.specialNotes,
       },
-      include: { packageVersion: { include: { package: true } }, address: true },
+      include: { packageVersion: { include: { package: true } }, address: true, region: true },
     });
   }
 
@@ -62,13 +69,16 @@ export class EventsService {
       data: {
         packageVersionId: merged.packageVersionId,
         addressId: merged.addressId,
+        regionId: validated.region.id,
         eventName: merged.eventName,
         eventDate: validated.eventDate,
         ...(dto.eventTimeStart !== undefined ? { eventTimeStart: validated.eventTime } : {}),
         guestCount: merged.guestCount,
+        distanceKm: validated.distanceKm,
+        deliveryFee: validated.deliveryFee,
         specialNotes: merged.specialNotes,
       },
-      include: { packageVersion: { include: { package: true } }, address: true },
+      include: { packageVersion: { include: { package: true } }, address: true, region: true },
     });
   }
 
@@ -103,6 +113,7 @@ export class EventsService {
       throw new BadRequestException(`Event requires at least ${leadHours} hours advance booking`);
     }
     const eventTime = dto.eventTimeStart ? new Date(`1970-01-01T${dto.eventTimeStart}:00.000Z`) : null;
-    return { eventDate, eventTime };
+    const assignment = await this.regions.assign(address.latitude, address.longitude);
+    return { eventDate, eventTime, ...assignment };
   }
 }

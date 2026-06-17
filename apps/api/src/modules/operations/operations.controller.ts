@@ -85,12 +85,14 @@ export class OperationsController {
   @Get('admin/operations/calendar')
   @ApiBearerAuth()
   @UseGuards(AdminAuthGuard)
-  calendar(@Query('from') from?: string, @Query('to') to?: string) { return this.operations.calendar(from, to); }
+  calendar(@CurrentAdmin() admin: JwtPayload, @Query('from') from?: string, @Query('to') to?: string, @Query('regionId') regionId?: string, @Query('city') city?: string) {
+    return this.operations.calendar(admin, from, to, regionId, city);
+  }
 
   @Get('admin/operations/queue')
   @ApiBearerAuth()
   @UseGuards(AdminAuthGuard)
-  queue() { return this.operations.queue(); }
+  queue(@CurrentAdmin() admin: JwtPayload, @Query('regionId') regionId?: string) { return this.operations.queue(admin, regionId); }
 
   @Get('admin/settings')
   @ApiBearerAuth()

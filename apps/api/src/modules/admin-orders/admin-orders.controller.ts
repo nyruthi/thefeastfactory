@@ -15,10 +15,10 @@ import { AdminOrdersService } from './admin-orders.service';
 @Controller('admin')
 export class AdminOrdersController {
   constructor(private readonly service: AdminOrdersService) {}
-  @Get('orders') list(@Query() query: AdminOrdersQueryDto) { return this.service.list(query); }
-  @Get('orders/:id') get(@Param('id') id: string) { return this.service.get(id); }
-  @Patch('orders/:id/status') status(@CurrentAdmin() admin: JwtPayload, @Param('id') id: string, @Body() dto: UpdateOrderStatusDto) { return this.service.updateStatus(admin.sub, id, dto); }
-  @Post('orders/:id/cancel') cancel(@CurrentAdmin() admin: JwtPayload, @Param('id') id: string, @Body() dto: AdminCancelOrderDto) { return this.service.cancel(admin.sub, id, dto); }
-  @Get('payments') payments() { return this.service.listPayments(); }
-  @Post('payments/:id/refunds') refund(@CurrentAdmin() admin: JwtPayload, @Param('id') id: string, @Body() dto: CreateRefundDto) { return this.service.refund(admin.sub, id, dto); }
+  @Get('orders') list(@CurrentAdmin() admin: JwtPayload, @Query() query: AdminOrdersQueryDto) { return this.service.list(admin, query); }
+  @Get('orders/:id') get(@CurrentAdmin() admin: JwtPayload, @Param('id') id: string) { return this.service.get(admin, id); }
+  @Patch('orders/:id/status') status(@CurrentAdmin() admin: JwtPayload, @Param('id') id: string, @Body() dto: UpdateOrderStatusDto) { return this.service.updateStatus(admin, id, dto); }
+  @Post('orders/:id/cancel') cancel(@CurrentAdmin() admin: JwtPayload, @Param('id') id: string, @Body() dto: AdminCancelOrderDto) { return this.service.cancel(admin, id, dto); }
+  @Get('payments') payments(@CurrentAdmin() admin: JwtPayload, @Query('regionId') regionId?: string) { return this.service.listPayments(admin, regionId); }
+  @Post('payments/:id/refunds') refund(@CurrentAdmin() admin: JwtPayload, @Param('id') id: string, @Body() dto: CreateRefundDto) { return this.service.refund(admin, id, dto); }
 }

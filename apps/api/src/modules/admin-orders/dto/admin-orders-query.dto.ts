@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { OrderStatus, PaymentStatus } from '@prisma/client';
-import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class AdminOrdersQueryDto {
   @ApiPropertyOptional({ enum: OrderStatus }) @IsOptional() @IsEnum(OrderStatus) orderStatus?: OrderStatus;
@@ -8,4 +8,6 @@ export class AdminOrdersQueryDto {
   @ApiPropertyOptional() @IsOptional() @IsDateString() dateFrom?: string;
   @ApiPropertyOptional() @IsOptional() @IsDateString() dateTo?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() mobileNumber?: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() city?: string;
+  @ApiPropertyOptional() @IsOptional() @IsUUID() regionId?: string;
 }

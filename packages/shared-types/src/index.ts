@@ -51,6 +51,8 @@ export type AdminSession = {
     email: string;
     name: string;
     role: 'ADMIN' | 'OPERATIONS';
+    regionId?: string | null;
+    region?: OperatingRegion | null;
   };
 };
 
@@ -74,6 +76,17 @@ export type MenuItem = {
   isActive: boolean;
   imageUrl?: string | null;
   category?: MenuCategory;
+};
+
+export type OperatingRegion = {
+  id: string;
+  code: string;
+  name: string;
+  centerLatitude: string;
+  centerLongitude: string;
+  serviceRadiusKm: string;
+  deliveryFeePerKm: string;
+  isActive: boolean;
 };
 
 export type PackageSummary = {
@@ -130,6 +143,13 @@ export type PackageSelectionPrice = {
   basePricePerPlate: string;
   totalCustomizationCharges: string;
   finalPerPlatePrice: string;
+  region?: OperatingRegion | null;
+  distanceKm?: string | null;
+  billableDistanceKm?: number | null;
+  deliveryFeePerKm?: string | null;
+  deliveryFee: string;
+  subtotalAmount: string;
+  totalAmount: string;
   items: Array<{
     categoryId: string;
     menuItemId: string;
@@ -182,6 +202,10 @@ export type OrderSummary = {
   paymentStatus: PaymentStatus;
   packageName: string;
   guestCount: number;
+  regionId?: string | null;
+  region?: OperatingRegion | null;
+  distanceKm?: string | null;
+  deliveryFee?: string;
   totalAmount: string;
   createdAt: string;
   event?: {

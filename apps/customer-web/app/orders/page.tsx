@@ -27,6 +27,7 @@ export default function OrdersPage() {
                 <div>
                   <strong>{order.orderNumber}</strong>
                   <p className="mt-1 text-sm text-muted-foreground">{order.packageName} · {order.guestCount} guests</p>
+                  {order.region && <p className="mt-1 text-xs text-muted-foreground">{order.region.name} · delivery ₹{order.deliveryFee ?? '0.00'}</p>}
                 </div>
               </div>
               <div className="text-left sm:text-right">
