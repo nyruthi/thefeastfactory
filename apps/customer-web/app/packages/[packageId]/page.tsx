@@ -34,6 +34,7 @@ export default function PackagePage() {
       packageId,
       packageVersionId: version.id,
       packageName: version.packageName,
+      isCustom: version.isCustom,
       basePricePerPlate: version.basePricePerPlate,
       minGuestCount: version.minGuestCount,
       maxGuestCount: version.maxGuestCount,
@@ -52,7 +53,7 @@ export default function PackagePage() {
       <div className="mt-6"><OrderProgress current={0} /></div>
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
         <section>
-          <p className="eyebrow">Curated for your table</p>
+          <p className="eyebrow">{version.isCustom ? 'Build your own menu' : 'Curated for your table'}</p>
           <h1 className="mt-3 font-serif text-5xl font-semibold">{version.packageName}</h1>
           <p className="mt-4 flex items-center gap-2 text-muted-foreground">
             <Users className="h-4 w-4 text-primary" />
@@ -69,19 +70,29 @@ export default function PackagePage() {
                   <CheckCircle2 className="h-5 w-5 text-primary" />
                 </div>
                 <p className="mt-4 text-sm text-muted-foreground">
-                  Choose {rule.minSelections === rule.maxSelections ? rule.minSelections : `${rule.minSelections}–${rule.maxSelections}`} from {rule.items.length} available dishes
+                  {version.isCustom
+                    ? `${rule.items.length} dishes available at actual item pricing`
+                    : `Choose ${rule.minSelections === rule.maxSelections ? rule.minSelections : `${rule.minSelections}-${rule.maxSelections}`} from ${rule.items.length} available dishes`}
                 </p>
               </article>
             ))}
           </div>
         </section>
         <aside className="surface-card h-fit p-7 lg:sticky lg:top-28">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Base package</p>
-          <p className="mt-2 font-serif text-4xl font-semibold">₹{version.basePricePerPlate}</p>
-          <p className="text-sm text-muted-foreground">per guest, before premium additions</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
+            {version.isCustom ? 'Item-based package' : 'Base package'}
+          </p>
+          <p className="mt-2 font-serif text-4xl font-semibold">
+            {version.isCustom ? 'Custom' : `₹${version.basePricePerPlate}`}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {version.isCustom ? 'Select dishes at their actual per-plate prices' : 'per guest, before premium additions'}
+          </p>
           <div className="my-6 h-px bg-border" />
           <p className="text-sm leading-6 text-muted-foreground">
-            You will choose an event date and venue next, then curate each course within the package rules.
+            {version.isCustom
+              ? 'You will choose an event date and venue next, then build a menu from any available dish.'
+              : 'You will choose an event date and venue next, then curate each course within the package rules.'}
           </p>
           <Button className="mt-7 w-full" onClick={startOrder}>Choose this package</Button>
         </aside>

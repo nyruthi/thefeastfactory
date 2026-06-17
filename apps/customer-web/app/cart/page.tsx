@@ -30,6 +30,7 @@ export default function CartPage() {
 
   const selectionStatus = useMemo(() => {
     if (!config) return { valid: false, missing: [] as string[] };
+    if (config.isCustom) return { valid: selectedItems.length > 0, missing: selectedItems.length ? [] : ['at least one dish'] };
     const missing = config.categoryRules
       .filter((rule) => {
         const count = selectedItems.filter((item) => item.categoryId === rule.category.id).length;
@@ -88,7 +89,9 @@ export default function CartPage() {
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Selected package</p>
                 <h2 className="mt-2 font-serif text-3xl font-semibold">{cartPackage.packageName}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">₹{cartPackage.basePricePerPlate} base price per guest</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {cartPackage.isCustom ? 'Priced from selected dish base prices' : `₹${cartPackage.basePricePerPlate} base price per guest`}
+                </p>
               </div>
               <Button asChild variant="outline"><Link href="/packages">Change package</Link></Button>
             </div>
@@ -131,7 +134,11 @@ export default function CartPage() {
                         <div key={item.menuItemId} className="flex items-center justify-between gap-4">
                           <div>
                             <p className="font-semibold">{item.menuItemName}</p>
-                            <p className="text-xs text-muted-foreground">{Number(item.adjustmentAmount) ? `+₹${item.adjustmentAmount} per plate` : 'Included'}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {cartPackage.isCustom
+                                ? `₹${item.itemPrice} per plate`
+                                : Number(item.adjustmentAmount) ? `+₹${item.adjustmentAmount} per plate` : 'Included'}
+                            </p>
                           </div>
                           <button onClick={() => removeItem(item.menuItemId)} className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-red-50 hover:text-red-700" aria-label={`Remove ${item.menuItemName}`}>
                             <MinusCircle className="h-4 w-4" />
@@ -149,8 +156,13 @@ export default function CartPage() {
         <aside className="surface-card h-fit p-7 lg:sticky lg:top-28">
           <p className="eyebrow">Estimated total</p>
           <div className="mt-6 space-y-3 text-sm">
-            <div className="flex justify-between"><span className="text-muted-foreground">Base per plate</span><span>₹{Number(cartPackage.basePricePerPlate).toFixed(2)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Premium additions</span><span>₹{additions.toFixed(2)}</span></div>
+            {!cartPackage.isCustom && (
+              <div className="flex justify-between"><span className="text-muted-foreground">Base per plate</span><span>₹{Number(cartPackage.basePricePerPlate).toFixed(2)}</span></div>
+            )}
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">{cartPackage.isCustom ? 'Selected item total per plate' : 'Premium additions'}</span>
+              <span>₹{additions.toFixed(2)}</span>
+            </div>
             <div className="flex justify-between font-semibold"><span>Per plate</span><span>₹{finalPerPlate.toFixed(2)}</span></div>
           </div>
           <div className="my-5 h-px bg-border" />

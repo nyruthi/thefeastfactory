@@ -81,6 +81,7 @@ export type PackageSummary = {
   name: string;
   description?: string | null;
   displayOrder: number;
+  isCustom: boolean;
   activeVersion?: {
     id: string;
     versionNo: number;
@@ -95,6 +96,7 @@ export type PackageConfiguration = {
   id: string;
   packageId: string;
   packageName: string;
+  isCustom: boolean;
   versionNo: number;
   basePricePerPlate: string;
   minGuestCount: number;

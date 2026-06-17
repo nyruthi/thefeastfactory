@@ -55,6 +55,7 @@ function NewEventContent() {
             packageId: configuration.packageId,
             packageVersionId: configuration.id,
             packageName: configuration.packageName,
+            isCustom: configuration.isCustom,
             basePricePerPlate: configuration.basePricePerPlate,
             minGuestCount: configuration.minGuestCount,
             maxGuestCount: configuration.maxGuestCount,
@@ -223,7 +224,10 @@ function NewEventContent() {
           <h2 className="mt-3 font-serif text-2xl font-semibold">{cartPackage?.packageName ?? 'Loading package…'}</h2>
           <div className="mt-6 space-y-4 text-sm">
             <p className="flex gap-3"><CalendarDays className="h-4 w-4 text-primary" /> At least 48 hours advance booking</p>
-            <p className="flex gap-3"><Users className="h-4 w-4 text-primary" /> ₹{cartPackage?.basePricePerPlate} per guest</p>
+            <p className="flex gap-3">
+              <Users className="h-4 w-4 text-primary" />
+              {cartPackage?.isCustom ? 'Item-based pricing per guest' : `₹${cartPackage?.basePricePerPlate} per guest`}
+            </p>
             <p className="flex gap-3"><MapPin className="h-4 w-4 text-primary" /> Choose from your saved venues</p>
           </div>
         </aside>

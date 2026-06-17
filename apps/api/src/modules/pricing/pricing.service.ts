@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export type SelectedItemInput = { categoryId: string; menuItemId: string };
+type PackageVersionForQuote = Prisma.PackageVersionGetPayload<{ include: { package: true } }>;
 
 @Injectable()
 export class PricingService {
@@ -24,6 +25,9 @@ export class PricingService {
     }
     if (new Set(selectedItems.map((item) => item.menuItemId)).size !== selectedItems.length) {
       throw new BadRequestException('Duplicate menu selections are not allowed');
+    }
+    if (version.package.isCustom) {
+      return this.customQuote(version, guestCount, selectedItems);
     }
     const allowed = new Map(version.packageMenuItems.map((row) => [row.menuItemId, row]));
     const pricing = new Map(version.packageMenuItemPricing.map((row) => [row.menuItemId, row]));
@@ -63,6 +67,53 @@ export class PricingService {
       guestCount,
       basePerPlatePrice: version.basePricePerPlate,
       totalCustomizationCharges: customization,
+      finalPerPlatePrice: finalPerPlate,
+      totalAmount: finalPerPlate.mul(guestCount),
+      items,
+    };
+  }
+
+  private async customQuote(
+    version: PackageVersionForQuote,
+    guestCount: number,
+    selectedItems: SelectedItemInput[],
+  ) {
+    const menuItems = await this.prisma.menuItem.findMany({
+      where: {
+        id: { in: selectedItems.map((item) => item.menuItemId) },
+        isActive: true,
+        deletedAt: null,
+      },
+      include: { category: true },
+    });
+    const menuItemById = new Map(menuItems.map((item) => [item.id, item]));
+    const errors: string[] = [];
+    const items = selectedItems.flatMap((selection) => {
+      const menuItem = menuItemById.get(selection.menuItemId);
+      if (!menuItem || menuItem.categoryId !== selection.categoryId || !menuItem.category.isActive) {
+        errors.push(`Invalid menu item ${selection.menuItemId}`);
+        return [];
+      }
+      return [{
+        categoryId: selection.categoryId,
+        categoryName: menuItem.category.name,
+        menuItemId: selection.menuItemId,
+        menuItemName: menuItem.name,
+        isVeg: menuItem.isVeg,
+        itemPrice: menuItem.basePrice,
+        includedValue: new Prisma.Decimal(0),
+        adjustmentAmount: menuItem.basePrice,
+      }];
+    });
+    if (errors.length) throw new BadRequestException({ message: 'Invalid custom package selection', errors });
+    const finalPerPlate = items.reduce((sum, item) => sum.plus(item.itemPrice), new Prisma.Decimal(0));
+    return {
+      packageVersionId: version.id,
+      packageName: version.package.name,
+      packageVersionNo: version.versionNo,
+      guestCount,
+      basePerPlatePrice: version.basePricePerPlate,
+      totalCustomizationCharges: finalPerPlate,
       finalPerPlatePrice: finalPerPlate,
       totalAmount: finalPerPlate.mul(guestCount),
       items,

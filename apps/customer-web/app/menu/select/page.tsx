@@ -36,7 +36,8 @@ export default function MenuSelectPage() {
     });
   }, [config, selectedItems]);
 
-  const valid = ruleProgress.length > 0 && ruleProgress.every((item) => item.valid);
+  const isCustom = Boolean(config?.isCustom || cartPackage?.isCustom);
+  const valid = isCustom ? selectedItems.length > 0 : ruleProgress.length > 0 && ruleProgress.every((item) => item.valid);
   const additions = selectedItems.reduce((total, item) => total + Number(item.adjustmentAmount), 0);
   const perPlate = Number(cartPackage?.basePricePerPlate ?? 0) + additions;
 
@@ -74,7 +75,11 @@ export default function MenuSelectPage() {
         <div>
           <p className="eyebrow">Curate your courses</p>
           <h1 className="mt-3 font-serif text-4xl font-semibold sm:text-5xl">Build your {config.packageName} menu.</h1>
-          <p className="mt-3 text-muted-foreground">Select within each course limit. Premium dishes update your estimate instantly.</p>
+          <p className="mt-3 text-muted-foreground">
+            {isCustom
+              ? 'Choose any dishes you like. Item prices update your per-plate estimate instantly.'
+              : 'Select within each course limit. Premium dishes update your estimate instantly.'}
+          </p>
         </div>
         {selectedItems.length > 0 && (
           <button onClick={clearSelections} className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary">
@@ -90,10 +95,12 @@ export default function MenuSelectPage() {
               <div className="flex flex-wrap items-center justify-between gap-3 border-b bg-white/70 px-5 py-4 sm:px-6">
                 <div>
                   <h2 className="font-serif text-2xl font-semibold">{rule.category.name}</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">Choose {rule.minSelections}–{rule.maxSelections}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {isCustom ? 'Choose any dishes' : `Choose ${rule.minSelections}-${rule.maxSelections}`}
+                  </p>
                 </div>
                 <span className={`rounded-full px-3 py-1.5 text-xs font-bold ${ruleValid ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
-                  {count} of {rule.maxSelections} selected
+                  {isCustom ? `${count} selected` : `${count} of ${rule.maxSelections} selected`}
                 </span>
               </div>
               <div className="grid gap-3 p-4 sm:grid-cols-2 sm:p-6">
@@ -109,6 +116,7 @@ export default function MenuSelectPage() {
                             categoryName: rule.category.name,
                             menuItemId: item.id,
                             menuItemName: item.name,
+                            itemPrice: item.itemPrice,
                             adjustmentAmount: item.adjustmentAmount,
                             isVeg: item.isVeg,
                           },
@@ -124,7 +132,9 @@ export default function MenuSelectPage() {
                         </span>
                         <strong className="mt-3 block font-serif text-lg">{item.name}</strong>
                         <p className="mt-1 text-xs font-semibold text-muted-foreground">
-                          {Number(item.adjustmentAmount) > 0 ? `+₹${item.adjustmentAmount} per plate` : 'Included in package'}
+                          {isCustom
+                            ? `₹${item.itemPrice} per plate`
+                            : Number(item.adjustmentAmount) > 0 ? `+₹${item.adjustmentAmount} per plate` : 'Included in package'}
                         </p>
                       </div>
                       <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ${selected ? 'bg-primary text-white' : 'border bg-white text-muted-foreground'}`}>
@@ -148,12 +158,17 @@ export default function MenuSelectPage() {
             {ruleProgress.map(({ rule, count, valid: ruleValid }) => (
               <div key={rule.id} className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{rule.category.name}</span>
-                <span className={ruleValid ? 'font-semibold text-primary' : 'font-semibold text-amber-700'}>{count}/{rule.minSelections} min</span>
+                <span className={isCustom || ruleValid ? 'font-semibold text-primary' : 'font-semibold text-amber-700'}>
+                  {isCustom ? `${count} selected` : `${count}/${rule.minSelections} min`}
+                </span>
               </div>
             ))}
           </div>
           <div className="my-5 h-px bg-border" />
-          <div className="flex justify-between text-sm"><span>Estimated per plate</span><strong>₹{perPlate.toFixed(2)}</strong></div>
+          <div className="flex justify-between text-sm">
+            <span>{isCustom ? 'Selected item total per plate' : 'Estimated per plate'}</span>
+            <strong>₹{perPlate.toFixed(2)}</strong>
+          </div>
           <p className="mt-2 text-xs text-muted-foreground">Final total is verified by the server at checkout.</p>
           <Button className="mt-6 w-full" disabled={!valid} onClick={() => router.push('/cart')}>
             Review cart <ChevronRight className="ml-2 h-4 w-4" />

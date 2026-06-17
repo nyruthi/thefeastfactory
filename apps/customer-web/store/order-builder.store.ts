@@ -5,6 +5,7 @@ export type CartPackage = {
   packageId: string;
   packageVersionId: string;
   packageName: string;
+  isCustom: boolean;
   basePricePerPlate: string;
   minGuestCount: number;
   maxGuestCount?: number | null;
@@ -23,6 +24,7 @@ export type SelectedItem = {
   categoryName: string;
   menuItemId: string;
   menuItemName: string;
+  itemPrice: string;
   adjustmentAmount: string;
   isVeg: boolean;
 };
@@ -69,7 +71,7 @@ export const useOrderBuilderStore = create<OrderBuilderState>()(
         const categoryCount = state.selectedItems.filter(
           (selected) => selected.categoryId === item.categoryId,
         ).length;
-        if (categoryCount >= maxSelections) return false;
+        if (!state.package?.isCustom && categoryCount >= maxSelections) return false;
         set({ selectedItems: [...state.selectedItems, item] });
         return true;
       },

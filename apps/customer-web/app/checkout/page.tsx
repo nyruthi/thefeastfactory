@@ -160,7 +160,11 @@ export default function CheckoutPage() {
         <section>
           <p className="eyebrow">Secure checkout</p>
           <h1 className="mt-3 font-serif text-5xl font-semibold">One final review.</h1>
-          <p className="mt-3 text-muted-foreground">Your quote is calculated from the live package rules and saved as an order snapshot.</p>
+          <p className="mt-3 text-muted-foreground">
+            {cartPackage.isCustom
+              ? 'Your quote is calculated from selected item prices and saved as an order snapshot.'
+              : 'Your quote is calculated from the live package rules and saved as an order snapshot.'}
+          </p>
 
           {quote ? (
             <div className="surface-card mt-8 overflow-hidden">
@@ -172,7 +176,11 @@ export default function CheckoutPage() {
                 {quote.items.map((item: any) => (
                   <div key={item.menuItemId} className="flex items-center justify-between gap-4 px-6 py-4">
                     <div><p className="font-semibold">{item.menuItemName}</p><p className="text-xs text-muted-foreground">{item.categoryName}</p></div>
-                    <span className="text-sm font-semibold">{Number(item.adjustmentAmount) ? `+₹${item.adjustmentAmount}` : 'Included'}</span>
+                    <span className="text-sm font-semibold">
+                      {cartPackage.isCustom
+                        ? `₹${item.itemPrice}`
+                        : Number(item.adjustmentAmount) ? `+₹${item.adjustmentAmount}` : 'Included'}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -187,8 +195,13 @@ export default function CheckoutPage() {
           {quote && (
             <>
               <div className="mt-6 space-y-3 text-sm">
-                <div className="flex justify-between"><span className="text-muted-foreground">Base per plate</span><span>₹{quote.basePerPlatePrice}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Premium additions</span><span>₹{quote.totalCustomizationCharges}</span></div>
+                {!cartPackage.isCustom && (
+                  <div className="flex justify-between"><span className="text-muted-foreground">Base per plate</span><span>₹{quote.basePerPlatePrice}</span></div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">{cartPackage.isCustom ? 'Selected item total per plate' : 'Premium additions'}</span>
+                  <span>₹{quote.totalCustomizationCharges}</span>
+                </div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Final per plate</span><span>₹{quote.finalPerPlatePrice}</span></div>
               </div>
               <div className="my-5 h-px bg-border" />

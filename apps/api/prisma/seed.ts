@@ -109,10 +109,11 @@ async function main() {
   for (const [index, packageSeed] of packageSeeds.entries()) {
     const pkg = await prisma.package.upsert({
       where: { name: packageSeed.name },
-      update: { isActive: true, displayOrder: index + 1, deletedAt: null },
+      update: { isCustom: false, isActive: true, displayOrder: index + 1, deletedAt: null },
       create: {
         name: packageSeed.name,
         description: `${packageSeed.name} catering selection`,
+        isCustom: false,
         displayOrder: index + 1,
       },
     });
@@ -192,6 +193,44 @@ async function main() {
       });
     }
   }
+
+  const customPackage = await prisma.package.upsert({
+    where: { name: 'Custom Package' },
+    update: {
+      description: 'Build your own menu from any available dish.',
+      isCustom: true,
+      isActive: true,
+      displayOrder: packageSeeds.length + 1,
+      deletedAt: null,
+    },
+    create: {
+      name: 'Custom Package',
+      description: 'Build your own menu from any available dish.',
+      isCustom: true,
+      isActive: true,
+      displayOrder: packageSeeds.length + 1,
+    },
+  });
+
+  await prisma.packageVersion.upsert({
+    where: { packageId_versionNo: { packageId: customPackage.id, versionNo: 1 } },
+    update: {
+      basePricePerPlate: new Prisma.Decimal('0.00'),
+      minGuestCount: 10,
+      maxGuestCount: 500,
+      isActive: true,
+      publishedAt: new Date(),
+    },
+    create: {
+      packageId: customPackage.id,
+      versionNo: 1,
+      basePricePerPlate: new Prisma.Decimal('0.00'),
+      minGuestCount: 10,
+      maxGuestCount: 500,
+      isActive: true,
+      publishedAt: new Date(),
+    },
+  });
 }
 
 main()

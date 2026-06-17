@@ -49,7 +49,7 @@ export default function PackagesPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
-                    Package {String(index + 1).padStart(2, '0')}
+                    {pkg.isCustom ? 'Build your own menu' : `Package ${String(index + 1).padStart(2, '0')}`}
                   </p>
                   <h2 className="mt-2 font-serif text-3xl font-semibold">{pkg.name}</h2>
                 </div>
@@ -61,17 +61,19 @@ export default function PackagesPage() {
                 {pkg.description || 'A thoughtfully balanced catering menu ready to personalize for your event.'}
               </p>
               <div className="mt-6 space-y-2 text-sm">
-                {['Flexible course selection', 'Live customization pricing'].map((feature) => (
+                {(pkg.isCustom ? ['Any active menu item', 'Actual item pricing'] : ['Flexible course selection', 'Live customization pricing']).map((feature) => (
                   <p key={feature} className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-primary" /> {feature}
                   </p>
                 ))}
               </div>
               <div className="mt-auto border-t pt-6">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Starting at</p>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">{'Starting at'}</p>
                 <p className="mt-1 font-serif text-3xl font-semibold">
-                  ₹{pkg.activeVersion?.basePricePerPlate ?? '—'}
-                  <span className="ml-1 font-sans text-sm font-normal text-muted-foreground">per plate</span>
+                  {pkg.isCustom ? '₹100' : `₹${pkg.activeVersion?.basePricePerPlate ?? '-'}`}
+                  <span className="ml-1 font-sans text-sm font-normal text-muted-foreground">
+                    {pkg.isCustom ? 'per plate' : 'per plate'}
+                  </span>
                 </p>
               </div>
             </div>

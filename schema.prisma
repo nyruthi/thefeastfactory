@@ -192,6 +192,7 @@ model Package {
   id              String           @id @default(uuid())
   name            String           @unique @db.VarChar(100)
   description     String?          @db.VarChar(1000)
+  isCustom        Boolean          @default(false) @map("is_custom")
   isActive        Boolean          @default(true) @map("is_active")
   displayOrder    Int              @default(0) @map("display_order")
   createdAt       DateTime         @default(now()) @map("created_at")
