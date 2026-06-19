@@ -24,13 +24,32 @@ export const updateProfileSchema = z.object({
   email: z.string().trim().email().max(255).optional().nullable(),
 });
 
-export const addressTypeSchema = z.enum(['HOME', 'OFFICE', 'EVENT_VENUE', 'OTHER']);
+export const addressTypeSchema = z.enum([
+  'HOME',
+  'OFFICE',
+  'EVENT_VENUE',
+  'OTHER',
+]);
 const latitudeSchema = z
   .string()
-  .refine((value) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= -90 && Number(value) <= 90, 'Enter a valid latitude');
+  .refine(
+    (value) =>
+      value.trim() !== '' &&
+      Number.isFinite(Number(value)) &&
+      Number(value) >= -90 &&
+      Number(value) <= 90,
+    'Enter a valid latitude',
+  );
 const longitudeSchema = z
   .string()
-  .refine((value) => value.trim() !== '' && Number.isFinite(Number(value)) && Number(value) >= -180 && Number(value) <= 180, 'Enter a valid longitude');
+  .refine(
+    (value) =>
+      value.trim() !== '' &&
+      Number.isFinite(Number(value)) &&
+      Number(value) >= -180 &&
+      Number(value) <= 180,
+    'Enter a valid longitude',
+  );
 
 export const createAddressSchema = z.object({
   addressType: addressTypeSchema.default('HOME'),
@@ -39,7 +58,10 @@ export const createAddressSchema = z.object({
   addressLine2: z.string().trim().max(255).optional().nullable(),
   city: z.string().trim().min(1).max(100),
   state: z.string().trim().min(1).max(100),
-  pincode: z.string().trim().regex(/^\d{6}$/, 'Enter a valid 6-digit pincode'),
+  pincode: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, 'Enter a valid 6-digit pincode'),
   landmark: z.string().trim().max(255).optional().nullable(),
   latitude: latitudeSchema.optional().nullable(),
   longitude: longitudeSchema.optional().nullable(),
@@ -48,7 +70,9 @@ export const createAddressSchema = z.object({
 
 export const updateAddressSchema = createAddressSchema.partial();
 
-const moneyStringSchema = z.string().regex(/^\d+(\.\d{1,2})?$/, 'Enter a valid monetary amount');
+const moneyStringSchema = z
+  .string()
+  .regex(/^\d+(\.\d{1,2})?$/, 'Enter a valid monetary amount');
 
 export const createMenuCategorySchema = z.object({
   name: z.string().trim().min(1).max(100),
@@ -89,11 +113,14 @@ const packageVersionSchema = z.object({
   publishedAt: z.string().datetime().optional().nullable(),
 });
 
-export const createPackageVersionSchema = packageVersionSchema
-  .refine((value) => !value.maxGuestCount || value.maxGuestCount >= value.minGuestCount, {
-    message: 'Maximum guest count must be greater than or equal to minimum guest count',
+export const createPackageVersionSchema = packageVersionSchema.refine(
+  (value) => !value.maxGuestCount || value.maxGuestCount >= value.minGuestCount,
+  {
+    message:
+      'Maximum guest count must be greater than or equal to minimum guest count',
     path: ['maxGuestCount'],
-  });
+  },
+);
 
 export const updatePackageVersionSchema = packageVersionSchema
   .partial()
@@ -103,7 +130,8 @@ export const updatePackageVersionSchema = packageVersionSchema
       value.minGuestCount === undefined ||
       value.maxGuestCount >= value.minGuestCount,
     {
-      message: 'Maximum guest count must be greater than or equal to minimum guest count',
+      message:
+        'Maximum guest count must be greater than or equal to minimum guest count',
       path: ['maxGuestCount'],
     },
   );
@@ -116,7 +144,8 @@ export const upsertPackageCategoryRuleSchema = z
     isMandatory: z.boolean().default(true),
   })
   .refine((value) => value.maxSelections >= value.minSelections, {
-    message: 'Maximum selections must be greater than or equal to minimum selections',
+    message:
+      'Maximum selections must be greater than or equal to minimum selections',
     path: ['maxSelections'],
   });
 
@@ -186,11 +215,21 @@ export type CreateMenuItemInput = z.infer<typeof createMenuItemSchema>;
 export type UpdateMenuItemInput = z.infer<typeof updateMenuItemSchema>;
 export type CreatePackageInput = z.infer<typeof createPackageSchema>;
 export type UpdatePackageInput = z.infer<typeof updatePackageSchema>;
-export type CreatePackageVersionInput = z.infer<typeof createPackageVersionSchema>;
-export type UpdatePackageVersionInput = z.infer<typeof updatePackageVersionSchema>;
-export type UpsertPackageCategoryRuleInput = z.infer<typeof upsertPackageCategoryRuleSchema>;
-export type UpsertPackageMenuItemInput = z.infer<typeof upsertPackageMenuItemSchema>;
-export type UpsertPackageItemPricingInput = z.infer<typeof upsertPackageItemPricingSchema>;
+export type CreatePackageVersionInput = z.infer<
+  typeof createPackageVersionSchema
+>;
+export type UpdatePackageVersionInput = z.infer<
+  typeof updatePackageVersionSchema
+>;
+export type UpsertPackageCategoryRuleInput = z.infer<
+  typeof upsertPackageCategoryRuleSchema
+>;
+export type UpsertPackageMenuItemInput = z.infer<
+  typeof upsertPackageMenuItemSchema
+>;
+export type UpsertPackageItemPricingInput = z.infer<
+  typeof upsertPackageItemPricingSchema
+>;
 export type PackageSelectionInput = z.infer<typeof packageSelectionSchema>;
 export type EventDraftInput = z.infer<typeof eventDraftSchema>;
 export type OrderQuoteInput = z.infer<typeof orderQuoteSchema>;

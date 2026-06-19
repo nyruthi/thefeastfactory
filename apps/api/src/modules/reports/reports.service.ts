@@ -12,11 +12,25 @@ export class ReportsService {
   ) {}
 
   async revenue(admin: JwtPayload, requestedRegionId?: string) {
-    const regionId = await this.regions.resolveAdminScope(admin, requestedRegionId);
+    const regionId = await this.regions.resolveAdminScope(
+      admin,
+      requestedRegionId,
+    );
     const paymentWhere = regionId ? { order: { regionId } } : {};
     const [paid, refunded] = await Promise.all([
-      this.prisma.payment.aggregate({ where: { paymentStatus: PaymentStatus.PAID, ...paymentWhere }, _sum: { amount: true }, _count: true }),
-      this.prisma.refund.aggregate({ where: { refundStatus: 'SUCCESS', ...(regionId ? { payment: { order: { regionId } } } : {}) }, _sum: { amount: true }, _count: true }),
+      this.prisma.payment.aggregate({
+        where: { paymentStatus: PaymentStatus.PAID, ...paymentWhere },
+        _sum: { amount: true },
+        _count: true,
+      }),
+      this.prisma.refund.aggregate({
+        where: {
+          refundStatus: 'SUCCESS',
+          ...(regionId ? { payment: { order: { regionId } } } : {}),
+        },
+        _sum: { amount: true },
+        _count: true,
+      }),
     ]);
     const gross = paid._sum.amount ?? 0;
     const refunds = refunded._sum.amount ?? 0;
@@ -29,10 +43,17 @@ export class ReportsService {
   }
 
   async orders(admin: JwtPayload, requestedRegionId?: string) {
-    const regionId = await this.regions.resolveAdminScope(admin, requestedRegionId);
+    const regionId = await this.regions.resolveAdminScope(
+      admin,
+      requestedRegionId,
+    );
     const orderWhere = regionId ? { regionId } : {};
     const [byStatus, popularItems, total] = await Promise.all([
-      this.prisma.order.groupBy({ by: ['orderStatus'], where: orderWhere, _count: true }),
+      this.prisma.order.groupBy({
+        by: ['orderStatus'],
+        where: orderWhere,
+        _count: true,
+      }),
       this.prisma.orderSelectedItem.groupBy({
         by: ['menuItemName'],
         where: regionId ? { order: { regionId } } : {},
@@ -46,10 +67,18 @@ export class ReportsService {
   }
 
   async payments(admin: JwtPayload, requestedRegionId?: string) {
-    const regionId = await this.regions.resolveAdminScope(admin, requestedRegionId);
+    const regionId = await this.regions.resolveAdminScope(
+      admin,
+      requestedRegionId,
+    );
     const paymentWhere = regionId ? { order: { regionId } } : {};
     const [byStatus, total] = await Promise.all([
-      this.prisma.payment.groupBy({ by: ['paymentStatus'], where: paymentWhere, _count: true, _sum: { amount: true } }),
+      this.prisma.payment.groupBy({
+        by: ['paymentStatus'],
+        where: paymentWhere,
+        _count: true,
+        _sum: { amount: true },
+      }),
       this.prisma.payment.count({ where: paymentWhere }),
     ]);
     return {

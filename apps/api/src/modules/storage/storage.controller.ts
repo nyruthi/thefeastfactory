@@ -28,13 +28,18 @@ export class StorageController {
   @ApiConsumes('multipart/form-data')
   @UseGuards(AdminAuthGuard, RolesGuard)
   @Roles(AdminRole.ADMIN)
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024 } }))
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024 } }),
+  )
   upload(@UploadedFile() file?: UploadedImage) {
     return this.storage.uploadMenuImage(file);
   }
 
   @Get('uploads/menu/:filename')
-  async localImage(@Param('filename') filename: string, @Res({ passthrough: true }) response: Response) {
+  async localImage(
+    @Param('filename') filename: string,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     response.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     return new StreamableFile(await this.storage.localFile(filename));
   }

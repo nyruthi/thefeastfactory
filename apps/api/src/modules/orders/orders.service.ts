@@ -1,5 +1,15 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CancellationActor, EventStatus, OrderStatus, PaymentStatus, Prisma } from '@prisma/client';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  CancellationActor,
+  EventStatus,
+  OrderStatus,
+  PaymentStatus,
+  Prisma,
+} from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { OperatingRegionsService } from '../operating-regions/operating-regions.service';
 import { PricingService } from '../pricing/pricing.service';
@@ -28,9 +38,12 @@ export class OrdersService {
     if (existingOrder?.orderStatus === OrderStatus.PENDING_PAYMENT) {
       return this.get(userId, existingOrder.id);
     }
-    if (existingOrder) throw new BadRequestException('An order already exists for this event');
+    if (existingOrder)
+      throw new BadRequestException('An order already exists for this event');
     const quote = await this.quoteWithDelivery(event, dto);
-    const leadHours = Math.floor((event.eventDate.getTime() - Date.now()) / 3_600_000);
+    const leadHours = Math.floor(
+      (event.eventDate.getTime() - Date.now()) / 3_600_000,
+    );
     return this.prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
         data: {
@@ -61,7 +74,12 @@ export class OrdersService {
               adjustmentAmount: item.adjustmentAmount,
             })),
           },
-          statusHistory: { create: { toStatus: OrderStatus.PENDING_PAYMENT, notes: 'Order created' } },
+          statusHistory: {
+            create: {
+              toStatus: OrderStatus.PENDING_PAYMENT,
+              notes: 'Order created',
+            },
+          },
         },
         include: { selectedItems: true, statusHistory: true, region: true },
       });
@@ -81,7 +99,12 @@ export class OrdersService {
   async list(userId: string) {
     const orders = await this.prisma.order.findMany({
       where: { userId },
-      include: { event: { include: { region: true } }, region: true, selectedItems: true, payments: true },
+      include: {
+        event: { include: { region: true } },
+        region: true,
+        selectedItems: true,
+        payments: true,
+      },
       orderBy: { createdAt: 'desc' },
     });
     return orders.map((order) => this.serializeOrder(order));
@@ -105,7 +128,10 @@ export class OrdersService {
   async cancel(userId: string, id: string, dto: CancelOrderDto) {
     const order = await this.prisma.order.findFirst({ where: { id, userId } });
     if (!order) throw new NotFoundException('Order not found');
-    if (order.orderStatus === OrderStatus.DELIVERED || order.orderStatus === OrderStatus.CANCELLED) {
+    if (
+      order.orderStatus === OrderStatus.DELIVERED ||
+      order.orderStatus === OrderStatus.CANCELLED
+    ) {
       throw new BadRequestException('Order cannot be cancelled');
     }
     const updated = await this.prisma.$transaction(async (tx) => {
@@ -117,15 +143,28 @@ export class OrdersService {
           cancelledBy: CancellationActor.CUSTOMER,
           cancellationReason: dto.reason,
           statusHistory: {
-            create: { fromStatus: order.orderStatus, toStatus: OrderStatus.CANCELLED, notes: dto.reason },
+            create: {
+              fromStatus: order.orderStatus,
+              toStatus: OrderStatus.CANCELLED,
+              notes: dto.reason,
+            },
           },
         },
         include: { selectedItems: true, payments: true, statusHistory: true },
       });
-      await tx.event.update({ where: { id: order.eventId }, data: { status: EventStatus.CANCELLED } });
-      const notification = this.operations.notificationForStatus(OrderStatus.CANCELLED);
+      await tx.event.update({
+        where: { id: order.eventId },
+        data: { status: EventStatus.CANCELLED },
+      });
+      const notification = this.operations.notificationForStatus(
+        OrderStatus.CANCELLED,
+      );
       if (notification) {
-        await this.operations.notify(tx, { userId, orderId: id, ...notification });
+        await this.operations.notify(tx, {
+          userId,
+          orderId: id,
+          ...notification,
+        });
       }
       return row;
     });
@@ -141,16 +180,27 @@ export class OrdersService {
     return event;
   }
 
-  private async quoteWithDelivery(event: Awaited<ReturnType<OrdersService['getEvent']>>, dto: OrderSelectionDto) {
-    const menuQuote = await this.pricing.quote(event.packageVersionId, event.guestCount, dto.selectedItems);
-    const assignment = event.region && event.distanceKm !== null
-      ? {
-          region: event.region!,
-          distanceKm: event.distanceKm,
-          billableDistanceKm: Math.ceil(Number(event.distanceKm)),
-          deliveryFee: event.deliveryFee,
-        }
-      : await this.regions.assign(event.address.latitude, event.address.longitude);
+  private async quoteWithDelivery(
+    event: Awaited<ReturnType<OrdersService['getEvent']>>,
+    dto: OrderSelectionDto,
+  ) {
+    const menuQuote = await this.pricing.quote(
+      event.packageVersionId,
+      event.guestCount,
+      dto.selectedItems,
+    );
+    const assignment =
+      event.region && event.distanceKm !== null
+        ? {
+            region: event.region!,
+            distanceKm: event.distanceKm,
+            billableDistanceKm: Math.ceil(Number(event.distanceKm)),
+            deliveryFee: event.deliveryFee,
+          }
+        : await this.regions.assign(
+            event.address.latitude,
+            event.address.longitude,
+          );
     const subtotalAmount = menuQuote.totalAmount;
     return {
       ...menuQuote,
@@ -170,9 +220,18 @@ export class OrdersService {
   }
 
   serializeOrder(order: Record<string, any>) {
-    const moneyFields = ['basePerPlatePrice', 'totalCustomizationCharges', 'finalPerPlatePrice', 'distanceKm', 'deliveryFee', 'totalAmount'];
+    const moneyFields = [
+      'basePerPlatePrice',
+      'totalCustomizationCharges',
+      'finalPerPlatePrice',
+      'distanceKm',
+      'deliveryFee',
+      'totalAmount',
+    ];
     const result: Record<string, any> = { ...order };
-    for (const field of moneyFields) if (result[field] instanceof Prisma.Decimal) result[field] = result[field].toFixed(2);
+    for (const field of moneyFields)
+      if (result[field] instanceof Prisma.Decimal)
+        result[field] = result[field].toFixed(2);
     if (result.selectedItems) {
       result.selectedItems = result.selectedItems.map((item: any) => ({
         ...item,
@@ -185,17 +244,25 @@ export class OrdersService {
       result.payments = result.payments.map((payment: any) => ({
         ...payment,
         amount: payment.amount.toFixed(2),
-        refunds: payment.refunds?.map((refund: any) => ({ ...refund, amount: refund.amount.toFixed(2) })),
+        refunds: payment.refunds?.map((refund: any) => ({
+          ...refund,
+          amount: refund.amount.toFixed(2),
+        })),
       }));
     }
     if (result.region) result.region = this.regions.serialize(result.region);
-    if (result.event?.region) result.event.region = this.regions.serialize(result.event.region);
-    if (result.event?.distanceKm instanceof Prisma.Decimal) result.event.distanceKm = result.event.distanceKm.toFixed(2);
-    if (result.event?.deliveryFee instanceof Prisma.Decimal) result.event.deliveryFee = result.event.deliveryFee.toFixed(2);
+    if (result.event?.region)
+      result.event.region = this.regions.serialize(result.event.region);
+    if (result.event?.distanceKm instanceof Prisma.Decimal)
+      result.event.distanceKm = result.event.distanceKm.toFixed(2);
+    if (result.event?.deliveryFee instanceof Prisma.Decimal)
+      result.event.deliveryFee = result.event.deliveryFee.toFixed(2);
     return result;
   }
 
-  private serializeQuote(quote: Awaited<ReturnType<OrdersService['quoteWithDelivery']>>) {
+  private serializeQuote(
+    quote: Awaited<ReturnType<OrdersService['quoteWithDelivery']>>,
+  ) {
     return {
       ...this.pricing.serialize(quote),
       region: this.regions.serialize(quote.region),

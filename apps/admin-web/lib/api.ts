@@ -5,8 +5,12 @@ const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
 let refreshPromise: Promise<AdminSession> | undefined;
 
 async function parseError(response: Response) {
-  const error = await response.json().catch(() => ({ message: 'Request failed' }));
-  return Array.isArray(error.message) ? error.message.join(', ') : error.message;
+  const error = await response
+    .json()
+    .catch(() => ({ message: 'Request failed' }));
+  return Array.isArray(error.message)
+    ? error.message.join(', ')
+    : error.message;
 }
 
 async function refreshSession(refreshToken: string) {
@@ -28,7 +32,8 @@ async function refreshSession(refreshToken: string) {
 }
 
 async function request(path: string, init: RequestInit, token?: string) {
-  const isFormData = typeof FormData !== 'undefined' && init.body instanceof FormData;
+  const isFormData =
+    typeof FormData !== 'undefined' && init.body instanceof FormData;
   return fetch(`${baseUrl}${path}`, {
     ...init,
     headers: {
@@ -39,9 +44,17 @@ async function request(path: string, init: RequestInit, token?: string) {
   });
 }
 
-export async function apiRequest<T>(path: string, init: RequestInit = {}, token?: string): Promise<T> {
+export async function apiRequest<T>(
+  path: string,
+  init: RequestInit = {},
+  token?: string,
+): Promise<T> {
   const stored = useAdminSessionStore.getState().session;
-  let response = await request(path, init, token && stored ? stored.accessToken : token);
+  let response = await request(
+    path,
+    init,
+    token && stored ? stored.accessToken : token,
+  );
   if (response.status === 401 && token && stored?.refreshToken) {
     try {
       const refreshed = await refreshSession(stored.refreshToken);
@@ -62,7 +75,8 @@ export async function downloadAuthenticated(path: string, token: string) {
   if (!response.ok) throw new Error(await parseError(response));
   const blob = await response.blob();
   const disposition = response.headers.get('content-disposition') || '';
-  const filename = disposition.match(/filename="([^"]+)"/)?.[1] || 'document.pdf';
+  const filename =
+    disposition.match(/filename="([^"]+)"/)?.[1] || 'document.pdf';
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;

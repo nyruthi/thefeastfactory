@@ -54,7 +54,9 @@ export class UsersService {
     await this.getProfile(userId);
 
     return this.prisma.$transaction(async (tx) => {
-      const shouldSetDefault = dto.isDefault ?? (await tx.userAddress.count({ where: { userId } })) === 0;
+      const shouldSetDefault =
+        dto.isDefault ??
+        (await tx.userAddress.count({ where: { userId } })) === 0;
 
       if (shouldSetDefault) {
         await tx.userAddress.updateMany({
@@ -75,7 +77,11 @@ export class UsersService {
     });
   }
 
-  async updateAddress(userId: string, addressId: string, dto: UpdateAddressDto) {
+  async updateAddress(
+    userId: string,
+    addressId: string,
+    dto: UpdateAddressDto,
+  ) {
     await this.assertAddressOwner(userId, addressId);
 
     return this.prisma.$transaction(async (tx) => {
@@ -171,12 +177,20 @@ export class UsersService {
     };
   }
 
-  private toAddressUpdateInput(dto: UpdateAddressDto): Prisma.UserAddressUncheckedUpdateInput {
+  private toAddressUpdateInput(
+    dto: UpdateAddressDto,
+  ): Prisma.UserAddressUncheckedUpdateInput {
     return {
-      ...(dto.addressType !== undefined ? { addressType: dto.addressType } : {}),
+      ...(dto.addressType !== undefined
+        ? { addressType: dto.addressType }
+        : {}),
       ...(dto.label !== undefined ? { label: dto.label } : {}),
-      ...(dto.addressLine1 !== undefined ? { addressLine1: dto.addressLine1 } : {}),
-      ...(dto.addressLine2 !== undefined ? { addressLine2: dto.addressLine2 } : {}),
+      ...(dto.addressLine1 !== undefined
+        ? { addressLine1: dto.addressLine1 }
+        : {}),
+      ...(dto.addressLine2 !== undefined
+        ? { addressLine2: dto.addressLine2 }
+        : {}),
       ...(dto.city !== undefined ? { city: dto.city } : {}),
       ...(dto.state !== undefined ? { state: dto.state } : {}),
       ...(dto.pincode !== undefined ? { pincode: dto.pincode } : {}),
@@ -185,7 +199,9 @@ export class UsersService {
         ? { latitude: dto.latitude ? new Prisma.Decimal(dto.latitude) : null }
         : {}),
       ...(dto.longitude !== undefined
-        ? { longitude: dto.longitude ? new Prisma.Decimal(dto.longitude) : null }
+        ? {
+            longitude: dto.longitude ? new Prisma.Decimal(dto.longitude) : null,
+          }
         : {}),
       ...(dto.isDefault !== undefined ? { isDefault: dto.isDefault } : {}),
     };

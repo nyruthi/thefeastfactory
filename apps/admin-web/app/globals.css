@@ -18,7 +18,11 @@ body {
   min-width: 320px;
   background-image:
     radial-gradient(circle at 0% 0%, hsl(39 75% 84% / 0.38), transparent 24rem),
-    radial-gradient(circle at 100% 6%, hsl(350 55% 84% / 0.35), transparent 26rem);
+    radial-gradient(
+      circle at 100% 6%,
+      hsl(350 55% 84% / 0.35),
+      transparent 26rem
+    );
   background-attachment: fixed;
 }
 

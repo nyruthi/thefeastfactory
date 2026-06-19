@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CustomerAuthGuard } from '../../common/guards/customer-auth.guard';
@@ -21,7 +30,10 @@ export class UsersController {
   }
 
   @Patch('me')
-  updateProfile(@CurrentUser() user: JwtPayload, @Body() dto: UpdateProfileDto) {
+  updateProfile(
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: UpdateProfileDto,
+  ) {
     return this.users.updateProfile(user.sub, dto);
   }
 
@@ -31,12 +43,19 @@ export class UsersController {
   }
 
   @Post('me/addresses')
-  createAddress(@CurrentUser() user: JwtPayload, @Body() dto: CreateAddressDto) {
+  createAddress(
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: CreateAddressDto,
+  ) {
     return this.users.createAddress(user.sub, dto);
   }
 
   @Patch('me/addresses/:id')
-  updateAddress(@CurrentUser() user: JwtPayload, @Param('id') id: string, @Body() dto: UpdateAddressDto) {
+  updateAddress(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+    @Body() dto: UpdateAddressDto,
+  ) {
     return this.users.updateAddress(user.sub, id, dto);
   }
 

@@ -1,5 +1,11 @@
 import type { LucideIcon } from 'lucide-react';
-import { AlertCircle, ArrowRight, Loader2, LockKeyhole, Search } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowRight,
+  Loader2,
+  LockKeyhole,
+  Search,
+} from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Button } from './button';
@@ -32,22 +38,36 @@ export function StatePanel({
   className,
   tone = 'default',
 }: StatePanelProps) {
-  const FallbackIcon = tone === 'danger' ? AlertCircle : tone === 'loading' ? Loader2 : Search;
+  const FallbackIcon =
+    tone === 'danger' ? AlertCircle : tone === 'loading' ? Loader2 : Search;
   const PanelIcon = Icon ?? FallbackIcon;
 
   return (
-    <div className={cn('surface-card mx-auto max-w-xl p-8 text-center sm:p-10', className)}>
+    <div
+      className={cn(
+        'surface-card mx-auto max-w-xl p-8 text-center sm:p-10',
+        className,
+      )}
+    >
       <span
         className={cn(
           'mx-auto grid h-16 w-16 place-items-center rounded-full',
-          tone === 'danger' ? 'bg-red-50 text-red-700' : 'bg-primary/10 text-primary',
+          tone === 'danger'
+            ? 'bg-red-50 text-red-700'
+            : 'bg-primary/10 text-primary',
         )}
       >
-        <PanelIcon className={cn('h-7 w-7', tone === 'loading' && 'animate-spin')} />
+        <PanelIcon
+          className={cn('h-7 w-7', tone === 'loading' && 'animate-spin')}
+        />
       </span>
       {eyebrow && <p className="eyebrow mt-6">{eyebrow}</p>}
-      <h1 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl">{title}</h1>
-      {description && <p className="mt-3 leading-7 text-muted-foreground">{description}</p>}
+      <h1 className="mt-3 font-serif text-3xl font-semibold sm:text-4xl">
+        {title}
+      </h1>
+      {description && (
+        <p className="mt-3 leading-7 text-muted-foreground">{description}</p>
+      )}
       {children}
       {(actionHref || secondaryHref) && (
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
@@ -85,7 +105,11 @@ export function AuthRequiredPanel({
         eyebrow="Secure step"
         title={title}
         description={description}
-        actionHref={returnHref ? `/login?next=${encodeURIComponent(returnHref)}` : '/login'}
+        actionHref={
+          returnHref
+            ? `/login?next=${encodeURIComponent(returnHref)}`
+            : '/login'
+        }
         actionLabel="Continue with mobile"
         secondaryHref="/packages"
         secondaryLabel="Browse packages"

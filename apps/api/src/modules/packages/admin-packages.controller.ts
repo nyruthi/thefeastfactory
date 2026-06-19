@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AdminRole } from '@prisma/client';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -47,17 +55,26 @@ export class AdminPackagesController {
   }
 
   @Post('package-versions/:id/category-rules')
-  upsertCategoryRule(@Param('id') id: string, @Body() dto: UpsertCategoryRuleDto) {
+  upsertCategoryRule(
+    @Param('id') id: string,
+    @Body() dto: UpsertCategoryRuleDto,
+  ) {
     return this.packages.upsertCategoryRule(id, dto);
   }
 
   @Post('package-versions/:id/menu-items')
-  upsertMenuItem(@Param('id') id: string, @Body() dto: UpsertPackageMenuItemDto) {
+  upsertMenuItem(
+    @Param('id') id: string,
+    @Body() dto: UpsertPackageMenuItemDto,
+  ) {
     return this.packages.upsertMenuItem(id, dto);
   }
 
   @Post('package-versions/:id/item-pricing')
-  upsertItemPricing(@Param('id') id: string, @Body() dto: UpsertItemPricingDto) {
+  upsertItemPricing(
+    @Param('id') id: string,
+    @Body() dto: UpsertItemPricingDto,
+  ) {
     return this.packages.upsertItemPricing(id, dto);
   }
 }

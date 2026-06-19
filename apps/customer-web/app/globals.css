@@ -24,7 +24,11 @@ body {
   min-height: 100vh;
   background-image:
     radial-gradient(circle at 8% 2%, hsl(39 75% 82% / 0.52), transparent 25rem),
-    radial-gradient(circle at 92% 16%, hsl(350 55% 84% / 0.46), transparent 28rem);
+    radial-gradient(
+      circle at 92% 16%,
+      hsl(350 55% 84% / 0.46),
+      transparent 28rem
+    );
   background-attachment: fixed;
 }
 

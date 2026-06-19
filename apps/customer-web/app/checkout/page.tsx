@@ -31,21 +31,33 @@ export default function CheckoutPage() {
   const [error, setError] = useState('');
   const [paying, setPaying] = useState(false);
 
-  const payloadItems = selectedItems.map(({ categoryId, menuItemId }) => ({ categoryId, menuItemId }));
+  const payloadItems = selectedItems.map(({ categoryId, menuItemId }) => ({
+    categoryId,
+    menuItemId,
+  }));
 
   useEffect(() => {
     if (!session || !event?.eventId || !selectedItems.length) return;
     setError('');
     apiRequest(
       '/orders/quote',
-      { method: 'POST', body: JSON.stringify({ eventId: event.eventId, selectedItems: payloadItems }) },
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          eventId: event.eventId,
+          selectedItems: payloadItems,
+        }),
+      },
       session.accessToken,
     )
       .then(setQuote)
       .catch((reason) => setError(reason.message));
   }, [session, event?.eventId, selectedItems]);
 
-  async function verifyPayment(orderId: string, response: Record<string, string>) {
+  async function verifyPayment(
+    orderId: string,
+    response: Record<string, string>,
+  ) {
     await apiRequest(
       '/payments/razorpay/verify',
       {
@@ -69,7 +81,13 @@ export default function CheckoutPage() {
     try {
       const order = await apiRequest<any>(
         '/orders',
-        { method: 'POST', body: JSON.stringify({ eventId: event.eventId, selectedItems: payloadItems }) },
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            eventId: event.eventId,
+            selectedItems: payloadItems,
+          }),
+        },
         session.accessToken,
       );
       const gateway = await apiRequest<any>(
@@ -87,7 +105,10 @@ export default function CheckoutPage() {
         return;
       }
 
-      if (!window.Razorpay) throw new Error('Secure payment window is still loading. Please try again.');
+      if (!window.Razorpay)
+        throw new Error(
+          'Secure payment window is still loading. Please try again.',
+        );
       const checkout = new window.Razorpay({
         key: gateway.keyId,
         amount: gateway.amount,
@@ -104,7 +125,9 @@ export default function CheckoutPage() {
         modal: {
           confirm_close: true,
           ondismiss: () => {
-            setError('Payment window closed. Your order is still saved and you can retry safely.');
+            setError(
+              'Payment window closed. Your order is still saved and you can retry safely.',
+            );
             setPaying(false);
           },
         },
@@ -118,7 +141,10 @@ export default function CheckoutPage() {
         },
       });
       checkout.on('payment.failed', (response) => {
-        setError(response?.error?.description || 'Payment failed. You can retry without creating another order.');
+        setError(
+          response?.error?.description ||
+            'Payment failed. You can retry without creating another order.',
+        );
         setPaying(false);
       });
       checkout.open();
@@ -129,7 +155,13 @@ export default function CheckoutPage() {
   }
 
   if (!session) {
-    return <AuthRequiredPanel title="Sign in to place your order" description="Your cart is saved on this device. Sign in to attach the order to your mobile number and unlock secure payment." returnHref="/checkout" />;
+    return (
+      <AuthRequiredPanel
+        title="Sign in to place your order"
+        description="Your cart is saved on this device. Sign in to attach the order to your mobile number and unlock secure payment."
+        returnHref="/checkout"
+      />
+    );
   }
 
   if (!event || !cartPackage || !selectedItems.length) {
@@ -151,12 +183,17 @@ export default function CheckoutPage() {
 
   return (
     <main className="page-shell pb-28">
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="afterInteractive"
+      />
       <OrderProgress current={3} />
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px]">
         <section>
           <p className="eyebrow">Secure checkout</p>
-          <h1 className="mt-3 font-serif text-5xl font-semibold">One final review.</h1>
+          <h1 className="mt-3 font-serif text-5xl font-semibold">
+            One final review.
+          </h1>
           <p className="mt-3 text-muted-foreground">
             {cartPackage.isCustom
               ? 'Your quote is calculated from selected item prices and saved as an order snapshot.'
@@ -166,17 +203,31 @@ export default function CheckoutPage() {
           {quote ? (
             <div className="surface-card mt-8 overflow-hidden">
               <div className="border-b bg-white/60 p-6">
-                <h2 className="font-serif text-2xl font-semibold">{quote.packageName}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{quote.guestCount} guests · {event.addressLabel}</p>
+                <h2 className="font-serif text-2xl font-semibold">
+                  {quote.packageName}
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {quote.guestCount} guests · {event.addressLabel}
+                </p>
               </div>
               <div className="divide-y">
                 {quote.items.map((item: any) => (
-                  <div key={item.menuItemId} className="flex items-center justify-between gap-4 px-6 py-4">
-                    <div><p className="font-semibold">{item.menuItemName}</p><p className="text-xs text-muted-foreground">{item.categoryName}</p></div>
+                  <div
+                    key={item.menuItemId}
+                    className="flex items-center justify-between gap-4 px-6 py-4"
+                  >
+                    <div>
+                      <p className="font-semibold">{item.menuItemName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {item.categoryName}
+                      </p>
+                    </div>
                     <span className="text-sm font-semibold">
                       {cartPackage.isCustom
                         ? `₹${item.itemPrice}`
-                        : Number(item.adjustmentAmount) ? `+₹${item.adjustmentAmount}` : 'Included'}
+                        : Number(item.adjustmentAmount)
+                          ? `+₹${item.adjustmentAmount}`
+                          : 'Included'}
                     </span>
                   </div>
                 ))}
@@ -193,36 +244,71 @@ export default function CheckoutPage() {
             <>
               <div className="mt-6 space-y-3 text-sm">
                 {!cartPackage.isCustom && (
-                  <div className="flex justify-between"><span className="text-muted-foreground">Base per plate</span><span>₹{quote.basePerPlatePrice}</span></div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">
+                      Base per plate
+                    </span>
+                    <span>₹{quote.basePerPlatePrice}</span>
+                  </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{cartPackage.isCustom ? 'Selected item total per plate' : 'Premium additions'}</span>
+                  <span className="text-muted-foreground">
+                    {cartPackage.isCustom
+                      ? 'Selected item total per plate'
+                      : 'Premium additions'}
+                  </span>
                   <span>₹{quote.totalCustomizationCharges}</span>
                 </div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Final per plate</span><span>₹{quote.finalPerPlatePrice}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Menu subtotal</span><span>₹{quote.subtotalAmount}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Final per plate</span>
+                  <span>₹{quote.finalPerPlatePrice}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Menu subtotal</span>
+                  <span>₹{quote.subtotalAmount}</span>
+                </div>
                 <div className="rounded-xl bg-muted/60 p-3">
-                  <div className="flex justify-between font-medium"><span>Delivery fee</span><span>₹{quote.deliveryFee}</span></div>
+                  <div className="flex justify-between font-medium">
+                    <span>Delivery fee</span>
+                    <span>₹{quote.deliveryFee}</span>
+                  </div>
                   <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    {quote.region?.name} kitchen · {quote.distanceKm} km · billed {quote.billableDistanceKm} km at ₹{quote.deliveryFeePerKm}/km
+                    {quote.region?.name} kitchen · {quote.distanceKm} km ·
+                    billed {quote.billableDistanceKm} km at ₹
+                    {quote.deliveryFeePerKm}/km
                   </p>
                 </div>
               </div>
               <div className="my-5 h-px bg-border" />
-              <div className="flex items-end justify-between"><span className="font-semibold">Total</span><span className="font-serif text-4xl font-semibold">₹{quote.totalAmount}</span></div>
+              <div className="flex items-end justify-between">
+                <span className="font-semibold">Total</span>
+                <span className="font-serif text-4xl font-semibold">
+                  ₹{quote.totalAmount}
+                </span>
+              </div>
               <Button className="mt-7 w-full" onClick={pay} disabled={paying}>
-                <LockKeyhole className="mr-2 h-4 w-4" /> {paying ? 'Opening payment…' : 'Pay securely'}
+                <LockKeyhole className="mr-2 h-4 w-4" />{' '}
+                {paying ? 'Opening payment…' : 'Pay securely'}
               </Button>
             </>
           )}
           {error && (
-            <div role="alert" className="mt-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm leading-6 text-red-800">
+            <div
+              role="alert"
+              className="mt-4 rounded-xl border border-red-100 bg-red-50 p-3 text-sm leading-6 text-red-800"
+            >
               {error}
             </div>
           )}
           <div className="mt-6 space-y-3 border-t pt-5 text-xs text-muted-foreground">
-            <p className="flex gap-2"><ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> Payment details are handled securely by Razorpay.</p>
-            <p className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-primary" /> Your order is confirmed only after payment verification.</p>
+            <p className="flex gap-2">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> Payment
+              details are handled securely by Razorpay.
+            </p>
+            <p className="flex gap-2">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" /> Your
+              order is confirmed only after payment verification.
+            </p>
           </div>
         </aside>
       </div>

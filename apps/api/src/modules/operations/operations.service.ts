@@ -60,7 +60,11 @@ export class OperationsService {
   }
 
   async unreadCount(userId: string) {
-    return { count: await this.prisma.notification.count({ where: { userId, readAt: null } }) };
+    return {
+      count: await this.prisma.notification.count({
+        where: { userId, readAt: null },
+      }),
+    };
   }
 
   async markNotificationRead(userId: string, id: string) {
@@ -82,7 +86,13 @@ export class OperationsService {
 
   notify(
     tx: Prisma.TransactionClient,
-    input: { userId: string; orderId?: string; type: NotificationType; title: string; message: string },
+    input: {
+      userId: string;
+      orderId?: string;
+      type: NotificationType;
+      title: string;
+      message: string;
+    },
   ) {
     return tx.notification.create({ data: input });
   }
@@ -104,46 +114,81 @@ export class OperationsService {
     });
   }
 
-  async calendar(admin: JwtPayload, from?: string, to?: string, requestedRegionId?: string, city?: string) {
-    const regionId = await this.regions.resolveAdminScope(admin, requestedRegionId);
+  async calendar(
+    admin: JwtPayload,
+    from?: string,
+    to?: string,
+    requestedRegionId?: string,
+    city?: string,
+  ) {
+    const regionId = await this.regions.resolveAdminScope(
+      admin,
+      requestedRegionId,
+    );
     const start = from ? new Date(from) : new Date();
     const end = to ? new Date(to) : new Date(start.getTime() + 30 * 86_400_000);
     return this.prisma.event.findMany({
       where: {
         eventDate: { gte: start, lte: end },
         ...(regionId ? { regionId } : {}),
-        ...(city ? { address: { city: { contains: city, mode: 'insensitive' } } } : {}),
+        ...(city
+          ? { address: { city: { contains: city, mode: 'insensitive' } } }
+          : {}),
       },
       include: {
         address: true,
         region: true,
         user: { select: { id: true, name: true, mobileNumber: true } },
-        orders: { select: { id: true, orderNumber: true, orderStatus: true, paymentStatus: true } },
+        orders: {
+          select: {
+            id: true,
+            orderNumber: true,
+            orderStatus: true,
+            paymentStatus: true,
+          },
+        },
       },
       orderBy: [{ eventDate: 'asc' }, { eventTimeStart: 'asc' }],
     });
   }
 
   async queue(admin: JwtPayload, requestedRegionId?: string) {
-    const regionId = await this.regions.resolveAdminScope(admin, requestedRegionId);
+    const regionId = await this.regions.resolveAdminScope(
+      admin,
+      requestedRegionId,
+    );
     const now = new Date();
     const upcoming = new Date(now.getTime() + 7 * 86_400_000);
     const [events, failedPayments, pendingRefunds] = await Promise.all([
       this.prisma.event.findMany({
-        where: { eventDate: { gte: now, lte: upcoming }, status: { not: 'CANCELLED' }, ...(regionId ? { regionId } : {}) },
+        where: {
+          eventDate: { gte: now, lte: upcoming },
+          status: { not: 'CANCELLED' },
+          ...(regionId ? { regionId } : {}),
+        },
         include: { address: true, region: true, orders: true, user: true },
         orderBy: { eventDate: 'asc' },
         take: 30,
       }),
       this.prisma.payment.findMany({
-        where: { paymentStatus: PaymentStatus.FAILED, ...(regionId ? { order: { regionId } } : {}) },
+        where: {
+          paymentStatus: PaymentStatus.FAILED,
+          ...(regionId ? { order: { regionId } } : {}),
+        },
         include: { order: { include: { user: true, region: true } } },
         orderBy: { updatedAt: 'desc' },
         take: 20,
       }),
       this.prisma.refund.findMany({
-        where: { refundStatus: { in: [RefundStatus.INITIATED, RefundStatus.PROCESSING] }, ...(regionId ? { payment: { order: { regionId } } } : {}) },
-        include: { payment: { include: { order: { include: { region: true } } } } },
+        where: {
+          refundStatus: {
+            in: [RefundStatus.INITIATED, RefundStatus.PROCESSING],
+          },
+          ...(regionId ? { payment: { order: { regionId } } } : {}),
+        },
+        include: {
+          payment: { include: { order: { include: { region: true } } } },
+        },
         orderBy: { initiatedAt: 'asc' },
         take: 20,
       }),
@@ -156,8 +201,11 @@ export class OperationsService {
   }
 
   async updateSettings(dto: UpdateSettingsDto) {
-    const invalid = dto.settings.find((setting) => !editableSettings.has(setting.key));
-    if (invalid) throw new BadRequestException(`Setting ${invalid.key} cannot be edited`);
+    const invalid = dto.settings.find(
+      (setting) => !editableSettings.has(setting.key),
+    );
+    if (invalid)
+      throw new BadRequestException(`Setting ${invalid.key} cannot be edited`);
     await this.prisma.$transaction(
       dto.settings.map((setting) =>
         this.prisma.platformSetting.upsert({
@@ -171,9 +219,14 @@ export class OperationsService {
   }
 
   readiness() {
-    const configured = (keys: string[]) => keys.every((key) => Boolean(this.config.get<string>(key)));
+    const configured = (keys: string[]) =>
+      keys.every((key) => Boolean(this.config.get<string>(key)));
     return {
-      razorpay: configured(['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET']),
+      razorpay: configured([
+        'RAZORPAY_KEY_ID',
+        'RAZORPAY_KEY_SECRET',
+        'RAZORPAY_WEBHOOK_SECRET',
+      ]),
       msg91: configured(['MSG91_AUTH_KEY', 'MSG91_TEMPLATE_ID']),
       googleCloudStorage: configured(['GCP_PROJECT_ID', 'GCP_STORAGE_BUCKET']),
       googleMaps: 'configured-client-side',
@@ -187,22 +240,42 @@ export class OperationsService {
     await this.ensureDocuments(order);
     return this.prisma.orderDocument.findMany({
       where: { orderId },
-      select: { id: true, documentType: true, documentNumber: true, generatedAt: true },
+      select: {
+        id: true,
+        documentType: true,
+        documentNumber: true,
+        generatedAt: true,
+      },
       orderBy: { generatedAt: 'desc' },
     });
   }
 
-  async documentPdf(userId: string, orderId: string, documentId: string, admin = false) {
+  async documentPdf(
+    userId: string,
+    orderId: string,
+    documentId: string,
+    admin = false,
+  ) {
     await this.loadDocumentOrder(orderId, userId, admin);
-    const document = await this.prisma.orderDocument.findFirst({ where: { id: documentId, orderId } });
+    const document = await this.prisma.orderDocument.findFirst({
+      where: { id: documentId, orderId },
+    });
     if (!document) throw new NotFoundException('Document not found');
     return {
       filename: `${document.documentNumber}.pdf`,
-      buffer: await this.renderPdf(document.documentType, document.documentNumber, document.snapshot),
+      buffer: await this.renderPdf(
+        document.documentType,
+        document.documentNumber,
+        document.snapshot,
+      ),
     };
   }
 
-  private async loadDocumentOrder(orderId: string, userId: string, admin: boolean) {
+  private async loadDocumentOrder(
+    orderId: string,
+    userId: string,
+    admin: boolean,
+  ) {
     const order = await this.prisma.order.findFirst({
       where: { id: orderId, ...(admin ? {} : { userId }) },
       include: {
@@ -216,7 +289,9 @@ export class OperationsService {
     return order;
   }
 
-  private async ensureDocuments(order: Awaited<ReturnType<OperationsService['loadDocumentOrder']>>) {
+  private async ensureDocuments(
+    order: Awaited<ReturnType<OperationsService['loadDocumentOrder']>>,
+  ) {
     const paid = order.payments.find(
       (payment) =>
         payment.paymentStatus === PaymentStatus.PAID ||
@@ -224,20 +299,47 @@ export class OperationsService {
         payment.paymentStatus === PaymentStatus.REFUNDED,
     );
     if (!paid) return;
-    const settings = Object.fromEntries((await this.settings()).map((setting) => [setting.key, setting.value]));
+    const settings = Object.fromEntries(
+      (await this.settings()).map((setting) => [setting.key, setting.value]),
+    );
     const baseSnapshot = this.snapshot(order, settings);
-    await this.ensureDocument(order.id, order.userId, paid.id, undefined, DocumentType.PAYMENT_RECEIPT, baseSnapshot, settings.receipt_prefix || 'RCT');
+    await this.ensureDocument(
+      order.id,
+      order.userId,
+      paid.id,
+      undefined,
+      DocumentType.PAYMENT_RECEIPT,
+      baseSnapshot,
+      settings.receipt_prefix || 'RCT',
+    );
     if (this.taxSettingsComplete(settings)) {
-      await this.ensureDocument(order.id, order.userId, paid.id, undefined, DocumentType.GST_INVOICE, baseSnapshot, settings.invoice_prefix || 'INV');
+      await this.ensureDocument(
+        order.id,
+        order.userId,
+        paid.id,
+        undefined,
+        DocumentType.GST_INVOICE,
+        baseSnapshot,
+        settings.invoice_prefix || 'INV',
+      );
     }
-    for (const refund of paid.refunds.filter((item) => item.refundStatus === RefundStatus.SUCCESS)) {
+    for (const refund of paid.refunds.filter(
+      (item) => item.refundStatus === RefundStatus.SUCCESS,
+    )) {
       await this.ensureDocument(
         order.id,
         order.userId,
         paid.id,
         refund.id,
         DocumentType.REFUND_CREDIT_NOTE,
-        { ...baseSnapshot, refund: { amount: refund.amount.toFixed(2), reason: refund.reason, processedAt: refund.processedAt } },
+        {
+          ...baseSnapshot,
+          refund: {
+            amount: refund.amount.toFixed(2),
+            reason: refund.reason,
+            processedAt: refund.processedAt,
+          },
+        },
         settings.credit_note_prefix || 'CRN',
       );
     }
@@ -252,11 +354,21 @@ export class OperationsService {
     snapshot: Prisma.InputJsonValue,
     prefix: string,
   ) {
-    const exists = await this.prisma.orderDocument.findFirst({ where: { orderId, documentType, refundId: refundId ?? null } });
+    const exists = await this.prisma.orderDocument.findFirst({
+      where: { orderId, documentType, refundId: refundId ?? null },
+    });
     if (exists) return exists;
     const number = `${prefix}-${new Date().getFullYear()}-${orderId.slice(0, 8).toUpperCase()}${refundId ? `-${refundId.slice(0, 4).toUpperCase()}` : ''}`;
     return this.prisma.orderDocument.create({
-      data: { orderId, userId, paymentId, refundId, documentType, documentNumber: number, snapshot },
+      data: {
+        orderId,
+        userId,
+        paymentId,
+        refundId,
+        documentType,
+        documentNumber: number,
+        snapshot,
+      },
     });
   }
 
@@ -282,7 +394,11 @@ export class OperationsService {
         createdAt: order.createdAt,
         eventDate: order.event.eventDate,
         address: order.event.address,
-        customer: { name: order.user.name, mobileNumber: order.user.mobileNumber, email: order.user.email },
+        customer: {
+          name: order.user.name,
+          mobileNumber: order.user.mobileNumber,
+          email: order.user.email,
+        },
         items: order.selectedItems.map((item: any) => ({
           name: item.menuItemName,
           category: item.categoryName,
@@ -298,10 +414,19 @@ export class OperationsService {
   }
 
   private taxSettingsComplete(settings: Record<string, string>) {
-    return Boolean(settings.business_legal_name && settings.business_address && settings.business_gstin && settings.business_state_code);
+    return Boolean(
+      settings.business_legal_name &&
+      settings.business_address &&
+      settings.business_gstin &&
+      settings.business_state_code,
+    );
   }
 
-  private renderPdf(type: DocumentType, number: string, snapshot: Prisma.JsonValue) {
+  private renderPdf(
+    type: DocumentType,
+    number: string,
+    snapshot: Prisma.JsonValue,
+  ) {
     return new Promise<Buffer>((resolve, reject) => {
       const chunks: Buffer[] = [];
       const document = new PDFDocument({ margin: 48, size: 'A4' });
@@ -309,38 +434,87 @@ export class OperationsService {
       document.on('end', () => resolve(Buffer.concat(chunks)));
       document.on('error', reject);
       const data = snapshot as any;
-      document.fontSize(20).text(data.business.tradeName || data.business.legalName);
-      document.fontSize(10).fillColor('#555').text(data.business.address || '');
-      document.moveDown().fillColor('#111').fontSize(16).text(type.replaceAll('_', ' '));
+      document
+        .fontSize(20)
+        .text(data.business.tradeName || data.business.legalName);
+      document
+        .fontSize(10)
+        .fillColor('#555')
+        .text(data.business.address || '');
+      document
+        .moveDown()
+        .fillColor('#111')
+        .fontSize(16)
+        .text(type.replaceAll('_', ' '));
       document.fontSize(10).text(`Document: ${number}`);
       document.text(`Order: ${data.order.orderNumber}`);
-      document.text(`Customer: ${data.order.customer.name || data.order.customer.mobileNumber}`);
-      document.text(`Event date: ${new Date(data.order.eventDate).toLocaleDateString('en-IN')}`);
-      document.moveDown().fontSize(12).text(`${data.order.packageName} for ${data.order.guestCount} guests`);
+      document.text(
+        `Customer: ${data.order.customer.name || data.order.customer.mobileNumber}`,
+      );
+      document.text(
+        `Event date: ${new Date(data.order.eventDate).toLocaleDateString('en-IN')}`,
+      );
+      document
+        .moveDown()
+        .fontSize(12)
+        .text(`${data.order.packageName} for ${data.order.guestCount} guests`);
       document.text(`Total paid: INR ${data.order.totalAmount}`);
       if (data.refund) document.text(`Refund: INR ${data.refund.amount}`);
       if (type === DocumentType.GST_INVOICE) {
         document.moveDown().fontSize(10).text(`GSTIN: ${data.business.gstin}`);
         document.text(`SAC: ${data.business.sacCode}`);
-        document.text(`CGST: ${data.tax.cgstRate}%  SGST: ${data.tax.sgstRate}%  IGST: ${data.tax.igstRate}%`);
+        document.text(
+          `CGST: ${data.tax.cgstRate}%  SGST: ${data.tax.sgstRate}%  IGST: ${data.tax.igstRate}%`,
+        );
       }
-      document.moveDown().fillColor('#555').text(data.business.legalFooter || 'Computer-generated document.');
+      document
+        .moveDown()
+        .fillColor('#555')
+        .text(data.business.legalFooter || 'Computer-generated document.');
       document.end();
     });
   }
 
   private async assertOrder(orderId: string) {
-    const order = await this.prisma.order.findUnique({ where: { id: orderId }, select: { id: true } });
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      select: { id: true },
+    });
     if (!order) throw new NotFoundException('Order not found');
   }
 
   notificationForStatus(status: OrderStatus) {
-    const map: Partial<Record<OrderStatus, { type: NotificationType; title: string; message: string }>> = {
-      CONFIRMED: { type: NotificationType.ORDER_CONFIRMED, title: 'Order confirmed', message: 'Your catering order has been confirmed.' },
-      IN_PROGRESS: { type: NotificationType.ORDER_IN_PROGRESS, title: 'Preparation started', message: 'Your catering order is now being prepared.' },
-      READY_FOR_DELIVERY: { type: NotificationType.ORDER_READY, title: 'Order ready', message: 'Your order is ready for delivery.' },
-      DELIVERED: { type: NotificationType.ORDER_DELIVERED, title: 'Order delivered', message: 'Your catering order has been delivered.' },
-      CANCELLED: { type: NotificationType.ORDER_CANCELLED, title: 'Order cancelled', message: 'Your catering order has been cancelled.' },
+    const map: Partial<
+      Record<
+        OrderStatus,
+        { type: NotificationType; title: string; message: string }
+      >
+    > = {
+      CONFIRMED: {
+        type: NotificationType.ORDER_CONFIRMED,
+        title: 'Order confirmed',
+        message: 'Your catering order has been confirmed.',
+      },
+      IN_PROGRESS: {
+        type: NotificationType.ORDER_IN_PROGRESS,
+        title: 'Preparation started',
+        message: 'Your catering order is now being prepared.',
+      },
+      READY_FOR_DELIVERY: {
+        type: NotificationType.ORDER_READY,
+        title: 'Order ready',
+        message: 'Your order is ready for delivery.',
+      },
+      DELIVERED: {
+        type: NotificationType.ORDER_DELIVERED,
+        title: 'Order delivered',
+        message: 'Your catering order has been delivered.',
+      },
+      CANCELLED: {
+        type: NotificationType.ORDER_CANCELLED,
+        title: 'Order cancelled',
+        message: 'Your catering order has been cancelled.',
+      },
     };
     return map[status];
   }

@@ -2,7 +2,11 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   darkMode: ['class'],
-  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './lib/**/*.{ts,tsx}'],
+  content: [
+    './app/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './lib/**/*.{ts,tsx}',
+  ],
   theme: {
     extend: {
       colors: {
@@ -28,6 +32,12 @@ const config: Config = {
         xl: '1.25rem',
       },
       fontFamily: {
+        sans: [
+          'var(--font-sans)',
+          'ui-sans-serif',
+          'system-ui',
+          'sans-serif',
+        ],
         serif: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
       },
     },

@@ -27,8 +27,12 @@ export class ConsoleOtpProvider {
         | undefined;
 
       if (!response.ok || result?.type === 'error') {
-        this.logger.error(`MSG91 OTP delivery failed: ${result?.message ?? response.statusText}`);
-        throw new BadGatewayException('OTP delivery is temporarily unavailable');
+        this.logger.error(
+          `MSG91 OTP delivery failed: ${result?.message ?? response.statusText}`,
+        );
+        throw new BadGatewayException(
+          'OTP delivery is temporarily unavailable',
+        );
       }
       return;
     }

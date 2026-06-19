@@ -1,6 +1,10 @@
 'use client';
 
-import { indianStateOptions, type AddressType, type UserAddress } from '@aranyam/shared-types';
+import {
+  indianStateOptions,
+  type AddressType,
+  type UserAddress,
+} from '@aranyam/shared-types';
 import { createAddressSchema } from '@aranyam/validation';
 import { CheckCircle2, MapPin, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -38,7 +42,13 @@ export default function AddressesPage() {
     if (!session) return;
     setLoading(true);
     try {
-      setAddresses(await apiRequest<UserAddress[]>('/me/addresses', {}, session.accessToken));
+      setAddresses(
+        await apiRequest<UserAddress[]>(
+          '/me/addresses',
+          {},
+          session.accessToken,
+        ),
+      );
     } catch (reason) {
       setError((reason as Error).message);
     } finally {
@@ -51,7 +61,13 @@ export default function AddressesPage() {
   }, [session]);
 
   if (!session) {
-    return <AuthRequiredPanel title="Sign in to manage venues" description="Saved addresses make event planning faster and keep checkout from asking for venue details again." returnHref="/addresses" />;
+    return (
+      <AuthRequiredPanel
+        title="Sign in to manage venues"
+        description="Saved addresses make event planning faster and keep checkout from asking for venue details again."
+        returnHref="/addresses"
+      />
+    );
   }
 
   async function add(event: React.FormEvent) {
@@ -67,7 +83,9 @@ export default function AddressesPage() {
       longitude: form.longitude || undefined,
     });
     if (!result.success) {
-      setError(result.error.issues[0]?.message ?? 'Please check the address details.');
+      setError(
+        result.error.issues[0]?.message ?? 'Please check the address details.',
+      );
       return;
     }
 
@@ -91,7 +109,9 @@ export default function AddressesPage() {
     <main className="page-shell pb-28">
       <div className="max-w-2xl">
         <p className="eyebrow">Your venues</p>
-        <h1 className="mt-3 font-serif text-5xl font-semibold">Saved addresses</h1>
+        <h1 className="mt-3 font-serif text-5xl font-semibold">
+          Saved addresses
+        </h1>
         <p className="mt-3 leading-7 text-muted-foreground">
           Keep home, office, and event locations ready for faster planning.
         </p>
@@ -100,9 +120,13 @@ export default function AddressesPage() {
       <section className="surface-card mt-8 p-5 sm:p-7">
         <div className="mb-5">
           <p className="eyebrow">Choose on map</p>
-          <h2 className="mt-2 font-serif text-3xl font-semibold">Find the exact location</h2>
+          <h2 className="mt-2 font-serif text-3xl font-semibold">
+            Find the exact location
+          </h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Search for a venue, click anywhere, drag the pin, or use your current location. You can review and edit the detected address before saving.
+            Search for a venue, click anywhere, drag the pin, or use your
+            current location. You can review and edit the detected address
+            before saving.
           </p>
         </div>
         <AddressMapPicker
@@ -119,14 +143,21 @@ export default function AddressesPage() {
             <span className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
               <Plus className="h-5 w-5" />
             </span>
-            <h2 className="font-serif text-2xl font-semibold">Add an address</h2>
+            <h2 className="font-serif text-2xl font-semibold">
+              Add an address
+            </h2>
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
             <Field label="Address type">
               <Select
                 value={form.addressType}
-                onChange={(event) => setForm({ ...form, addressType: event.target.value as AddressType })}
+                onChange={(event) =>
+                  setForm({
+                    ...form,
+                    addressType: event.target.value as AddressType,
+                  })
+                }
               >
                 <option value="HOME">Home</option>
                 <option value="OFFICE">Office</option>
@@ -139,24 +170,37 @@ export default function AddressesPage() {
                 placeholder="e.g. Home or Garden venue"
                 maxLength={50}
                 value={form.label}
-                onChange={(event) => setForm({ ...form, label: event.target.value })}
+                onChange={(event) =>
+                  setForm({ ...form, label: event.target.value })
+                }
               />
             </Field>
-            <Field label="Address line 1" className="sm:col-span-2 lg:col-span-1">
+            <Field
+              label="Address line 1"
+              className="sm:col-span-2 lg:col-span-1"
+            >
               <Input
                 placeholder="House, flat, building, or street"
                 maxLength={255}
                 value={form.addressLine1}
-                onChange={(event) => setForm({ ...form, addressLine1: event.target.value })}
+                onChange={(event) =>
+                  setForm({ ...form, addressLine1: event.target.value })
+                }
                 required
               />
             </Field>
-            <Field label="Address line 2" optional className="sm:col-span-2 lg:col-span-1">
+            <Field
+              label="Address line 2"
+              optional
+              className="sm:col-span-2 lg:col-span-1"
+            >
               <Input
                 placeholder="Area or locality"
                 maxLength={255}
                 value={form.addressLine2}
-                onChange={(event) => setForm({ ...form, addressLine2: event.target.value })}
+                onChange={(event) =>
+                  setForm({ ...form, addressLine2: event.target.value })
+                }
               />
             </Field>
             <Field label="City">
@@ -164,21 +208,30 @@ export default function AddressesPage() {
                 placeholder="City"
                 maxLength={100}
                 value={form.city}
-                onChange={(event) => setForm({ ...form, city: event.target.value })}
+                onChange={(event) =>
+                  setForm({ ...form, city: event.target.value })
+                }
                 required
               />
             </Field>
             <Field label="State">
               <Select
                 value={form.state}
-                onChange={(event) => setForm({ ...form, state: event.target.value })}
+                onChange={(event) =>
+                  setForm({ ...form, state: event.target.value })
+                }
                 required
               >
                 <option value="">Select state</option>
-                {form.state && !indianStateOptions.includes(form.state as (typeof indianStateOptions)[number]) && (
-                  <option value={form.state}>{form.state}</option>
-                )}
-                {indianStateOptions.map((state) => <option key={state} value={state}>{state}</option>)}
+                {form.state &&
+                  !indianStateOptions.includes(
+                    form.state as (typeof indianStateOptions)[number],
+                  ) && <option value={form.state}>{form.state}</option>}
+                {indianStateOptions.map((state) => (
+                  <option key={state} value={state}>
+                    {state}
+                  </option>
+                ))}
               </Select>
             </Field>
             <Field label="Pincode">
@@ -189,7 +242,12 @@ export default function AddressesPage() {
                 minLength={6}
                 maxLength={6}
                 value={form.pincode}
-                onChange={(event) => setForm({ ...form, pincode: event.target.value.replace(/\D/g, '') })}
+                onChange={(event) =>
+                  setForm({
+                    ...form,
+                    pincode: event.target.value.replace(/\D/g, ''),
+                  })
+                }
                 required
               />
             </Field>
@@ -198,7 +256,9 @@ export default function AddressesPage() {
                 placeholder="Nearby landmark"
                 maxLength={255}
                 value={form.landmark}
-                onChange={(event) => setForm({ ...form, landmark: event.target.value })}
+                onChange={(event) =>
+                  setForm({ ...form, landmark: event.target.value })
+                }
               />
             </Field>
           </div>
@@ -208,16 +268,26 @@ export default function AddressesPage() {
             label="Make this my default address"
             description="We will preselect this venue when planning your next event."
             checked={form.isDefault}
-            onCheckedChange={(checked) => setForm({ ...form, isDefault: checked })}
+            onCheckedChange={(checked) =>
+              setForm({ ...form, isDefault: checked })
+            }
           />
 
           {form.latitude && form.longitude && (
             <p className="mt-3 text-xs text-muted-foreground">
-              Map pin: {Number(form.latitude).toFixed(5)}, {Number(form.longitude).toFixed(5)}
+              Map pin: {Number(form.latitude).toFixed(5)},{' '}
+              {Number(form.longitude).toFixed(5)}
             </p>
           )}
 
-          {error && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+          {error && (
+            <p
+              role="alert"
+              className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700"
+            >
+              {error}
+            </p>
+          )}
           <Button className="mt-5 w-full" disabled={submitting}>
             {submitting ? 'Saving address…' : 'Save address'}
           </Button>
@@ -225,13 +295,22 @@ export default function AddressesPage() {
 
         <section>
           <div className="flex items-center justify-between">
-            <h2 className="font-serif text-2xl font-semibold">Your saved places</h2>
-            <span className="text-sm text-muted-foreground">{addresses.length} saved</span>
+            <h2 className="font-serif text-2xl font-semibold">
+              Your saved places
+            </h2>
+            <span className="text-sm text-muted-foreground">
+              {addresses.length} saved
+            </span>
           </div>
 
           {loading ? (
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              {[1, 2].map((item) => <div key={item} className="h-44 animate-pulse rounded-xl bg-white/60" />)}
+              {[1, 2].map((item) => (
+                <div
+                  key={item}
+                  className="h-44 animate-pulse rounded-xl bg-white/60"
+                />
+              ))}
             </div>
           ) : addresses.length ? (
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -247,14 +326,20 @@ export default function AddressesPage() {
                       </span>
                     )}
                   </div>
-                  <h3 className="mt-5 font-serif text-2xl font-semibold">{address.label || address.addressType}</h3>
+                  <h3 className="mt-5 font-serif text-2xl font-semibold">
+                    {address.label || address.addressType}
+                  </h3>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">
                     {address.addressLine1}
                     {address.addressLine2 ? `, ${address.addressLine2}` : ''}
                     <br />
                     {address.city}, {address.state} {address.pincode}
                   </p>
-                  {address.landmark && <p className="mt-2 text-xs text-muted-foreground">Near {address.landmark}</p>}
+                  {address.landmark && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Near {address.landmark}
+                    </p>
+                  )}
                 </article>
               ))}
             </div>
@@ -262,7 +347,9 @@ export default function AddressesPage() {
             <div className="surface-card mt-5 p-8 text-center">
               <MapPin className="mx-auto h-7 w-7 text-primary" />
               <p className="mt-4 font-semibold">No saved addresses yet</p>
-              <p className="mt-1 text-sm text-muted-foreground">Your first address becomes the default automatically.</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Your first address becomes the default automatically.
+              </p>
             </div>
           )}
         </section>

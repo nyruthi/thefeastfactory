@@ -29,10 +29,13 @@ export class StorageService {
 
   async uploadMenuImage(file?: UploadedImage) {
     if (!file) throw new BadRequestException('Image file is required');
-    if (file.size > 5 * 1024 * 1024) throw new BadRequestException('Image must be 5 MB or smaller');
+    if (file.size > 5 * 1024 * 1024)
+      throw new BadRequestException('Image must be 5 MB or smaller');
     const extension = allowedTypes.get(file.mimetype);
     if (!extension || !this.matchesMagicBytes(file.buffer, file.mimetype)) {
-      throw new BadRequestException('Only valid JPEG, PNG, and WebP images are allowed');
+      throw new BadRequestException(
+        'Only valid JPEG, PNG, and WebP images are allowed',
+      );
     }
 
     const objectName = `menu/${randomUUID()}${extension}`;
@@ -56,7 +59,9 @@ export class StorageService {
 
     await fs.mkdir(this.localDirectory, { recursive: true });
     const filename = `${randomUUID()}${extension}`;
-    await fs.writeFile(join(this.localDirectory, filename), file.buffer, { flag: 'wx' });
+    await fs.writeFile(join(this.localDirectory, filename), file.buffer, {
+      flag: 'wx',
+    });
     return {
       objectName: `menu/${filename}`,
       url: `${this.config.get<string>('API_PUBLIC_URL', 'http://localhost:4000')}/uploads/menu/${filename}`,
@@ -66,7 +71,8 @@ export class StorageService {
 
   async localFile(filename: string) {
     const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '');
-    if (!safeName || extname(safeName) === '') throw new NotFoundException('Image not found');
+    if (!safeName || extname(safeName) === '')
+      throw new NotFoundException('Image not found');
     const path = join(this.localDirectory, safeName);
     try {
       await fs.access(path);
@@ -77,10 +83,17 @@ export class StorageService {
   }
 
   private matchesMagicBytes(buffer: Buffer, mimeType: string) {
-    if (mimeType === 'image/jpeg') return buffer[0] === 0xff && buffer[1] === 0xd8;
-    if (mimeType === 'image/png') return buffer.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+    if (mimeType === 'image/jpeg')
+      return buffer[0] === 0xff && buffer[1] === 0xd8;
+    if (mimeType === 'image/png')
+      return buffer
+        .subarray(0, 8)
+        .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
     if (mimeType === 'image/webp') {
-      return buffer.subarray(0, 4).toString() === 'RIFF' && buffer.subarray(8, 12).toString() === 'WEBP';
+      return (
+        buffer.subarray(0, 4).toString() === 'RIFF' &&
+        buffer.subarray(8, 12).toString() === 'WEBP'
+      );
     }
     return false;
   }

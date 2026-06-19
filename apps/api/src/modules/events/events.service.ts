@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { EventStatus } from '@prisma/client';
 import { OperatingRegionsService } from '../operating-regions/operating-regions.service';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -15,7 +19,11 @@ export class EventsService {
   list(userId: string) {
     return this.prisma.event.findMany({
       where: { userId },
-      include: { packageVersion: { include: { package: true } }, address: true, region: true },
+      include: {
+        packageVersion: { include: { package: true } },
+        address: true,
+        region: true,
+      },
       orderBy: { eventDate: 'desc' },
     });
   }
@@ -23,7 +31,12 @@ export class EventsService {
   async get(userId: string, id: string) {
     const event = await this.prisma.event.findFirst({
       where: { id, userId },
-      include: { packageVersion: { include: { package: true } }, address: true, region: true, orders: true },
+      include: {
+        packageVersion: { include: { package: true } },
+        address: true,
+        region: true,
+        orders: true,
+      },
     });
     if (!event) throw new NotFoundException('Event not found');
     return event;
@@ -45,7 +58,11 @@ export class EventsService {
         deliveryFee: validated.deliveryFee,
         specialNotes: dto.specialNotes,
       },
-      include: { packageVersion: { include: { package: true } }, address: true, region: true },
+      include: {
+        packageVersion: { include: { package: true } },
+        address: true,
+        region: true,
+      },
     });
   }
 
@@ -72,26 +89,35 @@ export class EventsService {
         regionId: validated.region.id,
         eventName: merged.eventName,
         eventDate: validated.eventDate,
-        ...(dto.eventTimeStart !== undefined ? { eventTimeStart: validated.eventTime } : {}),
+        ...(dto.eventTimeStart !== undefined
+          ? { eventTimeStart: validated.eventTime }
+          : {}),
         guestCount: merged.guestCount,
         distanceKm: validated.distanceKm,
         deliveryFee: validated.deliveryFee,
         specialNotes: merged.specialNotes,
       },
-      include: { packageVersion: { include: { package: true } }, address: true, region: true },
+      include: {
+        packageVersion: { include: { package: true } },
+        address: true,
+        region: true,
+      },
     });
   }
 
   async remove(userId: string, id: string) {
     const event = await this.get(userId, id);
-    if (event.orders.length) throw new BadRequestException('Events with orders cannot be deleted');
+    if (event.orders.length)
+      throw new BadRequestException('Events with orders cannot be deleted');
     await this.prisma.event.delete({ where: { id } });
     return { success: true };
   }
 
   private async validateReferences(userId: string, dto: CreateEventDto) {
     const [address, version, setting] = await Promise.all([
-      this.prisma.userAddress.findFirst({ where: { id: dto.addressId, userId } }),
+      this.prisma.userAddress.findFirst({
+        where: { id: dto.addressId, userId },
+      }),
       this.prisma.packageVersion.findFirst({
         where: {
           id: dto.packageVersionId,
@@ -100,20 +126,34 @@ export class EventsService {
           package: { isActive: true, deletedAt: null },
         },
       }),
-      this.prisma.platformSetting.findUnique({ where: { key: 'min_booking_lead_hours' } }),
+      this.prisma.platformSetting.findUnique({
+        where: { key: 'min_booking_lead_hours' },
+      }),
     ]);
-    if (!address) throw new BadRequestException('Address does not belong to customer');
-    if (!version) throw new BadRequestException('Package version is not available');
-    if (dto.guestCount < version.minGuestCount || (version.maxGuestCount && dto.guestCount > version.maxGuestCount)) {
+    if (!address)
+      throw new BadRequestException('Address does not belong to customer');
+    if (!version)
+      throw new BadRequestException('Package version is not available');
+    if (
+      dto.guestCount < version.minGuestCount ||
+      (version.maxGuestCount && dto.guestCount > version.maxGuestCount)
+    ) {
       throw new BadRequestException('Guest count is outside package limits');
     }
     const eventDate = new Date(`${dto.eventDate}T00:00:00.000Z`);
     const leadHours = Number.parseInt(setting?.value ?? '48', 10);
     if (eventDate.getTime() - Date.now() < leadHours * 60 * 60 * 1000) {
-      throw new BadRequestException(`Event requires at least ${leadHours} hours advance booking`);
+      throw new BadRequestException(
+        `Event requires at least ${leadHours} hours advance booking`,
+      );
     }
-    const eventTime = dto.eventTimeStart ? new Date(`1970-01-01T${dto.eventTimeStart}:00.000Z`) : null;
-    const assignment = await this.regions.assign(address.latitude, address.longitude);
+    const eventTime = dto.eventTimeStart
+      ? new Date(`1970-01-01T${dto.eventTimeStart}:00.000Z`)
+      : null;
+    const assignment = await this.regions.assign(
+      address.latitude,
+      address.longitude,
+    );
     return { eventDate, eventTime, ...assignment };
   }
 }

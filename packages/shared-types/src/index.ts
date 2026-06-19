@@ -160,7 +160,12 @@ export type PackageSelectionPrice = {
   }>;
 };
 
-export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED' | 'PARTIALLY_REFUNDED';
+export type PaymentStatus =
+  | 'PENDING'
+  | 'PAID'
+  | 'FAILED'
+  | 'REFUNDED'
+  | 'PARTIALLY_REFUNDED';
 export type RefundStatus = 'INITIATED' | 'PROCESSING' | 'SUCCESS' | 'FAILED';
 export type OrderStatus =
   | 'DRAFT'

@@ -15,7 +15,9 @@ export default function PackagePage() {
   const { packageId } = useParams<{ packageId: string }>();
   const router = useRouter();
   const setPackage = useOrderBuilderStore((state) => state.setPackage);
-  const [version, setVersion] = useState<(PackageConfiguration & { packageName: string }) | null>(null);
+  const [version, setVersion] = useState<
+    (PackageConfiguration & { packageName: string }) | null
+  >(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -43,30 +45,62 @@ export default function PackagePage() {
     router.push(`/events/new?packageVersionId=${version.id}`);
   }
 
-  if (error) return <main className="page-shell"><StatePanel tone="danger" title="Package could not load" description={error} actionHref="/packages" actionLabel="Back to packages" /></main>;
-  if (!version) return <main className="page-shell"><div className="h-96 animate-pulse rounded-[2rem] bg-white/60" /></main>;
+  if (error)
+    return (
+      <main className="page-shell">
+        <StatePanel
+          tone="danger"
+          title="Package could not load"
+          description={error}
+          actionHref="/packages"
+          actionLabel="Back to packages"
+        />
+      </main>
+    );
+  if (!version)
+    return (
+      <main className="page-shell">
+        <div className="h-96 animate-pulse rounded-[2rem] bg-white/60" />
+      </main>
+    );
 
   return (
     <main className="page-shell pb-28">
-      <Link href="/packages" className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary">
+      <Link
+        href="/packages"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary"
+      >
         <ArrowLeft className="h-4 w-4" /> All packages
       </Link>
-      <div className="mt-6"><OrderProgress current={0} /></div>
+      <div className="mt-6">
+        <OrderProgress current={0} />
+      </div>
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
         <section>
-          <p className="eyebrow">{version.isCustom ? 'Build your own menu' : 'Curated for your table'}</p>
-          <h1 className="mt-3 font-serif text-5xl font-semibold">{version.packageName}</h1>
+          <p className="eyebrow">
+            {version.isCustom
+              ? 'Build your own menu'
+              : 'Curated for your table'}
+          </p>
+          <h1 className="mt-3 font-serif text-5xl font-semibold">
+            {version.packageName}
+          </h1>
           <p className="mt-4 flex items-center gap-2 text-muted-foreground">
             <Users className="h-4 w-4 text-primary" />
-            {version.minGuestCount}–{version.maxGuestCount ?? 'unlimited'} guests
+            {version.minGuestCount}–{version.maxGuestCount ?? 'unlimited'}{' '}
+            guests
           </p>
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
             {version.categoryRules.map((rule) => (
               <article key={rule.id} className="surface-card p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Course</p>
-                    <h2 className="mt-2 font-serif text-2xl font-semibold">{rule.category.name}</h2>
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                      Course
+                    </p>
+                    <h2 className="mt-2 font-serif text-2xl font-semibold">
+                      {rule.category.name}
+                    </h2>
                   </div>
                   <CheckCircle2 className="h-5 w-5 text-primary" />
                 </div>
@@ -87,7 +121,9 @@ export default function PackagePage() {
             {version.isCustom ? 'Custom' : `₹${version.basePricePerPlate}`}
           </p>
           <p className="text-sm text-muted-foreground">
-            {version.isCustom ? 'Select dishes at their actual per-plate prices' : 'per guest, before premium additions'}
+            {version.isCustom
+              ? 'Select dishes at their actual per-plate prices'
+              : 'per guest, before premium additions'}
           </p>
           <div className="my-6 h-px bg-border" />
           <p className="text-sm leading-6 text-muted-foreground">
@@ -95,7 +131,9 @@ export default function PackagePage() {
               ? 'You will choose an event date and venue next, then build a menu from any available dish.'
               : 'You will choose an event date and venue next, then curate each course within the package rules.'}
           </p>
-          <Button className="mt-7 w-full" onClick={startOrder}>Choose this package</Button>
+          <Button className="mt-7 w-full" onClick={startOrder}>
+            Choose this package
+          </Button>
         </aside>
       </div>
     </main>

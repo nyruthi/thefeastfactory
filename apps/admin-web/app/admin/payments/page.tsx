@@ -19,15 +19,30 @@ export default function Payments() {
   const [regions, setRegions] = useState<OperatingRegion[]>([]);
   const [regionId, setRegionId] = useState('');
   const [error, setError] = useState('');
-  const effectiveRegionId = session?.admin.role === 'OPERATIONS' ? session.admin.regionId ?? '' : regionId;
-  const load = () => session && apiRequest<any[]>(`/admin/payments${effectiveRegionId ? `?regionId=${effectiveRegionId}` : ''}`, {}, session.accessToken).then(setRows);
+  const effectiveRegionId =
+    session?.admin.role === 'OPERATIONS'
+      ? (session.admin.regionId ?? '')
+      : regionId;
+  const load = () =>
+    session &&
+    apiRequest<any[]>(
+      `/admin/payments${effectiveRegionId ? `?regionId=${effectiveRegionId}` : ''}`,
+      {},
+      session.accessToken,
+    ).then(setRows);
 
   useEffect(() => {
     if (!session) return;
-    apiRequest<OperatingRegion[]>('/admin/operating-regions?activeOnly=true', {}, session.accessToken).then(setRegions);
+    apiRequest<OperatingRegion[]>(
+      '/admin/operating-regions?activeOnly=true',
+      {},
+      session.accessToken,
+    ).then(setRegions);
   }, [session]);
 
-  useEffect(() => { load(); }, [session, effectiveRegionId]);
+  useEffect(() => {
+    load();
+  }, [session, effectiveRegionId]);
 
   async function refund(event: React.FormEvent) {
     event.preventDefault();
@@ -37,7 +52,10 @@ export default function Payments() {
         `/admin/payments/${selected.id}/refunds`,
         {
           method: 'POST',
-          body: JSON.stringify({ amount, reason: reason === 'Other' ? customReason : reason }),
+          body: JSON.stringify({
+            amount,
+            reason: reason === 'Other' ? customReason : reason,
+          }),
         },
         session!.accessToken,
       );
@@ -53,31 +71,90 @@ export default function Payments() {
 
   return (
     <main className="admin-page">
-      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Gateway ledger</p>
+      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+        Gateway ledger
+      </p>
       <h1 className="admin-title mt-2">Payments and refunds</h1>
       <div className="admin-card mt-7 max-w-sm">
         {session?.admin.role === 'ADMIN' ? (
-          <Select value={regionId} onChange={(event) => setRegionId(event.target.value)}>
+          <Select
+            value={regionId}
+            onChange={(event) => setRegionId(event.target.value)}
+          >
             <option value="">All regions</option>
-            {regions.map((region) => <option value={region.id} key={region.id}>{region.name}</option>)}
+            {regions.map((region) => (
+              <option value={region.id} key={region.id}>
+                {region.name}
+              </option>
+            ))}
           </Select>
         ) : (
-          <div className="text-sm font-semibold">{session?.admin.region?.name ?? 'Region not assigned'}</div>
+          <div className="text-sm font-semibold">
+            {session?.admin.region?.name ?? 'Region not assigned'}
+          </div>
         )}
       </div>
       <div className="admin-card mt-5 overflow-x-auto p-0">
         <table className="admin-table">
-          <thead><tr><th>Order</th><th>Attempt</th><th>Status</th><th>Method</th><th>Refunds</th><th className="text-right">Amount</th><th /></tr></thead>
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Attempt</th>
+              <th>Status</th>
+              <th>Method</th>
+              <th>Refunds</th>
+              <th className="text-right">Amount</th>
+              <th />
+            </tr>
+          </thead>
           <tbody>
             {rows.map((row) => (
               <tr key={row.id}>
-                <td className="font-semibold">{row.order.orderNumber}<span className="block text-xs font-normal text-muted-foreground">{row.order.user.mobileNumber} · {row.order.region?.name ?? 'Unassigned'}</span></td>
-                <td className="max-w-48 truncate text-xs text-muted-foreground">{row.razorpayPaymentId || row.razorpayOrderId}</td>
-                <td><StatusBadge value={row.paymentStatus} />{row.failureReason && <p className="mt-1 max-w-52 text-xs text-red-600">{row.failureReason}</p>}</td>
+                <td className="font-semibold">
+                  {row.order.orderNumber}
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    {row.order.user.mobileNumber} ·{' '}
+                    {row.order.region?.name ?? 'Unassigned'}
+                  </span>
+                </td>
+                <td className="max-w-48 truncate text-xs text-muted-foreground">
+                  {row.razorpayPaymentId || row.razorpayOrderId}
+                </td>
+                <td>
+                  <StatusBadge value={row.paymentStatus} />
+                  {row.failureReason && (
+                    <p className="mt-1 max-w-52 text-xs text-red-600">
+                      {row.failureReason}
+                    </p>
+                  )}
+                </td>
                 <td>{row.paymentMethod || '—'}</td>
-                <td>{row.refunds.length ? row.refunds.map((refund: any) => <div key={refund.id} className="mb-1"><StatusBadge value={refund.refundStatus} /> <span className="text-xs">₹{refund.amount}</span></div>) : '—'}</td>
+                <td>
+                  {row.refunds.length
+                    ? row.refunds.map((refund: any) => (
+                        <div key={refund.id} className="mb-1">
+                          <StatusBadge value={refund.refundStatus} />{' '}
+                          <span className="text-xs">₹{refund.amount}</span>
+                        </div>
+                      ))
+                    : '—'}
+                </td>
                 <td className="text-right font-semibold">₹{row.amount}</td>
-                <td>{['PAID','PARTIALLY_REFUNDED'].includes(row.paymentStatus) && <Button variant="outline" onClick={() => { setSelected(row); setAmount(row.amount); }}>Refund</Button>}</td>
+                <td>
+                  {['PAID', 'PARTIALLY_REFUNDED'].includes(
+                    row.paymentStatus,
+                  ) && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelected(row);
+                        setAmount(row.amount);
+                      }}
+                    >
+                      Refund
+                    </Button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -85,26 +162,55 @@ export default function Payments() {
       </div>
       {selected && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 p-4">
-          <form onSubmit={refund} className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+          <form
+            onSubmit={refund}
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+          >
             <h2 className="text-2xl font-semibold">Issue refund</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{selected.order.orderNumber} · paid ₹{selected.amount}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {selected.order.orderNumber} · paid ₹{selected.amount}
+            </p>
             <div className="mt-5 space-y-3">
               <Field label="Refund amount">
-                <Input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" placeholder="Refund amount" required />
+                <Input
+                  value={amount}
+                  onChange={(event) => setAmount(event.target.value)}
+                  inputMode="decimal"
+                  placeholder="Refund amount"
+                  required
+                />
               </Field>
               <Field label="Reason">
-                <Select value={reason} onChange={(event) => setReason(event.target.value)}>
-                  {refundReasonOptions.map((option) => <option key={option}>{option}</option>)}
+                <Select
+                  value={reason}
+                  onChange={(event) => setReason(event.target.value)}
+                >
+                  {refundReasonOptions.map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
                 </Select>
               </Field>
               {reason === 'Other' && (
                 <Field label="Custom refund reason">
-                  <Textarea value={customReason} onChange={(event) => setCustomReason(event.target.value)} placeholder="Custom refund reason" maxLength={500} required />
+                  <Textarea
+                    value={customReason}
+                    onChange={(event) => setCustomReason(event.target.value)}
+                    placeholder="Custom refund reason"
+                    maxLength={500}
+                    required
+                  />
                 </Field>
               )}
               {error && <p className="text-sm text-red-600">{error}</p>}
               <div className="flex gap-3">
-                <Button type="button" variant="outline" className="flex-1" onClick={() => setSelected(undefined)}>Cancel</Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setSelected(undefined)}
+                >
+                  Cancel
+                </Button>
                 <Button className="flex-1">Submit refund</Button>
               </div>
             </div>

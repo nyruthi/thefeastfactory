@@ -17,7 +17,8 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     const http = context.switchToHttp();
     const request = http.getRequest<Request & { requestId?: string }>();
     const response = http.getResponse<Response>();
-    const requestId = request.header('x-request-id')?.slice(0, 100) || randomUUID();
+    const requestId =
+      request.header('x-request-id')?.slice(0, 100) || randomUUID();
     const startedAt = Date.now();
 
     request.requestId = requestId;

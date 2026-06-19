@@ -11,7 +11,22 @@ import { ReportsService } from './reports.service';
 @Controller('admin/reports')
 export class ReportsController {
   constructor(private readonly reports: ReportsService) {}
-  @Get('revenue') revenue(@CurrentAdmin() admin: JwtPayload, @Query('regionId') regionId?: string) { return this.reports.revenue(admin, regionId); }
-  @Get('orders') orders(@CurrentAdmin() admin: JwtPayload, @Query('regionId') regionId?: string) { return this.reports.orders(admin, regionId); }
-  @Get('payments') payments(@CurrentAdmin() admin: JwtPayload, @Query('regionId') regionId?: string) { return this.reports.payments(admin, regionId); }
+  @Get('revenue') revenue(
+    @CurrentAdmin() admin: JwtPayload,
+    @Query('regionId') regionId?: string,
+  ) {
+    return this.reports.revenue(admin, regionId);
+  }
+  @Get('orders') orders(
+    @CurrentAdmin() admin: JwtPayload,
+    @Query('regionId') regionId?: string,
+  ) {
+    return this.reports.orders(admin, regionId);
+  }
+  @Get('payments') payments(
+    @CurrentAdmin() admin: JwtPayload,
+    @Query('regionId') regionId?: string,
+  ) {
+    return this.reports.payments(admin, regionId);
+  }
 }

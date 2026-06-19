@@ -47,7 +47,9 @@ export class PaymentsService {
     }
 
     const existing = order.payments.find(
-      (payment) => payment.paymentStatus === PaymentStatus.PENDING && payment.razorpayOrderId,
+      (payment) =>
+        payment.paymentStatus === PaymentStatus.PENDING &&
+        payment.razorpayOrderId,
     );
     if (existing) {
       return {
@@ -62,7 +64,10 @@ export class PaymentsService {
     }
 
     const gatewayOrder = this.isConfigured()
-      ? await this.createRazorpayOrder(order.orderNumber, order.totalAmount.mul(100).toNumber())
+      ? await this.createRazorpayOrder(
+          order.orderNumber,
+          order.totalAmount.mul(100).toNumber(),
+        )
       : {
           id: `local_order_${order.id}_${Date.now()}`,
           amount: order.totalAmount.mul(100).toNumber(),
@@ -74,7 +79,10 @@ export class PaymentsService {
         orderId,
         amount: order.totalAmount,
         razorpayOrderId: gatewayOrder.id,
-        gatewayResponse: { orderCreated: true, localMode: !this.isConfigured() },
+        gatewayResponse: {
+          orderCreated: true,
+          localMode: !this.isConfigured(),
+        },
       },
     });
     return {
@@ -114,24 +122,41 @@ export class PaymentsService {
       method: 'local',
     };
     if (this.isConfigured()) {
-      gatewayPayment = (await this.client().payments.fetch(dto.razorpayPaymentId)) as GatewayPayment;
+      gatewayPayment = (await this.client().payments.fetch(
+        dto.razorpayPaymentId,
+      )) as GatewayPayment;
       if (
         gatewayPayment.order_id !== dto.razorpayOrderId ||
         Number(gatewayPayment.amount) !== payment.amount.mul(100).toNumber() ||
         gatewayPayment.status !== 'captured'
       ) {
-        throw new BadRequestException('Payment details could not be reconciled');
+        throw new BadRequestException(
+          'Payment details could not be reconciled',
+        );
       }
     }
 
-    await this.markPaid(payment.id, dto.razorpayPaymentId, dto.razorpaySignature, gatewayPayment);
+    await this.markPaid(
+      payment.id,
+      dto.razorpayPaymentId,
+      dto.razorpaySignature,
+      gatewayPayment,
+    );
     return { success: true, orderId: payment.orderId };
   }
 
-  async webhook(rawBody: Buffer, payload: Record<string, any>, signature?: string, providerEventId?: string) {
+  async webhook(
+    rawBody: Buffer,
+    payload: Record<string, any>,
+    signature?: string,
+    providerEventId?: string,
+  ) {
     const secret = this.config.get<string>('RAZORPAY_WEBHOOK_SECRET');
     if (secret) {
-      const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+      const expected = crypto
+        .createHmac('sha256', secret)
+        .update(rawBody)
+        .digest('hex');
       if (!signature || !this.safeEqual(signature, expected)) {
         throw new UnauthorizedException('Invalid webhook signature');
       }
@@ -168,13 +193,23 @@ export class PaymentsService {
     } catch (error) {
       await this.prisma.paymentWebhookEvent.update({
         where: { providerEventId: eventId },
-        data: { processingError: error instanceof Error ? error.message.slice(0, 1000) : 'Unknown error' },
+        data: {
+          processingError:
+            error instanceof Error
+              ? error.message.slice(0, 1000)
+              : 'Unknown error',
+        },
       });
       throw error;
     }
   }
 
-  async createRefund(adminId: string, paymentId: string, amountInput: string, reason?: string) {
+  async createRefund(
+    adminId: string,
+    paymentId: string,
+    amountInput: string,
+    reason?: string,
+  ) {
     const payment = await this.prisma.payment.findUnique({
       where: { id: paymentId },
       include: { refunds: true, order: true },
@@ -202,9 +237,13 @@ export class PaymentsService {
         amount,
         reason: reason?.trim(),
         initiatedById: adminId,
-        refundStatus: this.isConfigured() ? RefundStatus.PROCESSING : RefundStatus.SUCCESS,
+        refundStatus: this.isConfigured()
+          ? RefundStatus.PROCESSING
+          : RefundStatus.SUCCESS,
         processedAt: this.isConfigured() ? undefined : new Date(),
-        razorpayRefundId: this.isConfigured() ? undefined : `local_refund_${Date.now()}`,
+        razorpayRefundId: this.isConfigured()
+          ? undefined
+          : `local_refund_${Date.now()}`,
         gatewayResponse: { localMode: !this.isConfigured() },
       },
     });
@@ -215,21 +254,31 @@ export class PaymentsService {
     }
 
     try {
-      const gateway = await this.client().payments.refund(payment.razorpayPaymentId, {
-        amount: amount.mul(100).toNumber(),
-        speed: 'normal',
-        notes: { reason: reason || 'Admin initiated refund', orderId: payment.orderId },
-      });
+      const gateway = await this.client().payments.refund(
+        payment.razorpayPaymentId,
+        {
+          amount: amount.mul(100).toNumber(),
+          speed: 'normal',
+          notes: {
+            reason: reason || 'Admin initiated refund',
+            orderId: payment.orderId,
+          },
+        },
+      );
       const updated = await this.prisma.refund.update({
         where: { id: refund.id },
         data: {
           razorpayRefundId: gateway.id,
-          refundStatus: gateway.status === 'processed' ? RefundStatus.SUCCESS : RefundStatus.PROCESSING,
+          refundStatus:
+            gateway.status === 'processed'
+              ? RefundStatus.SUCCESS
+              : RefundStatus.PROCESSING,
           processedAt: gateway.status === 'processed' ? new Date() : undefined,
           gatewayResponse: gateway as unknown as Prisma.InputJsonValue,
         },
       });
-      if (updated.refundStatus === RefundStatus.SUCCESS) await this.reconcileRefund(paymentId);
+      if (updated.refundStatus === RefundStatus.SUCCESS)
+        await this.reconcileRefund(paymentId);
       return this.serializeRefund(updated);
     } catch (error) {
       await this.prisma.refund.update({
@@ -244,17 +293,27 @@ export class PaymentsService {
     }
   }
 
-  private async processWebhook(eventType: string, payload: Record<string, any>) {
+  private async processWebhook(
+    eventType: string,
+    payload: Record<string, any>,
+  ) {
     if (eventType === 'payment.captured') {
-      const entity = payload?.payload?.payment?.entity as GatewayPayment | undefined;
+      const entity = payload?.payload?.payment?.entity as
+        | GatewayPayment
+        | undefined;
       if (!entity?.id || !entity.order_id) return;
-      const payment = await this.prisma.payment.findFirst({ where: { razorpayOrderId: entity.order_id } });
-      if (payment) await this.markPaid(payment.id, entity.id, undefined, entity);
+      const payment = await this.prisma.payment.findFirst({
+        where: { razorpayOrderId: entity.order_id },
+      });
+      if (payment)
+        await this.markPaid(payment.id, entity.id, undefined, entity);
       return;
     }
 
     if (eventType === 'payment.failed') {
-      const entity = payload?.payload?.payment?.entity as GatewayPayment | undefined;
+      const entity = payload?.payload?.payment?.entity as
+        | GatewayPayment
+        | undefined;
       if (!entity?.order_id) return;
       const payment = await this.prisma.payment.findFirst({
         where: { razorpayOrderId: entity.order_id },
@@ -281,7 +340,8 @@ export class PaymentsService {
           orderId: payment.orderId,
           type: NotificationType.PAYMENT_FAILED,
           title: 'Payment failed',
-          message: 'Your payment was not completed. You can retry from your order.',
+          message:
+            'Your payment was not completed. You can retry from your order.',
         });
       });
       return;
@@ -292,7 +352,9 @@ export class PaymentsService {
         | { id?: string; status?: string; payment_id?: string }
         | undefined;
       if (!entity?.id) return;
-      const refund = await this.prisma.refund.findFirst({ where: { razorpayRefundId: entity.id } });
+      const refund = await this.prisma.refund.findFirst({
+        where: { razorpayRefundId: entity.id },
+      });
       if (!refund) return;
       const status =
         eventType === 'refund.failed' || entity.status === 'failed'
@@ -311,7 +373,8 @@ export class PaymentsService {
           gatewayResponse: entity as unknown as Prisma.InputJsonValue,
         },
       });
-      if (status !== RefundStatus.PROCESSING) await this.reconcileRefund(refund.paymentId);
+      if (status !== RefundStatus.PROCESSING)
+        await this.reconcileRefund(refund.paymentId);
     }
   }
 
@@ -378,13 +441,22 @@ export class PaymentsService {
         ? PaymentStatus.PARTIALLY_REFUNDED
         : PaymentStatus.PAID;
     await this.prisma.$transaction(async (tx) => {
-      await tx.payment.update({ where: { id: paymentId }, data: { paymentStatus } });
-      await tx.order.update({ where: { id: payment.orderId }, data: { paymentStatus } });
+      await tx.payment.update({
+        where: { id: paymentId },
+        data: { paymentStatus },
+      });
+      await tx.order.update({
+        where: { id: payment.orderId },
+        data: { paymentStatus },
+      });
       await this.operations.notify(tx, {
         userId: payment.order.userId,
         orderId: payment.orderId,
         type: NotificationType.REFUND_UPDATED,
-        title: paymentStatus === PaymentStatus.REFUNDED ? 'Refund completed' : 'Refund updated',
+        title:
+          paymentStatus === PaymentStatus.REFUNDED
+            ? 'Refund completed'
+            : 'Refund updated',
         message: `Refunded amount: INR ${total.toFixed(2)}.`,
       });
     });
@@ -398,9 +470,15 @@ export class PaymentsService {
         receipt: receipt.slice(0, 40),
         notes: { source: 'the-feast-factory' },
       });
-      return { id: created.id, amount: Number(created.amount), currency: created.currency };
+      return {
+        id: created.id,
+        amount: Number(created.amount),
+        currency: created.currency,
+      };
     } catch {
-      throw new BadGatewayException('Payment provider is temporarily unavailable');
+      throw new BadGatewayException(
+        'Payment provider is temporarily unavailable',
+      );
     }
   }
 
@@ -436,7 +514,14 @@ export class PaymentsService {
 
   private gatewayError(error: unknown) {
     if (!error || typeof error !== 'object') return 'Unknown gateway error';
-    const candidate = error as { error?: { description?: string }; message?: string };
-    return candidate.error?.description || candidate.message || 'Unknown gateway error';
+    const candidate = error as {
+      error?: { description?: string };
+      message?: string;
+    };
+    return (
+      candidate.error?.description ||
+      candidate.message ||
+      'Unknown gateway error'
+    );
   }
 }

@@ -20,7 +20,10 @@ const controlSx = {
     fontSize: '0.875rem',
     '& fieldset': { borderColor: 'hsl(var(--border))' },
     '&:hover fieldset': { borderColor: 'hsl(var(--primary) / 0.35)' },
-    '&.Mui-focused fieldset': { borderColor: 'hsl(var(--primary))', borderWidth: '1px' },
+    '&.Mui-focused fieldset': {
+      borderColor: 'hsl(var(--primary))',
+      borderWidth: '1px',
+    },
   },
   '& .MuiInputBase-input': {
     color: 'hsl(var(--foreground))',
@@ -44,27 +47,57 @@ export function Field({
     <label className={cn('block', className)}>
       <span className="mb-2 flex items-center justify-between gap-3 text-sm font-semibold">
         <span>{label}</span>
-        {optional && <span className="text-xs font-medium text-muted-foreground">Optional</span>}
+        {optional && (
+          <span className="text-xs font-medium text-muted-foreground">
+            Optional
+          </span>
+        )}
       </span>
       {children}
-      {hint && <span className="mt-1.5 block text-xs leading-5 text-muted-foreground">{hint}</span>}
+      {hint && (
+        <span className="mt-1.5 block text-xs leading-5 text-muted-foreground">
+          {hint}
+        </span>
+      )}
     </label>
   );
 }
 
-export const Select = React.forwardRef<HTMLDivElement, React.SelectHTMLAttributes<HTMLSelectElement>>(
-  ({ className, children, value, onChange, required, disabled, ...props }, ref) => {
+export const Select = React.forwardRef<
+  HTMLDivElement,
+  React.SelectHTMLAttributes<HTMLSelectElement>
+>(
+  (
+    { className, children, value, onChange, required, disabled, ...props },
+    ref,
+  ) => {
     const items = React.Children.map(children, (child) => {
-      if (!React.isValidElement<{ value?: string; children?: React.ReactNode; disabled?: boolean }>(child)) return null;
+      if (
+        !React.isValidElement<{
+          value?: string;
+          children?: React.ReactNode;
+          disabled?: boolean;
+        }>(child)
+      )
+        return null;
       return (
-        <MenuItem value={child.props.value ?? ''} disabled={child.props.disabled}>
+        <MenuItem
+          value={child.props.value ?? ''}
+          disabled={child.props.disabled}
+        >
           {child.props.children}
         </MenuItem>
       );
     });
 
     return (
-      <FormControl fullWidth required={required} disabled={disabled} className={className} ref={ref}>
+      <FormControl
+        fullWidth
+        required={required}
+        disabled={disabled}
+        className={className}
+        ref={ref}
+      >
         <MuiSelect
           displayEmpty
           value={String(value ?? '')}
@@ -80,8 +113,23 @@ export const Select = React.forwardRef<HTMLDivElement, React.SelectHTMLAttribute
 );
 Select.displayName = 'Select';
 
-export const Textarea = React.forwardRef<HTMLDivElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  ({ className, value, onChange, placeholder, required, disabled, maxLength, ...props }, ref) => (
+export const Textarea = React.forwardRef<
+  HTMLDivElement,
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>
+>(
+  (
+    {
+      className,
+      value,
+      onChange,
+      placeholder,
+      required,
+      disabled,
+      maxLength,
+      ...props
+    },
+    ref,
+  ) => (
     <TextField
       ref={ref}
       className={className}
@@ -117,7 +165,9 @@ export function DateField({
       <DatePicker
         value={value ? dayjs(value) : null}
         minDate={min ? dayjs(min) : undefined}
-        onChange={(next) => onValueChange(next?.isValid() ? next.format('YYYY-MM-DD') : '')}
+        onChange={(next) =>
+          onValueChange(next?.isValid() ? next.format('YYYY-MM-DD') : '')
+        }
         slotProps={{ textField: { fullWidth: true, required, sx: controlSx } }}
       />
     </LocalizationProvider>
@@ -137,7 +187,9 @@ export function TimeField({
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <TimePicker
         value={value ? dayjs(`1970-01-01T${value}`) : null}
-        onChange={(next) => onValueChange(next?.isValid() ? next.format('HH:mm') : '')}
+        onChange={(next) =>
+          onValueChange(next?.isValid() ? next.format('HH:mm') : '')
+        }
         slotProps={{ textField: { fullWidth: true, required, sx: controlSx } }}
       />
     </LocalizationProvider>
@@ -172,11 +224,19 @@ export function Checkbox({
         checked={checked}
         tabIndex={-1}
         disableRipple
-        sx={{ color: 'hsl(var(--muted-foreground))', '&.Mui-checked': { color: 'hsl(var(--primary))' }, p: 0 }}
+        sx={{
+          color: 'hsl(var(--muted-foreground))',
+          '&.Mui-checked': { color: 'hsl(var(--primary))' },
+          p: 0,
+        }}
       />
       <span className="min-w-0">
         <span className="block text-sm font-semibold">{label}</span>
-        {description && <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{description}</span>}
+        {description && (
+          <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">
+            {description}
+          </span>
+        )}
       </span>
     </button>
   );
@@ -204,12 +264,21 @@ export function ChoiceCard({
         selected && 'border-primary bg-primary/[0.055] ring-1 ring-primary/30',
       )}
     >
-      <span className={cn('mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full border bg-white', selected && 'border-primary')}>
+      <span
+        className={cn(
+          'mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full border bg-white',
+          selected && 'border-primary',
+        )}
+      >
         {selected && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
       </span>
       <span className="min-w-0 flex-1">
         <span className="block font-semibold">{label}</span>
-        {description && <span className="mt-1 block text-xs leading-5 text-muted-foreground">{description}</span>}
+        {description && (
+          <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+            {description}
+          </span>
+        )}
         {children}
       </span>
     </button>

@@ -3,5 +3,9 @@ import { OperatingRegionsModule } from '../operating-regions/operating-regions.m
 import { ReportsController } from './reports.controller';
 import { ReportsService } from './reports.service';
 
-@Module({ imports: [OperatingRegionsModule], controllers: [ReportsController], providers: [ReportsService] })
+@Module({
+  imports: [OperatingRegionsModule],
+  controllers: [ReportsController],
+  providers: [ReportsService],
+})
 export class ReportsModule {}

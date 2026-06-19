@@ -7,7 +7,12 @@ import { OperationsModule } from '../operations/operations.module';
 import { OperatingRegionsModule } from '../operating-regions/operating-regions.module';
 
 @Module({
-  imports: [OrdersModule, PaymentsModule, OperationsModule, OperatingRegionsModule],
+  imports: [
+    OrdersModule,
+    PaymentsModule,
+    OperationsModule,
+    OperatingRegionsModule,
+  ],
   controllers: [AdminOrdersController],
   providers: [AdminOrdersService],
 })

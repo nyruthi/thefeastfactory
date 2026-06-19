@@ -3,5 +3,9 @@ import { OperatingRegionsModule } from '../operating-regions/operating-regions.m
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
 
-@Module({ imports: [OperatingRegionsModule], controllers: [EventsController], providers: [EventsService] })
+@Module({
+  imports: [OperatingRegionsModule],
+  controllers: [EventsController],
+  providers: [EventsService],
+})
 export class EventsModule {}

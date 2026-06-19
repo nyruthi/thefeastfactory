@@ -1,6 +1,15 @@
 'use client';
 
-import { Bell, BookOpen, ClipboardList, Home, LogIn, Package, ShoppingBag, User } from 'lucide-react';
+import {
+  Bell,
+  BookOpen,
+  ClipboardList,
+  Home,
+  LogIn,
+  Package,
+  ShoppingBag,
+  User,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -16,7 +25,9 @@ const links = [
   { href: '/orders', label: 'Orders', icon: ClipboardList },
 ];
 
-export function CustomerShell({ children }: Readonly<{ children: React.ReactNode }>) {
+export function CustomerShell({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
   const session = useSessionStore((state) => state.session);
   const selectedItems = useOrderBuilderStore((state) => state.selectedItems);
@@ -25,8 +36,15 @@ export function CustomerShell({ children }: Readonly<{ children: React.ReactNode
   const [unread, setUnread] = useState(0);
   useEffect(() => setMounted(true), []);
   useEffect(() => {
-    if (!session) { setUnread(0); return; }
-    apiRequest<{ count: number }>('/me/notifications/unread-count', {}, session.accessToken)
+    if (!session) {
+      setUnread(0);
+      return;
+    }
+    apiRequest<{ count: number }>(
+      '/me/notifications/unread-count',
+      {},
+      session.accessToken,
+    )
       .then((result) => setUnread(result.count))
       .catch(() => undefined);
   }, [session, pathname]);
@@ -43,7 +61,9 @@ export function CustomerShell({ children }: Readonly<{ children: React.ReactNode
               F
             </span>
             <span>
-              <span className="block font-serif text-xl font-semibold leading-none text-primary">The Feast Factory</span>
+              <span className="block font-serif text-xl font-semibold leading-none text-primary">
+                The Feast Factory
+              </span>
               <span className="mt-1 block text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
                 Celebrations, served
               </span>
@@ -57,7 +77,9 @@ export function CustomerShell({ children }: Readonly<{ children: React.ReactNode
                 href={href}
                 className={cn(
                   'rounded-full px-4 py-2 text-sm font-medium transition-colors',
-                  pathname === href ? 'bg-primary text-white' : 'text-muted-foreground hover:text-foreground',
+                  pathname === href
+                    ? 'bg-primary text-white'
+                    : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 {label}
@@ -67,9 +89,17 @@ export function CustomerShell({ children }: Readonly<{ children: React.ReactNode
 
           <div className="flex items-center gap-2">
             {session && (
-              <Link href="/notifications" className="relative grid h-10 w-10 place-items-center rounded-full border bg-white" aria-label={`${unread} unread notifications`}>
+              <Link
+                href="/notifications"
+                className="relative grid h-10 w-10 place-items-center rounded-full border bg-white"
+                aria-label={`${unread} unread notifications`}
+              >
                 <Bell className="h-4 w-4" />
-                {unread > 0 && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold">{unread}</span>}
+                {unread > 0 && (
+                  <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold">
+                    {unread}
+                  </span>
+                )}
               </Link>
             )}
             <Link
@@ -81,7 +111,9 @@ export function CustomerShell({ children }: Readonly<{ children: React.ReactNode
               aria-label={`Cart with ${cartCount} selected items`}
             >
               <ShoppingBag className="h-4 w-4" />
-              <span className="hidden sm:inline">{hasCart ? 'Your cart' : 'Cart'}</span>
+              <span className="hidden sm:inline">
+                {hasCart ? 'Your cart' : 'Cart'}
+              </span>
               {cartCount > 0 && (
                 <span className="grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[11px] text-accent-foreground">
                   {cartCount}
@@ -93,7 +125,11 @@ export function CustomerShell({ children }: Readonly<{ children: React.ReactNode
               className="grid h-10 w-10 place-items-center rounded-full bg-primary text-white"
               aria-label={session ? 'Profile' : 'Login'}
             >
-              {session ? <User className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+              {session ? (
+                <User className="h-4 w-4" />
+              ) : (
+                <LogIn className="h-4 w-4" />
+              )}
             </Link>
           </div>
         </div>
@@ -102,26 +138,32 @@ export function CustomerShell({ children }: Readonly<{ children: React.ReactNode
       {children}
 
       <nav className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t bg-white/95 px-2 pb-safe backdrop-blur md:hidden">
-        {[...links.slice(0, 3), { href: '/cart', label: 'Cart', icon: ShoppingBag }, { href: session ? '/profile' : '/login', label: session ? 'Profile' : 'Login', icon: session ? User : LogIn }].map(
-          ({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium',
-                pathname === href ? 'text-primary' : 'text-muted-foreground',
-              )}
-            >
-              <Icon className="h-5 w-5" />
-              {label}
-              {href === '/cart' && cartCount > 0 && (
-                <span className="absolute right-[24%] top-2 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] text-accent-foreground">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-          ),
-        )}
+        {[
+          ...links.slice(0, 3),
+          { href: '/cart', label: 'Cart', icon: ShoppingBag },
+          {
+            href: session ? '/profile' : '/login',
+            label: session ? 'Profile' : 'Login',
+            icon: session ? User : LogIn,
+          },
+        ].map(({ href, label, icon: Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className={cn(
+              'relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium',
+              pathname === href ? 'text-primary' : 'text-muted-foreground',
+            )}
+          >
+            <Icon className="h-5 w-5" />
+            {label}
+            {href === '/cart' && cartCount > 0 && (
+              <span className="absolute right-[24%] top-2 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] text-accent-foreground">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+        ))}
       </nav>
     </div>
   );

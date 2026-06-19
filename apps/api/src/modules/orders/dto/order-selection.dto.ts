@@ -10,6 +10,9 @@ export class OrderSelectedItemDto {
 export class OrderSelectionDto {
   @ApiProperty() @IsUUID() eventId!: string;
   @ApiProperty({ type: [OrderSelectedItemDto] })
-  @IsArray() @ArrayMinSize(1) @ValidateNested({ each: true }) @Type(() => OrderSelectedItemDto)
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => OrderSelectedItemDto)
   selectedItems!: OrderSelectedItemDto[];
 }

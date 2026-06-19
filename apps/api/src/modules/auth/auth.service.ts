@@ -21,8 +21,14 @@ export class AuthService {
 
   async requestCustomerOtp(dto: RequestOtpDto) {
     const otp = this.generateOtp();
-    const otpHash = await bcrypt.hash(otp, this.config.get<number>('BCRYPT_SALT_ROUNDS', 12));
-    const expirySeconds = this.config.get<number>('MSG91_OTP_EXPIRY_SECONDS', 300);
+    const otpHash = await bcrypt.hash(
+      otp,
+      this.config.get<number>('BCRYPT_SALT_ROUNDS', 12),
+    );
+    const expirySeconds = this.config.get<number>(
+      'MSG91_OTP_EXPIRY_SECONDS',
+      300,
+    );
 
     await this.prisma.otpVerification.create({
       data: {
@@ -103,7 +109,12 @@ export class AuthService {
       data: { lastLoginAt: new Date() },
     });
 
-    const payload: JwtPayload = { sub: admin.id, type: 'admin', role: admin.role, regionId: admin.regionId };
+    const payload: JwtPayload = {
+      sub: admin.id,
+      type: 'admin',
+      role: admin.role,
+      regionId: admin.regionId,
+    };
     const tokens = await this.signTokens(payload);
 
     return {
@@ -134,19 +145,29 @@ export class AuthService {
     }
 
     if (payload.type === 'customer') {
-      const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.sub },
+      });
       if (!user?.isActive) {
         throw new UnauthorizedException('Invalid refresh token');
       }
       return this.createCustomerSession(user);
     }
 
-    const admin = await this.prisma.adminUser.findUnique({ where: { id: payload.sub }, include: { region: true } });
+    const admin = await this.prisma.adminUser.findUnique({
+      where: { id: payload.sub },
+      include: { region: true },
+    });
     if (!admin?.isActive) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const tokens = await this.signTokens({ sub: admin.id, type: 'admin', role: admin.role, regionId: admin.regionId });
+    const tokens = await this.signTokens({
+      sub: admin.id,
+      type: 'admin',
+      role: admin.role,
+      regionId: admin.regionId,
+    });
     return {
       ...tokens,
       admin: {
@@ -176,8 +197,14 @@ export class AuthService {
   }
 
   private async signTokens(payload: JwtPayload) {
-    const accessExpiresIn = this.config.get<string>('JWT_ACCESS_EXPIRES_IN', '15m') as never;
-    const refreshExpiresIn = this.config.get<string>('JWT_REFRESH_EXPIRES_IN', '30d') as never;
+    const accessExpiresIn = this.config.get<string>(
+      'JWT_ACCESS_EXPIRES_IN',
+      '15m',
+    ) as never;
+    const refreshExpiresIn = this.config.get<string>(
+      'JWT_REFRESH_EXPIRES_IN',
+      '30d',
+    ) as never;
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwt.signAsync(payload, {
@@ -198,7 +225,9 @@ export class AuthService {
   }
 
   private async getIntSetting(key: string, fallback: number) {
-    const setting = await this.prisma.platformSetting.findUnique({ where: { key } });
+    const setting = await this.prisma.platformSetting.findUnique({
+      where: { key },
+    });
     return setting ? Number.parseInt(setting.value, 10) : fallback;
   }
 

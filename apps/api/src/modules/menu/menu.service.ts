@@ -37,7 +37,9 @@ export class MenuService {
           ? {
               OR: [
                 { name: { contains: query.search, mode: 'insensitive' } },
-                { description: { contains: query.search, mode: 'insensitive' } },
+                {
+                  description: { contains: query.search, mode: 'insensitive' },
+                },
               ],
             }
           : {}),
@@ -51,7 +53,12 @@ export class MenuService {
 
   async getItem(id: string) {
     const item = await this.prisma.menuItem.findFirst({
-      where: { id, isActive: true, deletedAt: null, category: { isActive: true } },
+      where: {
+        id,
+        isActive: true,
+        deletedAt: null,
+        category: { isActive: true },
+      },
       include: { category: true },
     });
 
@@ -85,8 +92,12 @@ export class MenuService {
       where: { id },
       data: {
         ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
-        ...(dto.description !== undefined ? { description: dto.description?.trim() } : {}),
-        ...(dto.displayOrder !== undefined ? { displayOrder: dto.displayOrder } : {}),
+        ...(dto.description !== undefined
+          ? { description: dto.description?.trim() }
+          : {}),
+        ...(dto.displayOrder !== undefined
+          ? { displayOrder: dto.displayOrder }
+          : {}),
         ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
       },
     });
@@ -98,7 +109,9 @@ export class MenuService {
         deletedAt: null,
         ...(query.categoryId ? { categoryId: query.categoryId } : {}),
         ...(query.isVeg !== undefined ? { isVeg: query.isVeg } : {}),
-        ...(query.search ? { name: { contains: query.search, mode: 'insensitive' } } : {}),
+        ...(query.search
+          ? { name: { contains: query.search, mode: 'insensitive' } }
+          : {}),
       },
       include: { category: true },
       orderBy: [{ category: { displayOrder: 'asc' } }, { name: 'asc' }],
@@ -135,8 +148,12 @@ export class MenuService {
       data: {
         ...(dto.categoryId !== undefined ? { categoryId: dto.categoryId } : {}),
         ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
-        ...(dto.description !== undefined ? { description: dto.description?.trim() } : {}),
-        ...(dto.basePrice !== undefined ? { basePrice: new Prisma.Decimal(dto.basePrice) } : {}),
+        ...(dto.description !== undefined
+          ? { description: dto.description?.trim() }
+          : {}),
+        ...(dto.basePrice !== undefined
+          ? { basePrice: new Prisma.Decimal(dto.basePrice) }
+          : {}),
         ...(dto.isVeg !== undefined ? { isVeg: dto.isVeg } : {}),
         ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
         ...(dto.imageUrl !== undefined ? { imageUrl: dto.imageUrl } : {}),
@@ -156,18 +173,24 @@ export class MenuService {
   }
 
   private async assertCategory(id: string) {
-    const category = await this.prisma.menuCategory.findUnique({ where: { id } });
+    const category = await this.prisma.menuCategory.findUnique({
+      where: { id },
+    });
     if (!category) throw new NotFoundException('Menu category not found');
     return category;
   }
 
   private async assertItem(id: string) {
-    const item = await this.prisma.menuItem.findFirst({ where: { id, deletedAt: null } });
+    const item = await this.prisma.menuItem.findFirst({
+      where: { id, deletedAt: null },
+    });
     if (!item) throw new NotFoundException('Menu item not found');
     return item;
   }
 
-  private serializeItem<T extends { basePrice: Prisma.Decimal; category?: unknown }>(item: T) {
+  private serializeItem<
+    T extends { basePrice: Prisma.Decimal; category?: unknown },
+  >(item: T) {
     return { ...item, basePrice: item.basePrice.toFixed(2) };
   }
 }

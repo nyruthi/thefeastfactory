@@ -47,9 +47,24 @@ async function main() {
   const passwordHash = await bcrypt.hash('Admin@12345', 12);
 
   const regionSeeds = [
-    { code: 'HYDERABAD', name: 'Hyderabad', latitude: '17.38500000', longitude: '78.48670000' },
-    { code: 'KARIMNAGAR', name: 'Karimnagar', latitude: '18.43860000', longitude: '79.12880000' },
-    { code: 'WARANGAL', name: 'Warangal', latitude: '17.96890000', longitude: '79.59410000' },
+    {
+      code: 'HYDERABAD',
+      name: 'Hyderabad',
+      latitude: '17.38500000',
+      longitude: '78.48670000',
+    },
+    {
+      code: 'KARIMNAGAR',
+      name: 'Karimnagar',
+      latitude: '18.43860000',
+      longitude: '79.12880000',
+    },
+    {
+      code: 'WARANGAL',
+      name: 'Warangal',
+      latitude: '17.96890000',
+      longitude: '79.59410000',
+    },
   ] as const;
 
   for (const region of regionSeeds) {
@@ -85,7 +100,13 @@ async function main() {
     },
   });
 
-  const categories = ['Starters', 'Main Course', 'Desserts', 'Beverages', 'Snacks'];
+  const categories = [
+    'Starters',
+    'Main Course',
+    'Desserts',
+    'Beverages',
+    'Snacks',
+  ];
   const categoryByName = new Map<string, { id: string }>();
   for (const [index, name] of categories.entries()) {
     const category = await prisma.menuCategory.upsert({
@@ -112,12 +133,20 @@ async function main() {
     ['Snacks', 'Samosa', '35.00', true],
   ] as const;
 
-  const itemByName = new Map<string, { id: string; categoryId: string; basePrice: Prisma.Decimal }>();
+  const itemByName = new Map<
+    string,
+    { id: string; categoryId: string; basePrice: Prisma.Decimal }
+  >();
   for (const [categoryName, name, basePrice, isVeg] of menuSeeds) {
     const category = categoryByName.get(categoryName)!;
     const item = await prisma.menuItem.upsert({
       where: { categoryId_name: { categoryId: category.id, name } },
-      update: { basePrice: new Prisma.Decimal(basePrice), isVeg, isActive: true, deletedAt: null },
+      update: {
+        basePrice: new Prisma.Decimal(basePrice),
+        isVeg,
+        isActive: true,
+        deletedAt: null,
+      },
       create: {
         categoryId: category.id,
         name,
@@ -129,15 +158,38 @@ async function main() {
   }
 
   const packageSeeds = [
-    { name: 'Silver Package', price: '499.00', starterCount: 1, mainCount: 2, dessertCount: 1 },
-    { name: 'Gold Package', price: '699.00', starterCount: 2, mainCount: 3, dessertCount: 1 },
-    { name: 'Premium Package', price: '899.00', starterCount: 3, mainCount: 3, dessertCount: 2 },
+    {
+      name: 'Silver Package',
+      price: '499.00',
+      starterCount: 1,
+      mainCount: 2,
+      dessertCount: 1,
+    },
+    {
+      name: 'Gold Package',
+      price: '699.00',
+      starterCount: 2,
+      mainCount: 3,
+      dessertCount: 1,
+    },
+    {
+      name: 'Premium Package',
+      price: '899.00',
+      starterCount: 3,
+      mainCount: 3,
+      dessertCount: 2,
+    },
   ] as const;
 
   for (const [index, packageSeed] of packageSeeds.entries()) {
     const pkg = await prisma.package.upsert({
       where: { name: packageSeed.name },
-      update: { isCustom: false, isActive: true, displayOrder: index + 1, deletedAt: null },
+      update: {
+        isCustom: false,
+        isActive: true,
+        displayOrder: index + 1,
+        deletedAt: null,
+      },
       create: {
         name: packageSeed.name,
         description: `${packageSeed.name} catering selection`,
@@ -178,7 +230,11 @@ async function main() {
             categoryId: category.id,
           },
         },
-        update: { minSelections: count, maxSelections: count, isMandatory: true },
+        update: {
+          minSelections: count,
+          maxSelections: count,
+          isMandatory: true,
+        },
         create: {
           packageVersionId: version.id,
           categoryId: category.id,
@@ -191,12 +247,18 @@ async function main() {
 
     for (const [name, item] of itemByName) {
       const isPackageCategory = ruleSeeds.some(
-        ([categoryName]) => categoryByName.get(categoryName)!.id === item.categoryId,
+        ([categoryName]) =>
+          categoryByName.get(categoryName)!.id === item.categoryId,
       );
       if (!isPackageCategory) continue;
 
       await prisma.packageMenuItem.upsert({
-        where: { packageVersionId_menuItemId: { packageVersionId: version.id, menuItemId: item.id } },
+        where: {
+          packageVersionId_menuItemId: {
+            packageVersionId: version.id,
+            menuItemId: item.id,
+          },
+        },
         update: { categoryId: item.categoryId, isAvailable: true },
         create: {
           packageVersionId: version.id,
@@ -205,12 +267,23 @@ async function main() {
         },
       });
 
-      const isPremiumDish = ['Paneer Tikka', 'Chicken 65', 'Paneer Butter Masala', 'Chicken Biryani', 'Rasmalai'].includes(
-        name,
-      );
-      const includedValue = isPremiumDish ? item.basePrice.minus(20) : item.basePrice;
+      const isPremiumDish = [
+        'Paneer Tikka',
+        'Chicken 65',
+        'Paneer Butter Masala',
+        'Chicken Biryani',
+        'Rasmalai',
+      ].includes(name);
+      const includedValue = isPremiumDish
+        ? item.basePrice.minus(20)
+        : item.basePrice;
       await prisma.packageMenuItemPricing.upsert({
-        where: { packageVersionId_menuItemId: { packageVersionId: version.id, menuItemId: item.id } },
+        where: {
+          packageVersionId_menuItemId: {
+            packageVersionId: version.id,
+            menuItemId: item.id,
+          },
+        },
         update: { itemPrice: item.basePrice, includedValue },
         create: {
           packageVersionId: version.id,
@@ -241,7 +314,9 @@ async function main() {
   });
 
   await prisma.packageVersion.upsert({
-    where: { packageId_versionNo: { packageId: customPackage.id, versionNo: 1 } },
+    where: {
+      packageId_versionNo: { packageId: customPackage.id, versionNo: 1 },
+    },
     update: {
       basePricePerPlate: new Prisma.Decimal('0.00'),
       minGuestCount: 10,

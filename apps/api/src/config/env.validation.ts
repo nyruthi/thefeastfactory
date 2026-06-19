@@ -3,9 +3,13 @@ import { z } from 'zod';
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   API_PORT: z.coerce.number().default(4000),
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  NODE_ENV: z
+    .enum(['development', 'test', 'production'])
+    .default('development'),
   API_PUBLIC_URL: z.string().url().default('http://localhost:4000'),
-  API_CORS_ORIGINS: z.string().default('http://localhost:3000,http://localhost:3001'),
+  API_CORS_ORIGINS: z
+    .string()
+    .default('http://localhost:3000,http://localhost:3001'),
   JWT_ACCESS_SECRET: z.string().min(16),
   JWT_REFRESH_SECRET: z.string().min(16),
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),

@@ -49,16 +49,28 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   const navigation = (
     <>
-      <Link href="/admin/dashboard" className="flex items-center gap-3 px-3 py-2" onClick={() => setOpen(false)}>
-        <span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary text-lg font-bold text-white">F</span>
+      <Link
+        href="/admin/dashboard"
+        className="flex items-center gap-3 px-3 py-2"
+        onClick={() => setOpen(false)}
+      >
+        <span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary text-lg font-bold text-white">
+          F
+        </span>
         <span>
-          <span className="block font-serif text-xl font-semibold text-primary">The Feast Factory</span>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Operations</span>
+          <span className="block font-serif text-xl font-semibold text-primary">
+            The Feast Factory
+          </span>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+            Operations
+          </span>
         </span>
       </Link>
       <nav className="mt-7 space-y-1">
         {links.map(([label, href, Icon]) => {
-          const active = pathname === href || (href !== '/admin/dashboard' && pathname.startsWith(href));
+          const active =
+            pathname === href ||
+            (href !== '/admin/dashboard' && pathname.startsWith(href));
           return (
             <Link
               key={href}
@@ -66,7 +78,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               onClick={() => setOpen(false)}
               className={cn(
                 'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition',
-                active ? 'bg-primary text-white shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                active
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
               )}
             >
               <Icon className="h-4 w-4" />
@@ -80,12 +94,22 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background md:grid md:grid-cols-[260px_1fr]">
-      <aside className="hidden border-r bg-white p-5 md:block">{navigation}</aside>
+      <aside className="hidden border-r bg-white p-5 md:block">
+        {navigation}
+      </aside>
       {open && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <button className="absolute inset-0 bg-slate-950/40" aria-label="Close navigation" onClick={() => setOpen(false)} />
+          <button
+            className="absolute inset-0 bg-slate-950/40"
+            aria-label="Close navigation"
+            onClick={() => setOpen(false)}
+          />
           <aside className="relative h-full w-[280px] bg-white p-5 shadow-2xl">
-            <button className="absolute right-4 top-4 rounded-lg p-2 hover:bg-muted" onClick={() => setOpen(false)} aria-label="Close navigation">
+            <button
+              className="absolute right-4 top-4 rounded-lg p-2 hover:bg-muted"
+              onClick={() => setOpen(false)}
+              aria-label="Close navigation"
+            >
               <X className="h-5 w-5" />
             </button>
             {navigation}
@@ -94,13 +118,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       )}
       <div className="min-w-0">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-white/90 px-4 backdrop-blur md:px-7">
-          <button className="rounded-lg border p-2 md:hidden" onClick={() => setOpen(true)} aria-label="Open navigation">
+          <button
+            className="rounded-lg border p-2 md:hidden"
+            onClick={() => setOpen(true)}
+            aria-label="Open navigation"
+          >
             <Menu className="h-5 w-5" />
           </button>
           <div className="hidden items-center gap-1 text-sm text-muted-foreground sm:flex">
             <span>Admin</span>
             {segments.map((segment) => (
-              <span key={segment} className="flex items-center gap-1 capitalize">
+              <span
+                key={segment}
+                className="flex items-center gap-1 capitalize"
+              >
                 <ChevronRight className="h-3 w-3" />
                 {segment.replaceAll('-', ' ')}
               </span>
@@ -108,10 +139,18 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
           <div className="ml-auto flex items-center gap-3">
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-semibold">{session?.admin.name ?? 'Not signed in'}</p>
-              <p className="text-xs text-muted-foreground">{session?.admin.role ?? 'Admin'}</p>
+              <p className="text-sm font-semibold">
+                {session?.admin.name ?? 'Not signed in'}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {session?.admin.role ?? 'Admin'}
+              </p>
             </div>
-            <button onClick={logout} className="rounded-xl border p-2 text-muted-foreground hover:border-red-200 hover:text-red-600" aria-label="Sign out">
+            <button
+              onClick={logout}
+              className="rounded-xl border p-2 text-muted-foreground hover:border-red-200 hover:text-red-600"
+              aria-label="Sign out"
+            >
               <LogOut className="h-4 w-4" />
             </button>
           </div>

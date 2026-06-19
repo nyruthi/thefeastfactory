@@ -1,6 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { AddressType } from '@prisma/client';
-import { IsBoolean, IsEnum, IsLatitude, IsLongitude, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsLatitude,
+  IsLongitude,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateAddressDto {
   @ApiPropertyOptional({ enum: AddressType, default: AddressType.HOME })

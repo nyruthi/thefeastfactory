@@ -14,7 +14,10 @@ const controlSx = {
     fontSize: '0.875rem',
     '& fieldset': { borderColor: 'hsl(var(--border))' },
     '&:hover fieldset': { borderColor: 'hsl(var(--primary) / 0.45)' },
-    '&.Mui-focused fieldset': { borderColor: 'hsl(var(--primary))', borderWidth: '1px' },
+    '&.Mui-focused fieldset': {
+      borderColor: 'hsl(var(--primary))',
+      borderWidth: '1px',
+    },
   },
 };
 
@@ -33,26 +36,52 @@ export function Field({
     <label className={cn('block', className)}>
       <span className="mb-2 flex items-center justify-between gap-3 text-sm font-semibold">
         <span>{label}</span>
-        {optional && <span className="text-xs font-medium text-muted-foreground">Optional</span>}
+        {optional && (
+          <span className="text-xs font-medium text-muted-foreground">
+            Optional
+          </span>
+        )}
       </span>
       {children}
     </label>
   );
 }
 
-export const Select = React.forwardRef<HTMLDivElement, React.SelectHTMLAttributes<HTMLSelectElement>>(
-  ({ className, children, value, onChange, required, disabled, ...props }, ref) => {
+export const Select = React.forwardRef<
+  HTMLDivElement,
+  React.SelectHTMLAttributes<HTMLSelectElement>
+>(
+  (
+    { className, children, value, onChange, required, disabled, ...props },
+    ref,
+  ) => {
     const items = React.Children.map(children, (child) => {
-      if (!React.isValidElement<{ value?: string; children?: React.ReactNode; disabled?: boolean }>(child)) return null;
+      if (
+        !React.isValidElement<{
+          value?: string;
+          children?: React.ReactNode;
+          disabled?: boolean;
+        }>(child)
+      )
+        return null;
       return (
-        <MenuItem value={child.props.value ?? ''} disabled={child.props.disabled}>
+        <MenuItem
+          value={child.props.value ?? ''}
+          disabled={child.props.disabled}
+        >
           {child.props.children}
         </MenuItem>
       );
     });
 
     return (
-      <FormControl fullWidth required={required} disabled={disabled} className={className} ref={ref}>
+      <FormControl
+        fullWidth
+        required={required}
+        disabled={disabled}
+        className={className}
+        ref={ref}
+      >
         <MuiSelect
           displayEmpty
           value={String(value ?? '')}
@@ -68,8 +97,23 @@ export const Select = React.forwardRef<HTMLDivElement, React.SelectHTMLAttribute
 );
 Select.displayName = 'Select';
 
-export const Textarea = React.forwardRef<HTMLDivElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  ({ className, value, onChange, placeholder, required, disabled, maxLength, ...props }, ref) => (
+export const Textarea = React.forwardRef<
+  HTMLDivElement,
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>
+>(
+  (
+    {
+      className,
+      value,
+      onChange,
+      placeholder,
+      required,
+      disabled,
+      maxLength,
+      ...props
+    },
+    ref,
+  ) => (
     <TextField
       ref={ref}
       className={className}

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePackageDto } from './dto/create-package.dto';
@@ -33,7 +37,9 @@ export class PackagesService {
       description: pkg.description,
       displayOrder: pkg.displayOrder,
       isCustom: pkg.isCustom,
-      activeVersion: pkg.versions[0] ? this.serializeVersion(pkg.versions[0]) : null,
+      activeVersion: pkg.versions[0]
+        ? this.serializeVersion(pkg.versions[0])
+        : null,
     }));
   }
 
@@ -48,8 +54,13 @@ export class PackagesService {
       include: { package: true },
       orderBy: { versionNo: 'desc' },
     });
-    if (!version) throw new NotFoundException('Active package version not found');
-    return { ...this.serializeVersion(version), packageName: version.package.name, isCustom: version.package.isCustom };
+    if (!version)
+      throw new NotFoundException('Active package version not found');
+    return {
+      ...this.serializeVersion(version),
+      packageName: version.package.name,
+      isCustom: version.package.isCustom,
+    };
   }
 
   async getConfiguration(versionId: string) {
@@ -75,7 +86,9 @@ export class PackagesService {
       errors: result.errors,
       basePricePerPlate: version.basePricePerPlate.toFixed(2),
       totalCustomizationCharges: totalCustomizationCharges.toFixed(2),
-      finalPerPlatePrice: version.basePricePerPlate.plus(totalCustomizationCharges).toFixed(2),
+      finalPerPlatePrice: version.basePricePerPlate
+        .plus(totalCustomizationCharges)
+        .toFixed(2),
       items: result.items.map((item) => ({
         ...item,
         itemPrice: item.itemPrice.toFixed(2),
@@ -110,8 +123,12 @@ export class PackagesService {
       where: { id },
       data: {
         ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
-        ...(dto.description !== undefined ? { description: dto.description?.trim() } : {}),
-        ...(dto.displayOrder !== undefined ? { displayOrder: dto.displayOrder } : {}),
+        ...(dto.description !== undefined
+          ? { description: dto.description?.trim() }
+          : {}),
+        ...(dto.displayOrder !== undefined
+          ? { displayOrder: dto.displayOrder }
+          : {}),
         ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
       },
     });
@@ -135,7 +152,10 @@ export class PackagesService {
 
   async updateVersion(id: string, dto: UpdatePackageVersionDto) {
     const current = await this.assertVersion(id);
-    this.assertGuestRange(dto.minGuestCount ?? current.minGuestCount, dto.maxGuestCount ?? current.maxGuestCount);
+    this.assertGuestRange(
+      dto.minGuestCount ?? current.minGuestCount,
+      dto.maxGuestCount ?? current.maxGuestCount,
+    );
     return this.prisma.packageVersion.update({
       where: { id },
       data: {
@@ -143,8 +163,12 @@ export class PackagesService {
         ...(dto.basePricePerPlate !== undefined
           ? { basePricePerPlate: new Prisma.Decimal(dto.basePricePerPlate) }
           : {}),
-        ...(dto.minGuestCount !== undefined ? { minGuestCount: dto.minGuestCount } : {}),
-        ...(dto.maxGuestCount !== undefined ? { maxGuestCount: dto.maxGuestCount } : {}),
+        ...(dto.minGuestCount !== undefined
+          ? { minGuestCount: dto.minGuestCount }
+          : {}),
+        ...(dto.maxGuestCount !== undefined
+          ? { maxGuestCount: dto.maxGuestCount }
+          : {}),
         ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
         ...(dto.publishedAt !== undefined
           ? { publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : null }
@@ -154,13 +178,23 @@ export class PackagesService {
   }
 
   async upsertCategoryRule(versionId: string, dto: UpsertCategoryRuleDto) {
-    await Promise.all([this.assertVersion(versionId), this.assertCategory(dto.categoryId)]);
+    await Promise.all([
+      this.assertVersion(versionId),
+      this.assertCategory(dto.categoryId),
+    ]);
     const minSelections = dto.minSelections ?? 1;
     if (dto.maxSelections < minSelections) {
-      throw new BadRequestException('Maximum selections must be at least minimum selections');
+      throw new BadRequestException(
+        'Maximum selections must be at least minimum selections',
+      );
     }
     return this.prisma.packageCategoryRule.upsert({
-      where: { packageVersionId_categoryId: { packageVersionId: versionId, categoryId: dto.categoryId } },
+      where: {
+        packageVersionId_categoryId: {
+          packageVersionId: versionId,
+          categoryId: dto.categoryId,
+        },
+      },
       update: {
         minSelections,
         maxSelections: dto.maxSelections,
@@ -179,12 +213,27 @@ export class PackagesService {
   async upsertMenuItem(versionId: string, dto: UpsertPackageMenuItemDto) {
     await this.assertVersion(versionId);
     const item = await this.prisma.menuItem.findFirst({
-      where: { id: dto.menuItemId, categoryId: dto.categoryId, deletedAt: null },
+      where: {
+        id: dto.menuItemId,
+        categoryId: dto.categoryId,
+        deletedAt: null,
+      },
     });
-    if (!item) throw new BadRequestException('Menu item does not belong to the selected category');
+    if (!item)
+      throw new BadRequestException(
+        'Menu item does not belong to the selected category',
+      );
     return this.prisma.packageMenuItem.upsert({
-      where: { packageVersionId_menuItemId: { packageVersionId: versionId, menuItemId: dto.menuItemId } },
-      update: { categoryId: dto.categoryId, isAvailable: dto.isAvailable ?? true },
+      where: {
+        packageVersionId_menuItemId: {
+          packageVersionId: versionId,
+          menuItemId: dto.menuItemId,
+        },
+      },
+      update: {
+        categoryId: dto.categoryId,
+        isAvailable: dto.isAvailable ?? true,
+      },
       create: {
         packageVersionId: versionId,
         categoryId: dto.categoryId,
@@ -197,11 +246,24 @@ export class PackagesService {
   async upsertItemPricing(versionId: string, dto: UpsertItemPricingDto) {
     await this.assertVersion(versionId);
     const allowed = await this.prisma.packageMenuItem.findUnique({
-      where: { packageVersionId_menuItemId: { packageVersionId: versionId, menuItemId: dto.menuItemId } },
+      where: {
+        packageVersionId_menuItemId: {
+          packageVersionId: versionId,
+          menuItemId: dto.menuItemId,
+        },
+      },
     });
-    if (!allowed) throw new BadRequestException('Add the menu item to this package version first');
+    if (!allowed)
+      throw new BadRequestException(
+        'Add the menu item to this package version first',
+      );
     return this.prisma.packageMenuItemPricing.upsert({
-      where: { packageVersionId_menuItemId: { packageVersionId: versionId, menuItemId: dto.menuItemId } },
+      where: {
+        packageVersionId_menuItemId: {
+          packageVersionId: versionId,
+          menuItemId: dto.menuItemId,
+        },
+      },
       update: {
         itemPrice: new Prisma.Decimal(dto.itemPrice),
         includedValue: new Prisma.Decimal(dto.includedValue),
@@ -215,19 +277,34 @@ export class PackagesService {
     });
   }
 
-  private async loadVersionConfiguration(versionId: string, publicOnly: boolean) {
+  private async loadVersionConfiguration(
+    versionId: string,
+    publicOnly: boolean,
+  ) {
     const version = await this.prisma.packageVersion.findFirst({
       where: {
         id: versionId,
         ...(publicOnly
-          ? { isActive: true, publishedAt: { not: null }, package: { isActive: true, deletedAt: null } }
+          ? {
+              isActive: true,
+              publishedAt: { not: null },
+              package: { isActive: true, deletedAt: null },
+            }
           : {}),
       },
       include: {
         package: true,
-        categoryRules: { include: { category: true }, orderBy: { category: { displayOrder: 'asc' } } },
+        categoryRules: {
+          include: { category: true },
+          orderBy: { category: { displayOrder: 'asc' } },
+        },
         packageMenuItems: {
-          where: publicOnly ? { isAvailable: true, menuItem: { isActive: true, deletedAt: null } } : {},
+          where: publicOnly
+            ? {
+                isAvailable: true,
+                menuItem: { isActive: true, deletedAt: null },
+              }
+            : {},
           include: { menuItem: true, category: true },
         },
         packageMenuItemPricing: true,
@@ -237,8 +314,12 @@ export class PackagesService {
     return version;
   }
 
-  private async serializeConfiguration(version: Awaited<ReturnType<PackagesService['loadVersionConfiguration']>>) {
-    const pricing = new Map(version.packageMenuItemPricing.map((row) => [row.menuItemId, row]));
+  private async serializeConfiguration(
+    version: Awaited<ReturnType<PackagesService['loadVersionConfiguration']>>,
+  ) {
+    const pricing = new Map(
+      version.packageMenuItemPricing.map((row) => [row.menuItemId, row]),
+    );
     return {
       id: version.id,
       packageId: version.packageId,
@@ -261,13 +342,17 @@ export class PackagesService {
               .map((allowed) => {
                 const row = pricing.get(allowed.menuItemId);
                 const itemPrice = row?.itemPrice ?? allowed.menuItem.basePrice;
-                const includedValue = row?.includedValue ?? allowed.menuItem.basePrice;
+                const includedValue =
+                  row?.includedValue ?? allowed.menuItem.basePrice;
                 return {
                   ...allowed.menuItem,
                   basePrice: allowed.menuItem.basePrice.toFixed(2),
                   itemPrice: itemPrice.toFixed(2),
                   includedValue: includedValue.toFixed(2),
-                  adjustmentAmount: Prisma.Decimal.max(itemPrice.minus(includedValue), 0).toFixed(2),
+                  adjustmentAmount: Prisma.Decimal.max(
+                    itemPrice.minus(includedValue),
+                    0,
+                  ).toFixed(2),
                 };
               }),
           })),
@@ -276,7 +361,10 @@ export class PackagesService {
 
   private async customCategoryRules() {
     const categories = await this.prisma.menuCategory.findMany({
-      where: { isActive: true, menuItems: { some: { isActive: true, deletedAt: null } } },
+      where: {
+        isActive: true,
+        menuItems: { some: { isActive: true, deletedAt: null } },
+      },
       include: {
         menuItems: {
           where: { isActive: true, deletedAt: null },
@@ -312,53 +400,82 @@ export class PackagesService {
     dto: PackageSelectionDto,
   ) {
     const errors: string[] = [];
-    const uniqueKeys = new Set(dto.selectedItems.map((item) => `${item.categoryId}:${item.menuItemId}`));
-    if (uniqueKeys.size !== dto.selectedItems.length) errors.push('Duplicate menu selections are not allowed');
+    const uniqueKeys = new Set(
+      dto.selectedItems.map((item) => `${item.categoryId}:${item.menuItemId}`),
+    );
+    if (uniqueKeys.size !== dto.selectedItems.length)
+      errors.push('Duplicate menu selections are not allowed');
 
     if (version.package.isCustom) {
       return this.evaluateCustomSelection(dto, errors);
     }
 
-    const allowedByItem = new Map(version.packageMenuItems.map((row) => [row.menuItemId, row]));
-    const pricingByItem = new Map(version.packageMenuItemPricing.map((row) => [row.menuItemId, row]));
+    const allowedByItem = new Map(
+      version.packageMenuItems.map((row) => [row.menuItemId, row]),
+    );
+    const pricingByItem = new Map(
+      version.packageMenuItemPricing.map((row) => [row.menuItemId, row]),
+    );
 
     for (const rule of version.categoryRules) {
-      const count = dto.selectedItems.filter((item) => item.categoryId === rule.categoryId).length;
+      const count = dto.selectedItems.filter(
+        (item) => item.categoryId === rule.categoryId,
+      ).length;
       if (rule.isMandatory && count < rule.minSelections) {
-        errors.push(`${rule.category.name} requires at least ${rule.minSelections} selection(s)`);
+        errors.push(
+          `${rule.category.name} requires at least ${rule.minSelections} selection(s)`,
+        );
       }
       if (count > rule.maxSelections) {
-        errors.push(`${rule.category.name} allows at most ${rule.maxSelections} selection(s)`);
+        errors.push(
+          `${rule.category.name} allows at most ${rule.maxSelections} selection(s)`,
+        );
       }
     }
 
     const items = dto.selectedItems.flatMap((selection) => {
       const allowed = allowedByItem.get(selection.menuItemId);
-      if (!allowed || !allowed.isAvailable || allowed.categoryId !== selection.categoryId) {
-        errors.push(`Menu item ${selection.menuItemId} is not available for the selected package/category`);
+      if (
+        !allowed ||
+        !allowed.isAvailable ||
+        allowed.categoryId !== selection.categoryId
+      ) {
+        errors.push(
+          `Menu item ${selection.menuItemId} is not available for the selected package/category`,
+        );
         return [];
       }
       const price = pricingByItem.get(selection.menuItemId);
       const itemPrice = price?.itemPrice ?? allowed.menuItem.basePrice;
       const includedValue = price?.includedValue ?? allowed.menuItem.basePrice;
-      return [{
-        categoryId: selection.categoryId,
-        menuItemId: selection.menuItemId,
-        menuItemName: allowed.menuItem.name,
-        itemPrice,
-        includedValue,
-        adjustmentAmount: Prisma.Decimal.max(itemPrice.minus(includedValue), 0),
-      }];
+      return [
+        {
+          categoryId: selection.categoryId,
+          menuItemId: selection.menuItemId,
+          menuItemName: allowed.menuItem.name,
+          itemPrice,
+          includedValue,
+          adjustmentAmount: Prisma.Decimal.max(
+            itemPrice.minus(includedValue),
+            0,
+          ),
+        },
+      ];
     });
 
     return { errors, items };
   }
 
-  private async evaluateCustomSelection(dto: PackageSelectionDto, errors: string[]) {
+  private async evaluateCustomSelection(
+    dto: PackageSelectionDto,
+    errors: string[],
+  ) {
     const categories = await this.prisma.menuCategory.findMany({
       where: { id: { in: dto.selectedItems.map((item) => item.categoryId) } },
     });
-    const categoryById = new Map(categories.map((category) => [category.id, category]));
+    const categoryById = new Map(
+      categories.map((category) => [category.id, category]),
+    );
     const menuItems = await this.prisma.menuItem.findMany({
       where: {
         id: { in: dto.selectedItems.map((item) => item.menuItemId) },
@@ -371,23 +488,33 @@ export class PackagesService {
     const items = dto.selectedItems.flatMap((selection) => {
       const menuItem = menuItemById.get(selection.menuItemId);
       const category = categoryById.get(selection.categoryId);
-      if (!menuItem || !category || menuItem.categoryId !== selection.categoryId) {
-        errors.push(`Menu item ${selection.menuItemId} is not available for the selected category`);
+      if (
+        !menuItem ||
+        !category ||
+        menuItem.categoryId !== selection.categoryId
+      ) {
+        errors.push(
+          `Menu item ${selection.menuItemId} is not available for the selected category`,
+        );
         return [];
       }
-      return [{
-        categoryId: selection.categoryId,
-        menuItemId: selection.menuItemId,
-        menuItemName: menuItem.name,
-        itemPrice: menuItem.basePrice,
-        includedValue: new Prisma.Decimal(0),
-        adjustmentAmount: menuItem.basePrice,
-      }];
+      return [
+        {
+          categoryId: selection.categoryId,
+          menuItemId: selection.menuItemId,
+          menuItemName: menuItem.name,
+          itemPrice: menuItem.basePrice,
+          includedValue: new Prisma.Decimal(0),
+          adjustmentAmount: menuItem.basePrice,
+        },
+      ];
     });
     return { errors, items };
   }
 
-  private serializeVersion<T extends { basePricePerPlate: Prisma.Decimal; publishedAt: Date | null }>(version: T) {
+  private serializeVersion<
+    T extends { basePricePerPlate: Prisma.Decimal; publishedAt: Date | null },
+  >(version: T) {
     return {
       ...version,
       basePricePerPlate: version.basePricePerPlate.toFixed(2),
@@ -396,26 +523,34 @@ export class PackagesService {
   }
 
   private async assertPackage(id: string) {
-    const pkg = await this.prisma.package.findFirst({ where: { id, deletedAt: null } });
+    const pkg = await this.prisma.package.findFirst({
+      where: { id, deletedAt: null },
+    });
     if (!pkg) throw new NotFoundException('Package not found');
     return pkg;
   }
 
   private async assertVersion(id: string) {
-    const version = await this.prisma.packageVersion.findUnique({ where: { id } });
+    const version = await this.prisma.packageVersion.findUnique({
+      where: { id },
+    });
     if (!version) throw new NotFoundException('Package version not found');
     return version;
   }
 
   private async assertCategory(id: string) {
-    const category = await this.prisma.menuCategory.findUnique({ where: { id } });
+    const category = await this.prisma.menuCategory.findUnique({
+      where: { id },
+    });
     if (!category) throw new NotFoundException('Menu category not found');
     return category;
   }
 
   private assertGuestRange(min: number, max?: number | null) {
     if (max !== undefined && max !== null && max < min) {
-      throw new BadRequestException('Maximum guest count must be at least minimum guest count');
+      throw new BadRequestException(
+        'Maximum guest count must be at least minimum guest count',
+      );
     }
   }
 }

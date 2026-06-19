@@ -13,8 +13,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const context = host.switchToHttp();
     const request = context.getRequest<Request & { requestId?: string }>();
     const response = context.getResponse<Response>();
-    const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-    const payload = exception instanceof HttpException ? exception.getResponse() : undefined;
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+    const payload =
+      exception instanceof HttpException ? exception.getResponse() : undefined;
     const rawMessage =
       typeof payload === 'string'
         ? payload

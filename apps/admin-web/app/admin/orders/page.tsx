@@ -1,6 +1,10 @@
 'use client';
 
-import { OperatingRegion, orderStatusOptions, paymentStatusOptions } from '@aranyam/shared-types';
+import {
+  OperatingRegion,
+  orderStatusOptions,
+  paymentStatusOptions,
+} from '@aranyam/shared-types';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { StatusBadge } from '../../../components/status-badge';
@@ -23,7 +27,10 @@ export default function AdminOrders() {
   const [regionId, setRegionId] = useState('');
   const [regions, setRegions] = useState<OperatingRegion[]>([]);
   const [page, setPage] = useState(1);
-  const effectiveRegionId = session?.admin.role === 'OPERATIONS' ? session.admin.regionId ?? '' : regionId;
+  const effectiveRegionId =
+    session?.admin.role === 'OPERATIONS'
+      ? (session.admin.regionId ?? '')
+      : regionId;
   const query = useMemo(() => {
     const params = new URLSearchParams();
     if (status) params.set('orderStatus', status);
@@ -34,17 +41,33 @@ export default function AdminOrders() {
     if (dateTo) params.set('dateTo', dateTo);
     if (effectiveRegionId) params.set('regionId', effectiveRegionId);
     return params.toString();
-  }, [status, paymentStatus, mobile, city, dateFrom, dateTo, effectiveRegionId]);
+  }, [
+    status,
+    paymentStatus,
+    mobile,
+    city,
+    dateFrom,
+    dateTo,
+    effectiveRegionId,
+  ]);
 
   useEffect(() => {
     if (!session) return;
-    apiRequest<OperatingRegion[]>('/admin/operating-regions?activeOnly=true', {}, session.accessToken).then(setRegions);
+    apiRequest<OperatingRegion[]>(
+      '/admin/operating-regions?activeOnly=true',
+      {},
+      session.accessToken,
+    ).then(setRegions);
   }, [session]);
 
   useEffect(() => {
     if (!session) return;
     const timer = window.setTimeout(() => {
-      apiRequest<any[]>(`/admin/orders${query ? `?${query}` : ''}`, {}, session.accessToken).then(setOrders);
+      apiRequest<any[]>(
+        `/admin/orders${query ? `?${query}` : ''}`,
+        {},
+        session.accessToken,
+      ).then(setOrders);
     }, 250);
     return () => window.clearTimeout(timer);
   }, [session, query]);
@@ -58,55 +81,154 @@ export default function AdminOrders() {
 
   return (
     <main className="admin-page">
-      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Fulfilment</p>
+      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+        Fulfilment
+      </p>
       <h1 className="admin-title mt-2">Orders</h1>
       <div className="admin-card mt-7 grid gap-3 md:grid-cols-3 xl:grid-cols-4">
-        <Input value={mobile} onChange={(event) => setMobile(event.target.value)} placeholder="Search customer mobile" />
-        <Input value={city} onChange={(event) => setCity(event.target.value)} placeholder="Search city" />
-        <Input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} />
-        <Input type="date" value={dateTo} onChange={(event) => setDateTo(event.target.value)} />
+        <Input
+          value={mobile}
+          onChange={(event) => setMobile(event.target.value)}
+          placeholder="Search customer mobile"
+        />
+        <Input
+          value={city}
+          onChange={(event) => setCity(event.target.value)}
+          placeholder="Search city"
+        />
+        <Input
+          type="date"
+          value={dateFrom}
+          onChange={(event) => setDateFrom(event.target.value)}
+        />
+        <Input
+          type="date"
+          value={dateTo}
+          onChange={(event) => setDateTo(event.target.value)}
+        />
         {session.admin.role === 'ADMIN' ? (
-          <Select value={regionId} onChange={(event) => setRegionId(event.target.value)}>
+          <Select
+            value={regionId}
+            onChange={(event) => setRegionId(event.target.value)}
+          >
             <option value="">All regions</option>
-            {regions.map((region) => <option value={region.id} key={region.id}>{region.name}</option>)}
+            {regions.map((region) => (
+              <option value={region.id} key={region.id}>
+                {region.name}
+              </option>
+            ))}
           </Select>
         ) : (
-          <div className="rounded-xl border bg-white px-3 py-2 text-sm font-semibold">{session.admin.region?.name ?? 'Region not assigned'}</div>
+          <div className="rounded-xl border bg-white px-3 py-2 text-sm font-semibold">
+            {session.admin.region?.name ?? 'Region not assigned'}
+          </div>
         )}
-        <Select value={status} onChange={(event) => setStatus(event.target.value)}>
+        <Select
+          value={status}
+          onChange={(event) => setStatus(event.target.value)}
+        >
           <option value="">All order statuses</option>
-          {orderStatusOptions.map((value) => <option key={value}>{value}</option>)}
+          {orderStatusOptions.map((value) => (
+            <option key={value}>{value}</option>
+          ))}
         </Select>
-        <Select value={paymentStatus} onChange={(event) => setPaymentStatus(event.target.value)}>
+        <Select
+          value={paymentStatus}
+          onChange={(event) => setPaymentStatus(event.target.value)}
+        >
           <option value="">All payment statuses</option>
-          {paymentStatusOptions.map((value) => <option key={value}>{value}</option>)}
+          {paymentStatusOptions.map((value) => (
+            <option key={value}>{value}</option>
+          ))}
         </Select>
       </div>
 
       <div className="admin-card mt-5 overflow-x-auto p-0">
         <table className="admin-table">
-          <thead><tr><th>Order</th><th>Event</th><th>Customer</th><th>Region</th><th>Status</th><th>Payment</th><th className="text-right">Amount</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Event</th>
+              <th>Customer</th>
+              <th>Region</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th className="text-right">Amount</th>
+            </tr>
+          </thead>
           <tbody>
             {visibleOrders.map((order) => (
               <tr key={order.id}>
-                <td><Link href={`/admin/orders/${order.id}`} className="font-semibold text-primary">{order.orderNumber}</Link></td>
-                <td>{order.event?.eventName || order.packageName}<span className="block text-xs text-muted-foreground">{order.event?.eventDate ? new Date(order.event.eventDate).toLocaleDateString('en-IN') : ''}</span></td>
-                <td>{order.user?.name || order.user?.mobileNumber}<span className="block text-xs text-muted-foreground">{order.user?.mobileNumber}</span></td>
-                <td>{order.region?.name || order.event?.region?.name || '—'}<span className="block text-xs text-muted-foreground">{order.distanceKm ? `${order.distanceKm} km · ₹${order.deliveryFee}` : ''}</span></td>
-                <td><StatusBadge value={order.orderStatus} /></td>
-                <td><StatusBadge value={order.paymentStatus} /></td>
-                <td className="text-right font-semibold">₹{order.totalAmount}</td>
+                <td>
+                  <Link
+                    href={`/admin/orders/${order.id}`}
+                    className="font-semibold text-primary"
+                  >
+                    {order.orderNumber}
+                  </Link>
+                </td>
+                <td>
+                  {order.event?.eventName || order.packageName}
+                  <span className="block text-xs text-muted-foreground">
+                    {order.event?.eventDate
+                      ? new Date(order.event.eventDate).toLocaleDateString(
+                          'en-IN',
+                        )
+                      : ''}
+                  </span>
+                </td>
+                <td>
+                  {order.user?.name || order.user?.mobileNumber}
+                  <span className="block text-xs text-muted-foreground">
+                    {order.user?.mobileNumber}
+                  </span>
+                </td>
+                <td>
+                  {order.region?.name || order.event?.region?.name || '—'}
+                  <span className="block text-xs text-muted-foreground">
+                    {order.distanceKm
+                      ? `${order.distanceKm} km · ₹${order.deliveryFee}`
+                      : ''}
+                  </span>
+                </td>
+                <td>
+                  <StatusBadge value={order.orderStatus} />
+                </td>
+                <td>
+                  <StatusBadge value={order.paymentStatus} />
+                </td>
+                <td className="text-right font-semibold">
+                  ₹{order.totalAmount}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {!orders.length && <p className="p-10 text-center text-muted-foreground">No orders match these filters.</p>}
+        {!orders.length && (
+          <p className="p-10 text-center text-muted-foreground">
+            No orders match these filters.
+          </p>
+        )}
       </div>
       {orders.length > pageSize && (
         <div className="mt-4 flex items-center justify-end gap-3">
-          <button className="rounded-lg border px-3 py-2 text-sm disabled:opacity-40" disabled={page === 1} onClick={() => setPage((value) => value - 1)}>Previous</button>
-          <span className="text-sm text-muted-foreground">Page {page} of {pageCount}</span>
-          <button className="rounded-lg border px-3 py-2 text-sm disabled:opacity-40" disabled={page === pageCount} onClick={() => setPage((value) => value + 1)}>Next</button>
+          <button
+            className="rounded-lg border px-3 py-2 text-sm disabled:opacity-40"
+            disabled={page === 1}
+            onClick={() => setPage((value) => value - 1)}
+          >
+            Previous
+          </button>
+          <span className="text-sm text-muted-foreground">
+            Page {page} of {pageCount}
+          </span>
+          <button
+            className="rounded-lg border px-3 py-2 text-sm disabled:opacity-40"
+            disabled={page === pageCount}
+            onClick={() => setPage((value) => value + 1)}
+          >
+            Next
+          </button>
         </div>
       )}
     </main>

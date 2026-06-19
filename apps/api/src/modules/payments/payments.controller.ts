@@ -1,4 +1,13 @@
-import { Body, Controller, Headers, Param, Post, RawBodyRequest, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Headers,
+  Param,
+  Post,
+  RawBodyRequest,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { JwtPayload } from '../../common/auth/jwt-payload';
@@ -14,12 +23,16 @@ export class PaymentsController {
   @Post('orders/:id/payments/razorpay-order')
   @ApiBearerAuth()
   @UseGuards(CustomerAuthGuard)
-  create(@CurrentUser() user: JwtPayload, @Param('id') id: string) { return this.payments.createGatewayOrder(user.sub, id); }
+  create(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
+    return this.payments.createGatewayOrder(user.sub, id);
+  }
 
   @Post('payments/razorpay/verify')
   @ApiBearerAuth()
   @UseGuards(CustomerAuthGuard)
-  verify(@CurrentUser() user: JwtPayload, @Body() dto: VerifyPaymentDto) { return this.payments.verify(user.sub, dto); }
+  verify(@CurrentUser() user: JwtPayload, @Body() dto: VerifyPaymentDto) {
+    return this.payments.verify(user.sub, dto);
+  }
 
   @Post('payments/razorpay/webhook')
   webhook(
@@ -28,6 +41,11 @@ export class PaymentsController {
     @Headers('x-razorpay-signature') signature?: string,
     @Headers('x-razorpay-event-id') eventId?: string,
   ) {
-    return this.payments.webhook(request.rawBody ?? Buffer.from(JSON.stringify(payload)), payload, signature, eventId);
+    return this.payments.webhook(
+      request.rawBody ?? Buffer.from(JSON.stringify(payload)),
+      payload,
+      signature,
+      eventId,
+    );
   }
 }

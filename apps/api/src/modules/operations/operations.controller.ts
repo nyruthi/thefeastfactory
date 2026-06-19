@@ -31,27 +31,38 @@ export class OperationsController {
   @Get('me/notifications')
   @ApiBearerAuth()
   @UseGuards(CustomerAuthGuard)
-  notifications(@CurrentUser() user: JwtPayload) { return this.operations.notifications(user.sub); }
+  notifications(@CurrentUser() user: JwtPayload) {
+    return this.operations.notifications(user.sub);
+  }
 
   @Get('me/notifications/unread-count')
   @ApiBearerAuth()
   @UseGuards(CustomerAuthGuard)
-  unread(@CurrentUser() user: JwtPayload) { return this.operations.unreadCount(user.sub); }
+  unread(@CurrentUser() user: JwtPayload) {
+    return this.operations.unreadCount(user.sub);
+  }
 
   @Post('me/notifications/:id/read')
   @ApiBearerAuth()
   @UseGuards(CustomerAuthGuard)
-  markRead(@CurrentUser() user: JwtPayload, @Param('id') id: string) { return this.operations.markNotificationRead(user.sub, id); }
+  markRead(@CurrentUser() user: JwtPayload, @Param('id') id: string) {
+    return this.operations.markNotificationRead(user.sub, id);
+  }
 
   @Post('me/notifications/read-all')
   @ApiBearerAuth()
   @UseGuards(CustomerAuthGuard)
-  markAllRead(@CurrentUser() user: JwtPayload) { return this.operations.markAllNotificationsRead(user.sub); }
+  markAllRead(@CurrentUser() user: JwtPayload) {
+    return this.operations.markAllNotificationsRead(user.sub);
+  }
 
   @Get('orders/:orderId/documents')
   @ApiBearerAuth()
   @UseGuards(CustomerAuthGuard)
-  documents(@CurrentUser() user: JwtPayload, @Param('orderId') orderId: string) {
+  documents(
+    @CurrentUser() user: JwtPayload,
+    @Param('orderId') orderId: string,
+  ) {
     return this.operations.documents(user.sub, orderId);
   }
 
@@ -64,56 +75,89 @@ export class OperationsController {
     @Param('documentId') documentId: string,
     @Res() response: Response,
   ) {
-    const file = await this.operations.documentPdf(user.sub, orderId, documentId);
+    const file = await this.operations.documentPdf(
+      user.sub,
+      orderId,
+      documentId,
+    );
     response.setHeader('Content-Type', 'application/pdf');
-    response.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
+    response.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${file.filename}"`,
+    );
     response.send(file.buffer);
   }
 
   @Get('admin/orders/:orderId/notes')
   @ApiBearerAuth()
   @UseGuards(AdminAuthGuard)
-  notes(@Param('orderId') orderId: string) { return this.operations.notes(orderId); }
+  notes(@Param('orderId') orderId: string) {
+    return this.operations.notes(orderId);
+  }
 
   @Post('admin/orders/:orderId/notes')
   @ApiBearerAuth()
   @UseGuards(AdminAuthGuard)
-  addNote(@CurrentAdmin() admin: JwtPayload, @Param('orderId') orderId: string, @Body() dto: CreateOrderNoteDto) {
+  addNote(
+    @CurrentAdmin() admin: JwtPayload,
+    @Param('orderId') orderId: string,
+    @Body() dto: CreateOrderNoteDto,
+  ) {
     return this.operations.addNote(admin.sub, orderId, dto);
   }
 
   @Get('admin/operations/calendar')
   @ApiBearerAuth()
   @UseGuards(AdminAuthGuard)
-  calendar(@CurrentAdmin() admin: JwtPayload, @Query('from') from?: string, @Query('to') to?: string, @Query('regionId') regionId?: string, @Query('city') city?: string) {
+  calendar(
+    @CurrentAdmin() admin: JwtPayload,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('regionId') regionId?: string,
+    @Query('city') city?: string,
+  ) {
     return this.operations.calendar(admin, from, to, regionId, city);
   }
 
   @Get('admin/operations/queue')
   @ApiBearerAuth()
   @UseGuards(AdminAuthGuard)
-  queue(@CurrentAdmin() admin: JwtPayload, @Query('regionId') regionId?: string) { return this.operations.queue(admin, regionId); }
+  queue(
+    @CurrentAdmin() admin: JwtPayload,
+    @Query('regionId') regionId?: string,
+  ) {
+    return this.operations.queue(admin, regionId);
+  }
 
   @Get('admin/settings')
   @ApiBearerAuth()
   @UseGuards(AdminAuthGuard)
-  settings() { return this.operations.settings(); }
+  settings() {
+    return this.operations.settings();
+  }
 
   @Patch('admin/settings')
   @ApiBearerAuth()
   @UseGuards(AdminAuthGuard, RolesGuard)
   @Roles(AdminRole.ADMIN)
-  updateSettings(@Body() dto: UpdateSettingsDto) { return this.operations.updateSettings(dto); }
+  updateSettings(@Body() dto: UpdateSettingsDto) {
+    return this.operations.updateSettings(dto);
+  }
 
   @Get('admin/integrations/readiness')
   @ApiBearerAuth()
   @UseGuards(AdminAuthGuard)
-  readiness() { return this.operations.readiness(); }
+  readiness() {
+    return this.operations.readiness();
+  }
 
   @Get('admin/orders/:orderId/documents')
   @ApiBearerAuth()
   @UseGuards(AdminAuthGuard)
-  adminDocuments(@CurrentAdmin() admin: JwtPayload, @Param('orderId') orderId: string) {
+  adminDocuments(
+    @CurrentAdmin() admin: JwtPayload,
+    @Param('orderId') orderId: string,
+  ) {
     return this.operations.documents(admin.sub, orderId, true);
   }
 
@@ -126,9 +170,17 @@ export class OperationsController {
     @Param('documentId') documentId: string,
     @Res() response: Response,
   ) {
-    const file = await this.operations.documentPdf(admin.sub, orderId, documentId, true);
+    const file = await this.operations.documentPdf(
+      admin.sub,
+      orderId,
+      documentId,
+      true,
+    );
     response.setHeader('Content-Type', 'application/pdf');
-    response.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
+    response.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${file.filename}"`,
+    );
     response.send(file.buffer);
   }
 }

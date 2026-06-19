@@ -23,10 +23,17 @@ export function OrderProgress({ current }: { current: number }) {
             >
               {complete ? <Check className="h-3.5 w-3.5" /> : index + 1}
             </span>
-            <span className={cn('text-xs font-semibold', active ? 'text-foreground' : 'text-muted-foreground')}>
+            <span
+              className={cn(
+                'text-xs font-semibold',
+                active ? 'text-foreground' : 'text-muted-foreground',
+              )}
+            >
               {step}
             </span>
-            {index < steps.length - 1 && <span className="mx-1 h-px w-5 bg-border sm:w-10" />}
+            {index < steps.length - 1 && (
+              <span className="mx-1 h-px w-5 bg-border sm:w-10" />
+            )}
           </li>
         );
       })}
