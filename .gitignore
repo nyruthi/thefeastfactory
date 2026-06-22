@@ -13,3 +13,12 @@ apps/api/prisma/migrations
 
 # Windows NUL device artifact (created by bash > NUL redirects)
 nul
+
+# Design sync tooling (regenerated; committed durable files are in .design-sync/)
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+.design-sync/ui-compiled.css
+apps/customer-web/.ds-ui.css

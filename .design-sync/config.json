@@ -1,0 +1,34 @@
+{
+  "projectId": "86f74b60-4c3f-4ed7-b5fa-371e65bd5cea",
+  "shape": "package",
+  "pkg": "@aranyam/ui",
+  "globalName": "FeastFactoryUI",
+  "tsconfig": "tsconfig.json",
+  "cssEntry": ".ds-ui.css",
+  "componentSrcMap": {
+    "Button": "components/ui/button.tsx",
+    "Input": "components/ui/input.tsx",
+    "Field": "components/ui/form.tsx",
+    "Select": "components/ui/form.tsx",
+    "Textarea": "components/ui/form.tsx",
+    "DateField": "components/ui/form.tsx",
+    "TimeField": "components/ui/form.tsx",
+    "Checkbox": "components/ui/form.tsx",
+    "ChoiceCard": "components/ui/form.tsx",
+    "StatePanel": null,
+    "AuthRequiredPanel": null
+  },
+  "dtsPropsFor": {
+    "Button": "variant?: 'default' | 'secondary' | 'outline'; asChild?: boolean; children?: React.ReactNode; className?: string; disabled?: boolean; onClick?: React.MouseEventHandler<HTMLButtonElement>; type?: 'button' | 'submit' | 'reset';",
+    "Input": "className?: string; placeholder?: string; value?: string; defaultValue?: string; onChange?: React.ChangeEventHandler<HTMLInputElement>; disabled?: boolean; required?: boolean; type?: string; name?: string; id?: string;",
+    "Field": "label: string; hint?: string; optional?: boolean; children: React.ReactNode; className?: string;",
+    "Select": "value?: string; onChange?: React.ChangeEventHandler<HTMLSelectElement>; required?: boolean; disabled?: boolean; className?: string; children?: React.ReactNode;",
+    "Textarea": "value?: string; onChange?: React.ChangeEventHandler<HTMLTextAreaElement>; placeholder?: string; required?: boolean; disabled?: boolean; maxLength?: number; className?: string;",
+    "DateField": "value: string; min?: string; onValueChange: (value: string) => void; required?: boolean;",
+    "TimeField": "value: string; onValueChange: (value: string) => void; required?: boolean;",
+    "Checkbox": "label: string; description?: string; checked: boolean; onCheckedChange: (checked: boolean) => void; className?: string;",
+    "ChoiceCard": "label: string; description?: string; selected: boolean; onSelect: () => void; children?: React.ReactNode;"
+  },
+  "buildCmd": "npm run build -w @aranyam/customer-web",
+  "readmeHeader": ".design-sync/conventions.md"
+}
