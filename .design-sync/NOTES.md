@@ -14,8 +14,12 @@
 ## Re-sync command
 
 ```bash
-# 1. Recompile Tailwind CSS (if components changed)
+# 1. Recompile Tailwind CSS (if components changed) then annotate --tw-* internals.
+#    The annotation step is required every time the CSS is recompiled — it annotates
+#    Tailwind's 125 reset/utility variables with /* @kind other */ so the design-system
+#    token scanner skips them and counts only the 23 real :root brand tokens.
 npx --prefix apps/customer-web tailwindcss -i apps/customer-web/app/globals.css -o apps/customer-web/.ds-ui.css --config apps/customer-web/tailwind.config.ts --content "apps/customer-web/components/ui/*.tsx"
+node .design-sync/patch-tw-vars.mjs apps/customer-web/.ds-ui.css
 
 # 2. Re-stage scripts (always — stale .ds-sync/ runs old converter)
 cp -r "<skill-base-dir>"/{package-build,package-validate,package-capture,resync}.mjs "<skill-base-dir>"/lib "<skill-base-dir>"/storybook .ds-sync/
