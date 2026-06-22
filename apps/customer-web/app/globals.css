@@ -3,49 +3,116 @@
 @tailwind utilities;
 
 :root {
-  --background: 34 42% 97%;
-  --foreground: 355 28% 13%;
-  --primary: 350 58% 27%;
+  /* Brand — #7A1F2B deep maroon */
+  --primary: 352 59% 30%;
   --primary-foreground: 0 0% 100%;
-  --accent: 39 68% 57%;
-  --accent-foreground: 355 35% 14%;
-  --muted: 22 28% 92%;
-  --muted-foreground: 355 13% 39%;
-  --border: 18 24% 84%;
+
+  /* Accent — #C89B3C gold */
+  --accent: 41 56% 51%;
+  --accent-foreground: 0 0% 8%;
+
+  /* Canvas — #FAF7F2 warm cream */
+  --background: 39 44% 97%;
+  --foreground: 0 0% 10%;
+
+  /* Card */
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 10%;
+
+  /* Muted */
+  --muted: 37 28% 93%;
+  --muted-foreground: 0 0% 43%;
+
+  /* Border */
+  --border: 35 22% 87%;
 }
 
 * {
   border-color: hsl(var(--border));
+  box-sizing: border-box;
 }
 
 body {
-  background: hsl(var(--background));
+  background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
-  background-image:
-    radial-gradient(circle at 8% 2%, hsl(39 75% 82% / 0.52), transparent 25rem),
-    radial-gradient(
-      circle at 92% 16%,
-      hsl(350 55% 84% / 0.46),
-      transparent 28rem
-    );
-  background-attachment: fixed;
 }
 
 ::selection {
-  background: hsl(var(--accent) / 0.35);
+  background: hsl(var(--accent) / 0.2);
 }
 
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 99px; }
+
 @layer components {
+  /* ─── Typography ─── */
   .eyebrow {
-    @apply text-xs font-bold uppercase tracking-[0.2em] text-primary;
+    @apply text-[11px] font-bold uppercase tracking-[0.18em] text-accent;
   }
 
+  /* ─── Surfaces ─── */
   .surface-card {
-    @apply rounded-xl border border-white/70 bg-white/85 shadow-[0_18px_60px_-35px_rgba(111,29,45,0.45)] backdrop-blur;
+    @apply rounded-2xl border border-border bg-card shadow-sm;
+  }
+  .surface-inset {
+    @apply rounded-xl border border-border bg-muted/60;
   }
 
+  /* ─── Layout ─── */
   .page-shell {
-    @apply mx-auto w-full max-w-7xl px-5 py-10 lg:px-8 lg:py-14;
+    @apply mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14;
+  }
+  .section-gap {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+  .container-pad {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ─── Cards ─── */
+  .journey-card {
+    @apply flex flex-col overflow-hidden rounded-2xl border-2 border-border bg-card shadow-sm
+           transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+  }
+  .pkg-card {
+    @apply flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm
+           transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md;
+  }
+  .food-card {
+    @apply overflow-hidden rounded-xl border border-border bg-card shadow-sm
+           transition-all duration-200 hover:border-primary/20 hover:shadow-sm;
+  }
+
+  /* ─── Badges / chips ─── */
+  .tag-chip {
+    @apply inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground;
+  }
+  .veg-badge {
+    @apply inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-700;
+  }
+  .nonveg-badge {
+    @apply inline-flex items-center gap-1 rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-bold uppercase text-orange-700;
+  }
+
+  /* ─── Quantity stepper ─── */
+  .qty-row {
+    @apply flex items-center overflow-hidden rounded-full border border-border bg-card;
+  }
+  .qty-btn {
+    @apply flex h-9 w-9 shrink-0 items-center justify-center text-muted-foreground
+           transition-colors hover:bg-muted hover:text-foreground;
+  }
+  .qty-val {
+    @apply w-10 text-center text-sm font-extrabold tabular-nums;
+  }
+
+  /* ─── Status badges ─── */
+  .status-badge {
+    @apply rounded-full px-3 py-1 text-xs font-bold;
   }
 }

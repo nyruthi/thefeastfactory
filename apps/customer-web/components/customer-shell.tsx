@@ -9,127 +9,147 @@ import {
   Package,
   ShoppingBag,
   User,
+  UtensilsCrossed,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useOrderBuilderStore } from '../store/order-builder.store';
 import { useSessionStore } from '../store/session.store';
-import { cn } from '../lib/utils';
 import { apiRequest } from '../lib/api';
+import { cn } from '../lib/utils';
+import { Footer } from './home/footer';
 
-const links = [
+const navLinks = [
+  { href: '/', label: 'Home', activeKey: '/', icon: Home },
+  { href: '/menu', label: 'Menu', activeKey: '/menu', icon: BookOpen },
+  { href: '/packages', label: 'Packages', activeKey: '/packages', icon: Package },
+  { href: '/packages/meal-boxes', label: 'Meal Boxes', activeKey: '/packages/meal-boxes', icon: Package },
+  { href: '/orders', label: 'Orders', activeKey: '/orders', icon: ClipboardList },
+  { href: '/about', label: 'About Us', activeKey: '/about', icon: Home },
+];
+
+const mobileLinks = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/menu', label: 'Menu', icon: BookOpen },
   { href: '/packages', label: 'Packages', icon: Package },
-  { href: '/orders', label: 'Orders', icon: ClipboardList },
 ];
 
 export function CustomerShell({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
-  const session = useSessionStore((state) => state.session);
-  const selectedItems = useOrderBuilderStore((state) => state.selectedItems);
-  const cartPackage = useOrderBuilderStore((state) => state.package);
+  const session = useSessionStore((s) => s.session);
+  const selectedItems = useOrderBuilderStore((s) => s.selectedItems);
+  const cartPackage = useOrderBuilderStore((s) => s.package);
   const [mounted, setMounted] = useState(false);
   const [unread, setUnread] = useState(0);
+
   useEffect(() => setMounted(true), []);
+
   useEffect(() => {
-    if (!session) {
-      setUnread(0);
-      return;
-    }
-    apiRequest<{ count: number }>(
-      '/me/notifications/unread-count',
-      {},
-      session.accessToken,
-    )
-      .then((result) => setUnread(result.count))
+    if (!session) { setUnread(0); return; }
+    apiRequest<{ count: number }>('/me/notifications/unread-count', {}, session.accessToken)
+      .then((r) => setUnread(r.count))
       .catch(() => undefined);
   }, [session, pathname]);
 
   const cartCount = mounted ? selectedItems.length : 0;
-  const hasCart = mounted && Boolean(cartPackage);
+  const cartActive = mounted && (Boolean(cartPackage) || pathname === '/cart');
 
   return (
     <div className="min-h-screen pb-16 md:pb-0">
-      <header className="sticky top-0 z-40 border-b border-white/60 bg-background/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 lg:px-8">
-          <Link href="/" className="group flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-sm">
-              F
+      {/* ─── Desktop header ─── */}
+      <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3 shrink-0">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground">
+              <UtensilsCrossed style={{ width: '18px', height: '18px' }} />
             </span>
-            <span>
-              <span className="block font-serif text-xl font-semibold leading-none text-primary">
+            <span className="hidden sm:block">
+              <span className="block text-[15px] font-extrabold leading-tight tracking-tight text-primary">
                 The Feast Factory
               </span>
-              <span className="mt-1 block text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                Celebrations, served
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                Bulk Catering
               </span>
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-1 rounded-full border bg-white/80 p-1 md:flex">
-            {links.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  'rounded-full px-4 py-2 text-sm font-medium transition-colors',
-                  pathname === href
-                    ? 'bg-primary text-white'
-                    : 'text-muted-foreground hover:text-foreground',
-                )}
-              >
-                {label}
-              </Link>
-            ))}
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-0 md:flex">
+            {navLinks.map(({ href, label, activeKey }) => {
+              const selfMatch = activeKey === '/' ? pathname === '/' : pathname.startsWith(activeKey);
+              // If a more specific nav entry also matches, this one is not active
+              const moreSpecificMatch = selfMatch && navLinks.some(
+                (other) =>
+                  other.activeKey !== activeKey &&
+                  other.activeKey.startsWith(activeKey) &&
+                  pathname.startsWith(other.activeKey),
+              );
+              const active = selfMatch && !moreSpecificMatch;
+              return (
+                <Link
+                  key={label}
+                  href={href}
+                  className={cn(
+                    'px-3.5 py-2 text-sm font-semibold transition-colors',
+                    active
+                      ? 'text-primary underline decoration-primary decoration-2 underline-offset-[6px]'
+                      : 'text-foreground/80 hover:text-primary',
+                  )}
+                >
+                  {label}
+                </Link>
+              );
+            })}
           </nav>
 
+          {/* Right actions */}
           <div className="flex items-center gap-2">
             {session && (
               <Link
                 href="/notifications"
-                className="relative grid h-10 w-10 place-items-center rounded-full border bg-white"
+                className="relative grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:text-foreground"
                 aria-label={`${unread} unread notifications`}
               >
                 <Bell className="h-4 w-4" />
                 {unread > 0 && (
-                  <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold">
+                  <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] font-extrabold text-accent-foreground">
                     {unread}
                   </span>
                 )}
               </Link>
             )}
+
+            {/* Cart */}
             <Link
               href="/cart"
+              aria-label={`Cart — ${cartCount} items selected`}
               className={cn(
-                'relative flex h-10 items-center gap-2 rounded-full border bg-white px-3 text-sm font-semibold transition hover:border-primary/40',
-                pathname === '/cart' && 'border-primary text-primary',
+                'relative flex h-9 items-center gap-2 rounded-full px-4 text-sm font-bold transition-all',
+                cartActive
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'border border-border bg-card text-foreground hover:border-primary/40 hover:text-primary',
               )}
-              aria-label={`Cart with ${cartCount} selected items`}
             >
-              <ShoppingBag className="h-4 w-4" />
-              <span className="hidden sm:inline">
-                {hasCart ? 'Your cart' : 'Cart'}
-              </span>
+              <ShoppingBag className="h-4 w-4 shrink-0" />
+              <span className="hidden sm:inline">Your cart</span>
               {cartCount > 0 && (
-                <span className="grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[11px] text-accent-foreground">
+                <span className="grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-extrabold text-accent-foreground">
                   {cartCount}
                 </span>
               )}
             </Link>
+
+            {/* Login / Profile */}
             <Link
               href={session ? '/profile' : '/login'}
-              className="grid h-10 w-10 place-items-center rounded-full bg-primary text-white"
-              aria-label={session ? 'Profile' : 'Login'}
+              aria-label={session ? 'Profile' : 'Sign in'}
+              className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:text-foreground transition-colors"
             >
-              {session ? (
-                <User className="h-4 w-4" />
-              ) : (
-                <LogIn className="h-4 w-4" />
-              )}
+              {session ? <User className="h-5 w-5" /> : <LogIn className="h-5 w-5" />}
             </Link>
           </div>
         </div>
@@ -137,33 +157,35 @@ export function CustomerShell({
 
       {children}
 
-      <nav className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t bg-white/95 px-2 pb-safe backdrop-blur md:hidden">
+      <Footer />
+
+      {/* ─── Mobile bottom nav ─── */}
+      <nav className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t border-border bg-card/97 backdrop-blur md:hidden">
         {[
-          ...links.slice(0, 3),
+          ...mobileLinks,
           { href: '/cart', label: 'Cart', icon: ShoppingBag },
-          {
-            href: session ? '/profile' : '/login',
-            label: session ? 'Profile' : 'Login',
-            icon: session ? User : LogIn,
-          },
-        ].map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              'relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium',
-              pathname === href ? 'text-primary' : 'text-muted-foreground',
-            )}
-          >
-            <Icon className="h-5 w-5" />
-            {label}
-            {href === '/cart' && cartCount > 0 && (
-              <span className="absolute right-[24%] top-2 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] text-accent-foreground">
-                {cartCount}
-              </span>
-            )}
-          </Link>
-        ))}
+          { href: session ? '/profile' : '/login', label: session ? 'Profile' : 'Login', icon: session ? User : LogIn },
+        ].map(({ href, label, icon: Icon }) => {
+          const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
+          return (
+            <Link
+              key={href + label}
+              href={href}
+              className={cn(
+                'relative flex flex-col items-center justify-center gap-1 py-3 text-[11px] font-semibold transition-colors',
+                active ? 'text-primary' : 'text-muted-foreground',
+              )}
+            >
+              <Icon className="h-5 w-5" />
+              {label}
+              {href === '/cart' && cartCount > 0 && (
+                <span className="absolute right-[18%] top-2 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] font-extrabold text-accent-foreground">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          );
+        })}
       </nav>
     </div>
   );

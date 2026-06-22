@@ -1,7 +1,14 @@
 'use client';
 
 import type { PackageConfiguration } from '@aranyam/shared-types';
-import { ArrowLeft, CheckCircle2, Users } from 'lucide-react';
+import {
+  ArrowLeft,
+  ChefHat,
+  CheckCircle2,
+  Circle,
+  Sparkles,
+  Users,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -10,11 +17,12 @@ import { Button } from '../../../components/ui/button';
 import { StatePanel } from '../../../components/ui/state-panel';
 import { apiRequest } from '../../../lib/api';
 import { useOrderBuilderStore } from '../../../store/order-builder.store';
+import { cn } from '../../../lib/utils';
 
 export default function PackagePage() {
   const { packageId } = useParams<{ packageId: string }>();
   const router = useRouter();
-  const setPackage = useOrderBuilderStore((state) => state.setPackage);
+  const setPackage = useOrderBuilderStore((s) => s.setPackage);
   const [version, setVersion] = useState<
     (PackageConfiguration & { packageName: string }) | null
   >(null);
@@ -57,84 +65,201 @@ export default function PackagePage() {
         />
       </main>
     );
+
   if (!version)
     return (
       <main className="page-shell">
-        <div className="h-96 animate-pulse rounded-[2rem] bg-white/60" />
+        <div className="h-96 animate-pulse rounded-2xl bg-muted" />
       </main>
     );
 
   return (
-    <main className="page-shell pb-28">
-      <Link
-        href="/packages"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary"
-      >
-        <ArrowLeft className="h-4 w-4" /> All packages
-      </Link>
-      <div className="mt-6">
-        <OrderProgress current={0} />
-      </div>
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
-        <section>
-          <p className="eyebrow">
-            {version.isCustom
-              ? 'Build your own menu'
-              : 'Curated for your table'}
-          </p>
-          <h1 className="mt-3 font-serif text-5xl font-semibold">
-            {version.packageName}
-          </h1>
-          <p className="mt-4 flex items-center gap-2 text-muted-foreground">
-            <Users className="h-4 w-4 text-primary" />
-            {version.minGuestCount}–{version.maxGuestCount ?? 'unlimited'}{' '}
-            guests
-          </p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            {version.categoryRules.map((rule) => (
-              <article key={rule.id} className="surface-card p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                      Course
-                    </p>
-                    <h2 className="mt-2 font-serif text-2xl font-semibold">
-                      {rule.category.name}
-                    </h2>
-                  </div>
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
-                </div>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  {version.isCustom
-                    ? `${rule.items.length} dishes available at actual item pricing`
-                    : `Choose ${rule.minSelections === rule.maxSelections ? rule.minSelections : `${rule.minSelections}-${rule.maxSelections}`} from ${rule.items.length} available dishes`}
-                </p>
-              </article>
-            ))}
+    <main className="pb-28">
+      {/* ── Maroon header ── */}
+      <div className="bg-primary">
+        <div className="container-pad py-8 sm:py-10">
+          <Link
+            href="/packages"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4" /> All packages
+          </Link>
+          <div className="mt-5 mb-6">
+            <OrderProgress current={0} />
           </div>
-        </section>
-        <aside className="surface-card h-fit p-7 lg:sticky lg:top-28">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
-            {version.isCustom ? 'Item-based package' : 'Base package'}
-          </p>
-          <p className="mt-2 font-serif text-4xl font-semibold">
-            {version.isCustom ? 'Custom' : `₹${version.basePricePerPlate}`}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {version.isCustom
-              ? 'Select dishes at their actual per-plate prices'
-              : 'per guest, before premium additions'}
-          </p>
-          <div className="my-6 h-px bg-border" />
-          <p className="text-sm leading-6 text-muted-foreground">
-            {version.isCustom
-              ? 'You will choose an event date and venue next, then build a menu from any available dish.'
-              : 'You will choose an event date and venue next, then curate each course within the package rules.'}
-          </p>
-          <Button className="mt-7 w-full" onClick={startOrder}>
-            Choose this package
-          </Button>
-        </aside>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                {version.isCustom ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
+                    <ChefHat className="h-3 w-3" /> Build Your Own
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
+                    <Sparkles className="h-3 w-3" /> Occasion Package
+                  </span>
+                )}
+              </div>
+              <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                {version.packageName}
+              </h1>
+              <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-white/70">
+                <Users className="h-4 w-4" />
+                {version.minGuestCount}–{version.maxGuestCount ?? '1,000'} guests
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container-pad py-8">
+        <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+          {/* ── Course rules ── */}
+          <section>
+            <h2 className="text-lg font-extrabold">
+              {version.isCustom ? 'Available dish categories' : 'Package courses'}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {version.isCustom
+                ? 'You can pick any dish from any category. Pricing is per item, per person.'
+                : 'Select the exact number of dishes within each course. Premium dishes are priced at a small addition.'}
+            </p>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {version.categoryRules.map((rule, idx) => (
+                <div key={rule.id} className="surface-card flex gap-4 p-5">
+                  <span
+                    className={cn(
+                      'mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg text-sm font-extrabold',
+                      idx % 2 === 0
+                        ? 'bg-primary/10 text-primary'
+                        : 'bg-accent/15 text-accent-foreground',
+                    )}
+                  >
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-extrabold">{rule.category.name}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {version.isCustom
+                        ? `${rule.items.length} dishes available — item pricing`
+                        : `Choose ${
+                            rule.minSelections === rule.maxSelections
+                              ? rule.minSelections
+                              : `${rule.minSelections}–${rule.maxSelections}`
+                          } from ${rule.items.length} dishes`}
+                    </p>
+                    {!version.isCustom && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {rule.items.slice(0, 3).map((item) => (
+                          <span key={item.id} className="tag-chip">
+                            {item.name}
+                          </span>
+                        ))}
+                        {rule.items.length > 3 && (
+                          <span className="tag-chip">+{rule.items.length - 3} more</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* What happens next */}
+            <div className="mt-8 surface-inset p-5">
+              <p className="text-sm font-extrabold">What happens next</p>
+              <div className="mt-4 space-y-3">
+                {[
+                  'Enter your event date, venue, and guest count',
+                  version.isCustom
+                    ? 'Browse the full menu and add exactly the dishes you want'
+                    : 'Curate your menu within each course category',
+                  'Review your cart and pay securely',
+                  'Track your order from kitchen to venue',
+                ].map((step, i) => (
+                  <div key={step} className="flex items-start gap-3 text-sm">
+                    <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary/10 text-[10px] font-extrabold text-primary">
+                      {i + 1}
+                    </span>
+                    <p className="text-muted-foreground">{step}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ── Pricing sidebar ── */}
+          <aside>
+            <div className="surface-card p-6 lg:sticky lg:top-24">
+              <div className="flex items-center gap-2">
+                {version.isCustom ? (
+                  <ChefHat className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <Sparkles className="h-4 w-4 text-muted-foreground" />
+                )}
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  {version.isCustom ? 'Custom pricing' : 'Package pricing'}
+                </p>
+              </div>
+
+              <div className="mt-4">
+                {version.isCustom ? (
+                  <>
+                    <p className="text-3xl font-extrabold text-primary">Item-based</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Price varies by your chosen dishes. Total shown per plate at checkout.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-3xl font-extrabold text-primary">
+                      ₹{version.basePricePerPlate}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      per person, base price. Premium dish upgrades shown during menu build.
+                    </p>
+                  </>
+                )}
+              </div>
+
+              <div className="my-5 h-px bg-border" />
+
+              <ul className="space-y-3">
+                {[
+                  `${version.categoryRules.length} dish categories`,
+                  `${version.minGuestCount}–${version.maxGuestCount ?? '1,000'} guests`,
+                  version.isCustom
+                    ? 'Item-level transparent pricing'
+                    : 'Live price updates on upgrades',
+                  '48-hour minimum lead time',
+                  'Delivery to your venue included',
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="my-5 h-px bg-border" />
+
+              <p className="text-xs leading-5 text-muted-foreground">
+                {version.isCustom
+                  ? 'Next, add event details. Then browse every dish and build your menu at item-level prices.'
+                  : 'Next, add event details. Then curate each course within the package limits.'}
+              </p>
+
+              <Button className="mt-5 w-full rounded-full" size="lg" onClick={startOrder}>
+                Choose this package
+              </Button>
+
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                No payment now — review pricing before checkout.
+              </p>
+            </div>
+          </aside>
+        </div>
       </div>
     </main>
   );

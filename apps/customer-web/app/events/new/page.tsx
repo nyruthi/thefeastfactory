@@ -60,10 +60,7 @@ function NewEventContent() {
   }, []);
 
   useEffect(() => {
-    if (
-      packageVersionId &&
-      cartPackage?.packageVersionId !== packageVersionId
-    ) {
+    if (packageVersionId && cartPackage?.packageVersionId !== packageVersionId) {
       apiRequest<PackageConfiguration>(
         `/package-versions/${packageVersionId}/configuration`,
       )
@@ -77,10 +74,7 @@ function NewEventContent() {
             minGuestCount: configuration.minGuestCount,
             maxGuestCount: configuration.maxGuestCount,
           });
-          setForm((current) => ({
-            ...current,
-            guestCount: configuration.minGuestCount,
-          }));
+          setForm((current) => ({ ...current, guestCount: configuration.minGuestCount }));
         })
         .catch((reason) => setError(reason.message));
     }
@@ -99,9 +93,7 @@ function NewEventContent() {
 
   useEffect(() => {
     if (!cartEvent?.eventName) return;
-    const known = eventTypeOptions.find(
-      (option) => option === cartEvent.eventName,
-    );
+    const known = eventTypeOptions.find((option) => option === cartEvent.eventName);
     setForm((current) => ({
       ...current,
       eventType: known ?? 'Other',
@@ -182,192 +174,168 @@ function NewEventContent() {
   }
 
   return (
-    <main className="page-shell pb-28">
-      <OrderProgress current={1} />
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_340px]">
-        <section className="surface-card p-6 sm:p-8">
-          <p className="eyebrow">Your occasion</p>
-          <h1 className="mt-3 font-serif text-4xl font-semibold">
+    <main className="pb-28">
+      {/* ── Header ── */}
+      <div className="bg-primary">
+        <div className="container-pad py-8">
+          <div className="mb-6">
+            <OrderProgress current={1} />
+          </div>
+          <p className="eyebrow text-accent">Event details</p>
+          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-white">
             Tell us when and where.
           </h1>
-          <p className="mt-3 text-muted-foreground">
-            We use these details to confirm availability and calculate your
-            exact total.
+          <p className="mt-2 text-sm text-white/70">
+            We use these details to confirm availability and calculate your exact total.
           </p>
+        </div>
+      </div>
 
-          {!addresses.length ? (
-            <div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5">
-              <p className="font-semibold text-amber-900">
-                An event venue is required
-              </p>
-              <p className="mt-1 text-sm text-amber-800">
-                Add a saved address, then return here. Your package will stay in
-                the cart.
-              </p>
-              <Button asChild variant="outline" className="mt-4">
-                <Link href="/addresses">Add an address</Link>
-              </Button>
-            </div>
-          ) : (
-            <form onSubmit={submit} className="mt-8 grid gap-5 sm:grid-cols-2">
-              <Field label="Event type" className="sm:col-span-2">
-                <Select
-                  value={form.eventType}
-                  onChange={(event) =>
-                    setForm({
-                      ...form,
-                      eventType: event.target.value,
-                      customEventName:
-                        event.target.value === 'Other'
-                          ? form.customEventName
-                          : '',
-                    })
-                  }
-                >
-                  {eventTypeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-              {form.eventType === 'Other' && (
-                <Field
-                  label="Custom event name"
-                  optional
-                  className="sm:col-span-2"
-                >
-                  <Input
-                    placeholder="e.g. Riya's engagement dinner"
-                    value={form.customEventName}
+      <div className="container-pad py-8">
+        <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+          {/* ── Form ── */}
+          <section className="surface-card p-6 sm:p-8">
+            {!addresses.length ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+                <p className="font-extrabold text-amber-900">An event venue is required</p>
+                <p className="mt-1 text-sm text-amber-800">
+                  Add a saved address, then return here. Your package will stay in the cart.
+                </p>
+                <Button asChild variant="outline" className="mt-4 rounded-full">
+                  <Link href="/addresses">Add an address</Link>
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={submit} className="grid gap-5 sm:grid-cols-2">
+                <Field label="Event type" className="sm:col-span-2">
+                  <Select
+                    value={form.eventType}
                     onChange={(event) =>
-                      setForm({ ...form, customEventName: event.target.value })
+                      setForm({
+                        ...form,
+                        eventType: event.target.value,
+                        customEventName: event.target.value === 'Other' ? form.customEventName : '',
+                      })
                     }
+                  >
+                    {eventTypeOptions.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </Select>
+                </Field>
+                {form.eventType === 'Other' && (
+                  <Field label="Custom event name" optional className="sm:col-span-2">
+                    <Input
+                      placeholder="e.g. Riya's engagement dinner"
+                      value={form.customEventName}
+                      onChange={(event) => setForm({ ...form, customEventName: event.target.value })}
+                    />
+                  </Field>
+                )}
+                <Field label="Date" hint="Bookings need at least 48 hours of lead time.">
+                  <DateField
+                    min={minimumDate}
+                    value={form.eventDate}
+                    onValueChange={(eventDate) => setForm({ ...form, eventDate })}
+                    required
                   />
                 </Field>
-              )}
-              <Field
-                label="Date"
-                hint="Bookings need at least 48 hours of lead time."
-              >
-                <DateField
-                  min={minimumDate}
-                  value={form.eventDate}
-                  onValueChange={(eventDate) => setForm({ ...form, eventDate })}
-                  required
-                />
-              </Field>
-              <Field
-                label="Serving preset"
-                hint="Pick a meal slot or keep a custom time."
-              >
-                <Select
-                  value={form.servingPreset}
-                  onChange={(event) => {
-                    const preset = servingTimePresets.find(
-                      (item) => item.label === event.target.value,
-                    );
-                    setForm({
-                      ...form,
-                      servingPreset: event.target.value,
-                      eventTimeStart: preset?.time ?? form.eventTimeStart,
-                    });
-                  }}
+                <Field label="Serving preset" hint="Pick a meal slot or keep a custom time.">
+                  <Select
+                    value={form.servingPreset}
+                    onChange={(event) => {
+                      const preset = servingTimePresets.find((item) => item.label === event.target.value);
+                      setForm({
+                        ...form,
+                        servingPreset: event.target.value,
+                        eventTimeStart: preset?.time ?? form.eventTimeStart,
+                      });
+                    }}
+                  >
+                    <option value="">Custom time</option>
+                    {servingTimePresets.map((preset) => (
+                      <option key={preset.label} value={preset.label}>
+                        {preset.label} · {preset.time}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Exact serving time">
+                  <TimeField
+                    value={form.eventTimeStart}
+                    onValueChange={(eventTimeStart) => setForm({ ...form, eventTimeStart })}
+                    required
+                  />
+                </Field>
+                <Field
+                  label="Guest count"
+                  hint={`Package allows ${cartPackage?.minGuestCount}–${cartPackage?.maxGuestCount ?? 'unlimited'} guests.`}
                 >
-                  <option value="">Custom time</option>
-                  {servingTimePresets.map((preset) => (
-                    <option key={preset.label} value={preset.label}>
-                      {preset.label} · {preset.time}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-              <Field label="Exact serving time">
-                <TimeField
-                  value={form.eventTimeStart}
-                  onValueChange={(eventTimeStart) =>
-                    setForm({ ...form, eventTimeStart })
-                  }
-                  required
-                />
-              </Field>
-              <Field
-                label="Guest count"
-                hint={`Package allows ${cartPackage?.minGuestCount}-${cartPackage?.maxGuestCount ?? 'unlimited'} guests.`}
-              >
-                <Input
-                  type="number"
-                  min={cartPackage?.minGuestCount}
-                  max={cartPackage?.maxGuestCount ?? undefined}
-                  value={form.guestCount}
-                  onChange={(event) =>
-                    setForm({ ...form, guestCount: Number(event.target.value) })
-                  }
-                  required
-                />
-              </Field>
-              <Field label="Venue">
-                <Select
-                  value={form.addressId}
-                  onChange={(event) =>
-                    setForm({ ...form, addressId: event.target.value })
-                  }
-                  required
-                >
-                  {addresses.map((address) => (
-                    <option key={address.id} value={address.id}>
-                      {address.label || address.addressLine1}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-              <Field
-                label="Notes for our team"
-                optional
-                className="sm:col-span-2"
-              >
-                <Textarea
-                  placeholder="Access instructions, serving preferences, or anything we should know"
-                  value={form.specialNotes}
-                  onChange={(event) =>
-                    setForm({ ...form, specialNotes: event.target.value })
-                  }
-                />
-              </Field>
-              {error && (
-                <p className="sm:col-span-2 rounded-lg bg-red-50 p-3 text-sm text-red-700">
-                  {error}
-                </p>
-              )}
-              <Button className="sm:col-span-2" disabled={submitting}>
-                {submitting ? 'Saving event…' : 'Continue to menu'}
-              </Button>
-            </form>
-          )}
-        </section>
+                  <Input
+                    type="number"
+                    min={cartPackage?.minGuestCount}
+                    max={cartPackage?.maxGuestCount ?? undefined}
+                    value={form.guestCount}
+                    onChange={(event) => setForm({ ...form, guestCount: Number(event.target.value) })}
+                    required
+                  />
+                </Field>
+                <Field label="Venue">
+                  <Select
+                    value={form.addressId}
+                    onChange={(event) => setForm({ ...form, addressId: event.target.value })}
+                    required
+                  >
+                    {addresses.map((address) => (
+                      <option key={address.id} value={address.id}>
+                        {address.label || address.addressLine1}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Notes for our team" optional className="sm:col-span-2">
+                  <Textarea
+                    placeholder="Access instructions, serving preferences, or anything we should know"
+                    value={form.specialNotes}
+                    onChange={(event) => setForm({ ...form, specialNotes: event.target.value })}
+                  />
+                </Field>
+                {error && (
+                  <p className="sm:col-span-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 font-semibold">
+                    {error}
+                  </p>
+                )}
+                <Button className="sm:col-span-2 rounded-full" disabled={submitting}>
+                  {submitting ? 'Saving event…' : 'Continue to menu'}
+                </Button>
+              </form>
+            )}
+          </section>
 
-        <aside className="surface-card h-fit p-6 lg:sticky lg:top-28">
-          <p className="eyebrow">In your cart</p>
-          <h2 className="mt-3 font-serif text-2xl font-semibold">
-            {cartPackage?.packageName ?? 'Loading package…'}
-          </h2>
-          <div className="mt-6 space-y-4 text-sm">
-            <p className="flex gap-3">
-              <CalendarDays className="h-4 w-4 text-primary" /> At least 48
-              hours advance booking
-            </p>
-            <p className="flex gap-3">
-              <Users className="h-4 w-4 text-primary" />
-              {cartPackage?.isCustom
-                ? 'Item-based pricing per guest'
-                : `₹${cartPackage?.basePricePerPlate} per guest`}
-            </p>
-            <p className="flex gap-3">
-              <MapPin className="h-4 w-4 text-primary" /> Choose from your saved
-              venues
-            </p>
-          </div>
-        </aside>
+          {/* ── Package sidebar ── */}
+          <aside className="surface-card h-fit p-6 lg:sticky lg:top-24">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Your selected package</p>
+            <h2 className="mt-3 text-xl font-extrabold">
+              {cartPackage?.packageName ?? 'Loading package…'}
+            </h2>
+            <div className="mt-5 space-y-3 text-sm text-muted-foreground">
+              <p className="flex items-center gap-2.5">
+                <CalendarDays className="h-4 w-4 shrink-0 text-primary" />
+                At least 48 hours advance booking
+              </p>
+              <p className="flex items-center gap-2.5">
+                <Users className="h-4 w-4 shrink-0 text-primary" />
+                {cartPackage?.isCustom
+                  ? 'Item-based pricing per guest'
+                  : `₹${cartPackage?.basePricePerPlate} per guest`}
+              </p>
+              <p className="flex items-center gap-2.5">
+                <MapPin className="h-4 w-4 shrink-0 text-primary" />
+                Choose from your saved venues
+              </p>
+            </div>
+          </aside>
+        </div>
       </div>
     </main>
   );
@@ -378,7 +346,7 @@ export default function NewEventPage() {
     <Suspense
       fallback={
         <main className="page-shell">
-          <div className="h-96 animate-pulse rounded-[2rem] bg-white/60" />
+          <div className="h-96 animate-pulse rounded-2xl bg-muted" />
         </main>
       }
     >
