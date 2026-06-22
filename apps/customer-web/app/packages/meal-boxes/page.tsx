@@ -122,26 +122,23 @@ function ComparisonTable({
   if (packages.length === 0) return null;
   return (
     <section>
-      <h2 className="mb-3 text-base font-bold text-foreground">Compare Meal Boxes</h2>
+      <h2 className="mb-2 text-sm font-bold text-foreground">Compare Meal Boxes</h2>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-white shadow-sm">
-        <table className="w-full min-w-[440px] border-collapse text-sm">
+        <table className="w-full min-w-[400px] border-collapse text-xs">
           {/* "MOST POPULAR" banner row */}
           <thead>
             <tr>
-              <th className="w-[30%]" />
+              <th className="w-[32%]" />
               {packages.map((pkg, i) => {
                 const isPopular = BOX_META[i]?.popular ?? false;
                 return (
                   <th
                     key={pkg.id}
-                    className={cn(
-                      'text-center',
-                      isPopular ? 'bg-primary' : '',
-                    )}
+                    className={cn('text-center', isPopular ? 'bg-primary' : '')}
                   >
                     {isPopular && (
-                      <span className="block py-1 text-[10px] font-bold uppercase tracking-widest text-white">
+                      <span className="block py-0.5 text-[9px] font-bold uppercase tracking-widest text-white">
                         Most Popular
                       </span>
                     )}
@@ -152,7 +149,7 @@ function ComparisonTable({
 
             {/* Column header: name + price */}
             <tr className="border-b border-border">
-              <th className="px-5 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              <th className="px-4 py-2 text-left text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
                 Includes
               </th>
               {packages.map((pkg, i) => {
@@ -161,22 +158,19 @@ function ComparisonTable({
                 return (
                   <th
                     key={pkg.id}
-                    className={cn(
-                      'px-4 py-3 text-center',
-                      isPopular ? 'bg-primary/5' : '',
-                    )}
+                    className={cn('px-3 py-2 text-center', isPopular ? 'bg-primary/5' : '')}
                   >
                     <p className={cn(
-                      'text-xs font-bold uppercase tracking-wider',
+                      'text-[10px] font-bold uppercase tracking-wider',
                       isPopular ? 'text-primary' : 'text-foreground',
                     )}>
                       {displayName}
                     </p>
                     <p className="mt-0.5">
-                      <span className="text-base font-extrabold text-primary">
+                      <span className="text-sm font-extrabold text-primary">
                         ₹{pkg.activeVersion?.basePricePerPlate}
                       </span>
-                      <span className="ml-0.5 text-xs font-normal text-muted-foreground">/ box</span>
+                      <span className="ml-0.5 text-[10px] font-normal text-muted-foreground">/ box</span>
                     </p>
                   </th>
                 );
@@ -188,10 +182,10 @@ function ComparisonTable({
           <tbody className="divide-y divide-border/40">
             {COMPARISON_ROWS.map(({ label, Icon, values }) => (
               <tr key={label} className="hover:bg-muted/20">
-                <td className="px-5 py-2.5">
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-3.5 w-3.5 shrink-0 text-primary/60" />
-                    <span className="text-sm text-foreground">{label}</span>
+                <td className="px-4 py-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <Icon className="h-3 w-3 shrink-0 text-primary/60" />
+                    <span className="text-xs text-foreground">{label}</span>
                   </div>
                 </td>
                 {packages.map((pkg, i) => {
@@ -201,14 +195,14 @@ function ComparisonTable({
                     <td
                       key={pkg.id}
                       className={cn(
-                        'px-4 py-2.5 text-center',
+                        'px-3 py-1.5 text-center',
                         isPopular ? 'bg-primary/[0.03]' : '',
                       )}
                     >
                       {included ? (
-                        <Check className="mx-auto h-4 w-4 text-emerald-500" />
+                        <Check className="mx-auto h-3.5 w-3.5 text-emerald-500" />
                       ) : (
-                        <span className="text-base leading-none text-muted-foreground/35">—</span>
+                        <span className="text-sm leading-none text-muted-foreground/35">—</span>
                       )}
                     </td>
                   );
@@ -583,27 +577,26 @@ export default function MealBoxesPage() {
 
       {/* ── Compact header ── */}
       <div className="border-b border-border bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-foreground">Meal Boxes</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Delicious, balanced meals. Perfectly portioned.
-          </p>
+        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Meal Boxes</h1>
+              <p className="text-xs text-muted-foreground">
+                Delicious, balanced meals. Perfectly portioned.
+              </p>
+            </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {INFO_CARDS.map(({ Icon, label, desc }) => (
-              <div
-                key={label}
-                className="flex items-start gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3"
-              >
-                <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10">
-                  <Icon className="h-4 w-4 text-primary" />
+            <div className="flex flex-wrap gap-2">
+              {INFO_CARDS.map(({ Icon, label }) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-3 py-1.5"
+                >
+                  <Icon className="h-3 w-3 text-primary" />
+                  <span className="text-[11px] font-semibold text-foreground">{label}</span>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-foreground">{label}</p>
-                  <p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">{desc}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
