@@ -72,7 +72,7 @@ export function CustomerShell({
               <span className="block text-[15px] font-extrabold leading-tight tracking-tight text-primary">
                 The Feast Factory
               </span>
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Bulk Catering
               </span>
             </span>

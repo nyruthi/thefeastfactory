@@ -26,12 +26,12 @@ export function Footer() {
               <span className="grid h-10 w-10 place-items-center rounded-full bg-primary">
                 <UtensilsCrossed className="h-5 w-5 text-white" />
               </span>
-              <div>
+              {/* <div>
                 <p className="text-sm font-bold leading-tight text-white">The Feast Factory</p>
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-white/50">
                   Bulk Catering
                 </p>
-              </div>
+              </div> */}
             </div>
             <p className="mt-5 text-sm leading-7 text-white/60">
               Premium bulk catering for corporate offices, communities, and celebrations.

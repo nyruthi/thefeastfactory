@@ -1,121 +1,364 @@
-'use client';
-
-import { ArrowRight, Star } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '../components/ui/button';
-import { HeroSection } from '../components/home/hero-section';
-import { OrderTypeCards } from '../components/home/order-type-cards';
-import { OccasionPackagesSection } from '../components/home/occasion-packages-section';
-import { TrustIndicators } from '../components/home/trust-indicators';
+import {
+  Briefcase,
+  CalendarDays,
+  ChefHat,
+  Clock,
+  CreditCard,
+  Home,
+  MessageCircle,
+  Package,
+  ShieldCheck,
+  Sparkles,
+  Truck,
+  Users,
+} from 'lucide-react';
 
-const testimonials = [
+/* ─── data ─────────────────────────────────────────────────────────── */
+
+const ORDER_TYPES = [
   {
-    quote:
-      'We ordered 200 boxes for our quarterly all-hands. Everything arrived hot, on time, and the team was thrilled. Will repeat every quarter.',
-    name: 'Priya Anand',
-    role: 'Office Admin, Bengaluru Tech Co.',
-    initial: 'P',
+    Icon: Package,
+    iconBg: 'hsl(352 59% 30%)',
+    btnBg: 'hsl(352 59% 30%)',
+    cardBg: 'linear-gradient(135deg, hsl(352 40% 96%), hsl(352 40% 92%))',
+    title: 'Meal Boxes',
+    desc: 'One box per person with 3, 5 or 8 items.',
+    cta: 'Explore Meal Boxes',
+    href: '/packages/meal-boxes',
+    img: 'https://images.unsplash.com/photo-1603073163308-9654c3fb70b5?auto=format&fit=crop&w=700&q=80',
   },
   {
-    quote:
-      'The Farm House package was perfect for our society annual day. 350 people, zero complaints. Pricing was crystal clear from the start.',
-    name: 'Rajan Sharma',
-    role: 'RWA President, Whitefield Enclave',
-    initial: 'R',
+    Icon: CalendarDays,
+    iconBg: 'hsl(41 56% 48%)',
+    btnBg: 'hsl(41 56% 48%)',
+    cardBg: 'linear-gradient(135deg, hsl(41 50% 96%), hsl(41 45% 90%))',
+    title: 'Occasion Packages',
+    desc: 'Pre-designed menus for every occasion.',
+    cta: 'View Occasion Packages',
+    href: '/packages',
+    img: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=700&q=80',
   },
   {
-    quote:
-      "Ordered the Puja Package for my mother's housewarming. They let us swap two dishes, price updated instantly. Absolutely loved it.",
-    name: 'Divya Krishnan',
-    role: 'Homemaker, Chennai',
-    initial: 'D',
+    Icon: ChefHat,
+    iconBg: 'hsl(80 30% 38%)',
+    btnBg: 'hsl(80 30% 38%)',
+    cardBg: 'linear-gradient(135deg, hsl(80 25% 95%), hsl(80 22% 90%))',
+    title: 'Build Your Own Menu',
+    desc: 'Pick your favourite dishes and create your own menu.',
+    cta: 'Build Your Menu',
+    href: '/menu',
+    img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=700&q=80',
   },
 ];
 
+const PACKAGES = [
+  {
+    tag: 'Most Popular' as string | null,
+    Icon: Home,
+    iconColor: '#7A1F2B',
+    title: 'Farm House Celebration',
+    serves: 'Serves 20 – 200 people',
+    price: 599,
+    href: '/packages',
+    img: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=700&q=80',
+  },
+  {
+    tag: null as string | null,
+    Icon: Sparkles,
+    iconColor: '#C89B3C',
+    title: 'Puja Package',
+    serves: 'Serves 20 – 500 people',
+    price: 499,
+    href: '/packages',
+    img: 'https://images.unsplash.com/photo-1535591273668-578e31182c4f?auto=format&fit=crop&w=700&q=80',
+  },
+  {
+    tag: null as string | null,
+    Icon: Users,
+    iconColor: '#4A6DA7',
+    title: 'Community Gathering',
+    serves: 'Serves 50 – 1,000 people',
+    price: 449,
+    href: '/packages',
+    img: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=700&q=80',
+  },
+  {
+    tag: null as string | null,
+    Icon: Briefcase,
+    iconColor: '#3A3A3A',
+    title: 'Corporate Party',
+    serves: 'Serves 20 – 1,000 people',
+    price: 649,
+    href: '/packages',
+    img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=700&q=80',
+  },
+];
+
+const TRUST_ITEMS = [
+  { Icon: Users,         title: 'Minimum 10 Guests',  desc: 'Per order' },
+  { Icon: Clock,         title: '48-Hour Lead Time',   desc: 'For all orders' },
+  { Icon: CreditCard,    title: 'Transparent Pricing', desc: 'No hidden charges' },
+  { Icon: MessageCircle, title: 'Dedicated Support',   desc: "We're here to help" },
+];
+
+/* ─── page ──────────────────────────────────────────────────────────── */
+
 export default function HomePage() {
   return (
-    <main>
-      {/* 1 ── Hero */}
-      <HeroSection />
+    <main style={{ background: '#FAF8F5' }}>
+      <style>{`
+        .hero-section { background: hsl(352 59% 18%); overflow: hidden; }
+        .hero-inner {
+          max-width: 1280px; margin: 0 auto; padding: 56px 32px;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 36px;
+          align-items: center; min-height: 320px;
+        }
+        .hero-heading { font-size: 58px; font-weight: 800; line-height: 1.05; letter-spacing: -0.04em; color: #fff; margin: 0 0 18px; }
+        .hero-subtext { font-size: 18px; line-height: 1.5; color: hsl(0 0% 90%); margin: 0 0 28px; max-width: 440px; }
+        .hero-image img { width: 100%; height: auto; display: block; border-radius: 14px; box-shadow: 0 18px 44px rgba(0,0,0,0.3); }
+        .home-section { max-width: 1280px; margin: 0 auto; padding: 56px 32px; }
+        .section-title-row { display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 36px; }
+        .section-title { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: hsl(0 0% 12%); margin: 0; white-space: nowrap; }
+        .order-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .pkg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+        .trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+        @media (max-width: 900px) {
+          .order-grid { grid-template-columns: 1fr; }
+          .pkg-grid { grid-template-columns: repeat(2, 1fr); }
+          .trust-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+          .hero-inner { grid-template-columns: 1fr; padding: 40px 20px 48px; min-height: 0; }
+          .hero-image { display: none; }
+          .hero-heading { font-size: 38px !important; letter-spacing: -0.03em !important; margin-bottom: 14px !important; }
+          .hero-subtext { font-size: 15px !important; margin-bottom: 20px !important; }
+          .home-section { padding: 40px 16px; }
+          .section-title { font-size: 22px !important; white-space: normal !important; text-align: center; }
+          .section-title-row { gap: 12px; }
+        }
+        @media (max-width: 480px) {
+          .pkg-grid { grid-template-columns: 1fr; }
+          .trust-grid { grid-template-columns: repeat(2, 1fr); }
+          .hero-heading { font-size: 32px !important; }
+        }
+      `}</style>
 
-      {/* 2 ── Choose how you want to order */}
-      <OrderTypeCards />
+      {/* ════════════════════════════════════════
+          SECTION 1 · HERO
+      ════════════════════════════════════════ */}
+      <section className="hero-section">
+        <div className="hero-inner">
 
-      {/* 3 ── Popular Occasion Packages */}
-      <OccasionPackagesSection />
+          {/* Left — text + trust badges */}
+          <div>
+            <h1 className="hero-heading">
+              Premium food for<br />
+              every <span style={{ color: 'hsl(41 56% 56%)' }}>occasion</span>.
+            </h1>
+            <p className="hero-subtext">
+              Bulk catering for 20 to 1,000 people. Corporate lunches, parties, celebrations &amp; more.
+            </p>
 
-      {/* 4 ── Trust indicators */}
-      <TrustIndicators />
-
-      {/* 5 ── Testimonials */}
-      <section className="bg-muted/40 py-16 sm:py-20">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="eyebrow">Testimonials</p>
-            <h2 className="mt-2 font-serif text-2xl font-bold tracking-tight sm:text-3xl">
-              Trusted by offices, communities &amp; families
-            </h2>
-          </div>
-          <div className="mt-10 grid gap-5 sm:grid-cols-3">
-            {testimonials.map((t) => (
-              <div key={t.name} className="surface-card flex flex-col gap-4 p-6">
-                <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} className="h-4 w-4 fill-accent text-accent" />
-                  ))}
-                </div>
-                <p className="flex-1 text-sm leading-7 text-muted-foreground">
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <div className="flex items-center gap-3 border-t pt-4">
-                  <span className="grid h-9 w-9 place-items-center rounded-full bg-primary text-sm font-bold text-white">
-                    {t.initial}
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
+            {/* Trust badges — square icons, no pill container */}
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+              {[
+                { Icon: Users,       top: '20 – 1,000', bottom: 'People' },
+                { Icon: ShieldCheck, top: 'On-time',    bottom: 'Delivery' },
+                { Icon: Truck,       top: 'Hygienic',   bottom: '& Safe' },
+              ].map(({ Icon, top, bottom }) => (
+                <div key={top} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+                  <div style={{
+                    width: 46, height: 46, borderRadius: 12,
+                    background: 'hsl(352 59% 30%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  }}>
+                    <Icon style={{ width: 22, height: 22, color: '#fff' }} />
+                  </div>
+                  <div style={{ lineHeight: 1.15 }}>
+                    <div style={{ fontWeight: 800, color: '#fff', fontSize: 16 }}>{top}</div>
+                    <div style={{ color: 'hsl(0 0% 78%)', fontSize: 14 }}>{bottom}</div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
+          {/* Right — photo (hidden on mobile) */}
+          <div className="hero-image">
+            <img src="/Hero.png" alt="Bulk catering trays with custom menu options" />
+          </div>
+
         </div>
       </section>
 
-      {/* 6 ── CTA Banner */}
-      <section className="bg-primary">
-        <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-          <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:justify-between sm:text-left">
-            <div>
-              <h2 className="font-serif text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                Ready to place your catering order?
-              </h2>
-              <p className="mt-2 text-sm text-white/70">
-                Book online in minutes. We handle everything from kitchen to venue.
-              </p>
-            </div>
-            <div className="flex shrink-0 flex-wrap gap-3">
-              <Button
-                asChild
-                size="lg"
-                className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
-              >
-                <Link href="/packages">
-                  Get started <ArrowRight className="ml-2 h-4 w-4" />
+
+      {/* ════════════════════════════════════════
+          SECTION 2 · ORDERING OPTIONS
+      ════════════════════════════════════════ */}
+      <section className="home-section">
+
+        <div className="section-title-row">
+          <div style={{ width: 64, height: 1.5, background: '#C89B3C', opacity: 0.55, borderRadius: 2 }} />
+          <h2 className="section-title">
+            Choose how you want to order
+          </h2>
+          <div style={{ width: 64, height: 1.5, background: '#C89B3C', opacity: 0.55, borderRadius: 2 }} />
+        </div>
+
+        <div className="order-grid">
+          {ORDER_TYPES.map(({ Icon, iconBg, btnBg, cardBg, title, desc, cta, href, img }) => (
+            <div
+              key={title}
+              className="hover:-translate-y-1 hover:shadow-lg transition-all duration-[250ms]"
+              style={{
+                display: 'flex',
+                background: cardBg,
+                border: '1px solid hsl(35 22% 88%)',
+                borderRadius: 16, overflow: 'hidden',
+              }}
+            >
+              {/* Left: text content */}
+              <div style={{ padding: '26px 4px 26px 26px', flex: '1.1', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{
+                    width: 46, height: 46, borderRadius: '50%',
+                    background: iconBg,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    marginBottom: 16,
+                  }}>
+                    <Icon style={{ width: 22, height: 22, color: '#fff' }} />
+                  </div>
+                  <h3 style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.02em', color: 'hsl(0 0% 12%)', margin: '0 0 8px' }}>
+                    {title}
+                  </h3>
+                  <p style={{ fontSize: 14, color: 'hsl(0 0% 38%)', lineHeight: 1.45, margin: 0 }}>{desc}</p>
+                </div>
+                <Link href={href} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8, alignSelf: 'flex-start',
+                  background: btnBg, color: '#fff',
+                  borderRadius: 999, padding: '11px 18px',
+                  fontSize: 13, fontWeight: 700, textDecoration: 'none',
+                  marginTop: 20,
+                }}>
+                  {cta} →
                 </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="rounded-full border-white/25 text-white hover:bg-white/10"
-              >
-                <Link href="/menu">Browse menu</Link>
-              </Button>
+              </div>
+
+              {/* Right: food photo */}
+              <div style={{ flex: '0.9', overflow: 'hidden', minHeight: 220, backgroundImage: `url(${img})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
             </div>
-          </div>
+          ))}
         </div>
       </section>
+
+
+      {/* ════════════════════════════════════════
+          SECTION 3 · POPULAR OCCASION PACKAGES
+      ════════════════════════════════════════ */}
+      <section className="home-section" style={{ paddingTop: 0 }}>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 8 }}>
+          <h2 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', color: '#1B1B1B', margin: 0 }}>
+            Popular Occasion Packages
+          </h2>
+          <Link href="/packages" style={{ fontSize: 14, fontWeight: 700, color: '#7A1F2B', textDecoration: 'none' }}>
+            View all packages →
+          </Link>
+        </div>
+
+        <div className="pkg-grid">
+          {PACKAGES.map(({ tag, Icon, iconColor, title, serves, price, href, img }) => (
+            <div key={title} style={{
+              background: '#fff', borderRadius: 18,
+              overflow: 'hidden',
+              border: '1px solid #E7E1D9',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              height: 340, display: 'flex', flexDirection: 'column',
+            }}>
+              {/* Image */}
+              <div style={{ position: 'relative', height: 180, overflow: 'hidden', flexShrink: 0 }}>
+                <img
+                  src={img} alt={title}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                {tag && (
+                  <span style={{
+                    position: 'absolute', top: 12, left: 12,
+                    background: '#7A1F2B', color: '#fff',
+                    fontSize: 10, fontWeight: 700,
+                    textTransform: 'uppercase', letterSpacing: '0.05em',
+                    padding: '4px 10px', borderRadius: 999,
+                  }}>
+                    {tag}
+                  </span>
+                )}
+                {/* Icon circle at image / content boundary */}
+                <div style={{
+                  position: 'absolute', bottom: 0, left: 16,
+                  transform: 'translateY(50%)',
+                  width: 40, height: 40, borderRadius: 999,
+                  background: '#fff', border: '2px solid #E7E1D9',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+                }}>
+                  <Icon style={{ width: 18, height: 18, color: iconColor }} />
+                </div>
+              </div>
+
+              {/* Content */}
+              <div style={{ flex: 1, padding: '28px 16px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1B1B1B', margin: '0 0 4px' }}>
+                    {title}
+                  </h3>
+                  <p style={{ fontSize: 12, color: '#6B7280', margin: 0 }}>{serves}</p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                    <span style={{ fontSize: 22, fontWeight: 900, letterSpacing: '-0.02em', color: '#7A1F2B' }}>
+                      ₹{price}
+                    </span>
+                    <span style={{ fontSize: 12, color: '#6B7280' }}>/ person</span>
+                  </div>
+                  <Link href={href} style={{ fontSize: 12, fontWeight: 700, color: '#7A1F2B', textDecoration: 'none' }}>
+                    View details →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+
+      {/* ════════════════════════════════════════
+          SECTION 4 · TRUST STRIP
+      ════════════════════════════════════════ */}
+      <section className="home-section" style={{ paddingTop: 0, paddingBottom: 72 }}>
+        <div style={{
+          background: 'linear-gradient(180deg, hsl(41 45% 95%), hsl(39 44% 97%))',
+          border: '1px solid hsl(35 22% 88%)',
+          borderRadius: 16, padding: '22px 12px',
+        }} className="trust-grid">
+          {TRUST_ITEMS.map(({ Icon, title, desc }, i) => (
+            <div key={title} style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              padding: '8px 24px',
+              borderLeft: i === 0 ? 'none' : '1px solid hsl(35 22% 86%)',
+            }}>
+              <div style={{ color: 'hsl(352 59% 30%)', flexShrink: 0 }}>
+                <Icon style={{ width: 20, height: 20 }} />
+              </div>
+              <div style={{ lineHeight: 1.25 }}>
+                <p style={{ fontSize: 15, fontWeight: 800, letterSpacing: '-0.01em', color: 'hsl(0 0% 15%)', margin: 0 }}>{title}</p>
+                <p style={{ fontSize: 13, color: 'hsl(0 0% 48%)', margin: 0 }}>{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
     </main>
   );
 }
