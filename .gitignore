@@ -22,3 +22,5 @@ ds-bundle/
 .design-sync/node_modules
 .design-sync/ui-compiled.css
 apps/customer-web/.ds-ui.css
+.vercel
+.env*

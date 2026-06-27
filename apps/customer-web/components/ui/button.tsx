@@ -1,10 +1,12 @@
+'use client';
+
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center rounded-full font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
@@ -14,9 +16,15 @@ const buttonVariants = cva(
           'bg-accent text-accent-foreground hover:-translate-y-0.5 hover:bg-accent/90',
         outline: 'border bg-white/70 hover:border-primary/40 hover:bg-white',
       },
+      size: {
+        default: 'h-11 px-5 text-sm',
+        sm: 'h-9 px-3 text-xs',
+        lg: 'h-12 px-6 text-base',
+      },
     },
     defaultVariants: {
       variant: 'default',
+      size: 'default',
     },
   },
 );
