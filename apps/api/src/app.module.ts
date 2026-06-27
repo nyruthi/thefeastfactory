@@ -15,6 +15,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { OperationsModule } from './modules/operations/operations.module';
 import { OperatingRegionsModule } from './modules/operating-regions/operating-regions.module';
+import { CartModule } from './modules/cart/cart.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { OperatingRegionsModule } from './modules/operating-regions/operating-re
     StorageModule,
     OperationsModule,
     OperatingRegionsModule,
+    CartModule,
   ],
 })
 export class AppModule {}

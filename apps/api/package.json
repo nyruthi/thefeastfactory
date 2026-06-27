@@ -2,9 +2,6 @@
   "name": "@aranyam/api",
   "version": "0.1.0",
   "private": true,
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "scripts": {
     "dev": "nest start --watch",
     "build": "nest build",
@@ -14,7 +11,7 @@
     "db:push": "prisma db push --schema=prisma/schema.prisma",
     "db:migrate": "prisma migrate dev --schema=prisma/schema.prisma",
     "db:seed": "tsx prisma/seed.ts",
-    "db:triggers": "prisma db execute --schema=prisma/schema.prisma --file=prisma/sql/updated-at-triggers.sql"
+    "db:triggers": "prisma db execute --schema=prisma/schema.prisma --file=prisma/sql/feastfactory-updated-at-triggers.sql"
   },
   "dependencies": {
     "@aranyam/shared-types": "*",

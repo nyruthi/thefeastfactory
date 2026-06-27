@@ -28,6 +28,11 @@ import { OperationsService } from './operations.service';
 export class OperationsController {
   constructor(private readonly operations: OperationsService) {}
 
+  @Get('public/settings')
+  publicSettings() {
+    return this.operations.publicSettings();
+  }
+
   @Get('me/notifications')
   @ApiBearerAuth()
   @UseGuards(CustomerAuthGuard)

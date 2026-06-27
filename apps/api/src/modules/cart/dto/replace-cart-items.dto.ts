@@ -3,13 +3,15 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
+  IsInt,
   IsOptional,
   IsUUID,
+  Min,
   ValidateNested,
 } from 'class-validator';
 import { SelectedItemRole } from '@prisma/client';
 
-export class SelectedPackageItemDto {
+export class CartSelectionItemDto {
   @ApiProperty()
   @IsUUID()
   categoryId!: string;
@@ -23,16 +25,21 @@ export class SelectedPackageItemDto {
   @IsUUID()
   replacedMenuItemId?: string | null;
 
-  @ApiProperty({ enum: SelectedItemRole, required: false })
-  @IsOptional()
+  @ApiProperty({ enum: SelectedItemRole })
   @IsEnum(SelectedItemRole)
-  role?: SelectedItemRole;
+  role!: SelectedItemRole;
+
+  @ApiProperty({ required: false, default: 1 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  quantity?: number;
 }
 
-export class PackageSelectionDto {
-  @ApiProperty({ type: [SelectedPackageItemDto] })
+export class ReplaceCartItemsDto {
+  @ApiProperty({ type: [CartSelectionItemDto] })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => SelectedPackageItemDto)
-  selectedItems!: SelectedPackageItemDto[];
+  @Type(() => CartSelectionItemDto)
+  items!: CartSelectionItemDto[];
 }

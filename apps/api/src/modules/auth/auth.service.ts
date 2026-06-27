@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { AdminRole, Prisma, User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { JwtPayload } from '../../common/auth/jwt-payload';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -231,7 +231,7 @@ export class AuthService {
     return setting ? Number.parseInt(setting.value, 10) : fallback;
   }
 
-  private serializeRegion(region: Prisma.OperatingRegionGetPayload<{}>) {
+  private serializeRegion(region: Prisma.OperatingRegionGetPayload<object>) {
     return {
       ...region,
       centerLatitude: region.centerLatitude.toFixed(8),

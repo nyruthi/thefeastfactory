@@ -8,9 +8,7 @@ export async function quote(packageVersionId: string, guestCount: number, select
     where: { id: packageVersionId, isActive: true, publishedAt: { not: null }, package: { isActive: true, deletedAt: null } },
     include: {
       package: true,
-      categoryRules: { include: { category: true } },
       packageMenuItems: { where: { isAvailable: true }, include: { menuItem: true } },
-      packageMenuItemPricing: true,
     },
   })
   if (!version) throw Object.assign(new Error('Package version not found'), { status: 404 })
@@ -21,17 +19,11 @@ export async function quote(packageVersionId: string, guestCount: number, select
     throw Object.assign(new Error('Duplicate menu selections are not allowed'), { status: 400 })
   }
 
-  if (version.package.isCustom) return customQuote(version, guestCount, selectedItems)
+  if (version.package.type === 'CUSTOM_PACKAGE') return customQuote(version, guestCount, selectedItems)
 
+  const isMealBox = version.package.type === 'MEAL_BOX'
   const allowed = new Map(version.packageMenuItems.map((r) => [r.menuItemId, r]))
-  const pricing = new Map(version.packageMenuItemPricing.map((r) => [r.menuItemId, r]))
   const errors: string[] = []
-
-  for (const rule of version.categoryRules) {
-    const count = selectedItems.filter((i) => i.categoryId === rule.categoryId).length
-    if (rule.isMandatory && count < rule.minSelections) errors.push(`${rule.category.name} requires ${rule.minSelections}`)
-    if (count > rule.maxSelections) errors.push(`${rule.category.name} allows at most ${rule.maxSelections}`)
-  }
 
   const items = selectedItems.flatMap((sel) => {
     const row = allowed.get(sel.menuItemId)
@@ -39,17 +31,13 @@ export async function quote(packageVersionId: string, guestCount: number, select
       errors.push(`Invalid menu item ${sel.menuItemId}`)
       return []
     }
-    const price = pricing.get(sel.menuItemId)
-    const itemPrice = price?.itemPrice ?? row.menuItem.basePrice
-    const includedValue = price?.includedValue ?? row.menuItem.basePrice
-    const categoryName = version.categoryRules.find((r) => r.categoryId === sel.categoryId)?.category.name ?? ''
+    const itemPrice = isMealBox ? row.menuItem.boxPrice : row.menuItem.generalPrice
+    const includedValue = isMealBox ? itemPrice : new Prisma.Decimal(0)
+    const categoryName = row.category?.name ?? ''
     return [{ categoryId: sel.categoryId, categoryName, menuItemId: sel.menuItemId, menuItemName: row.menuItem.name, isVeg: row.menuItem.isVeg, itemPrice, includedValue, adjustmentAmount: Prisma.Decimal.max(itemPrice.minus(includedValue), 0) }]
   })
 
-  if (errors.length) {
-    const err = Object.assign(new Error('Invalid package selection'), { status: 400, errors })
-    throw err
-  }
+  if (errors.length) throw Object.assign(new Error('Invalid package selection'), { status: 400, errors })
 
   const customization = items.reduce((s, i) => s.plus(i.adjustmentAmount), new Prisma.Decimal(0))
   const finalPerPlate = version.basePricePerPlate.plus(customization)
@@ -69,7 +57,7 @@ async function customQuote(version: Prisma.PackageVersionGetPayload<{ include: {
       errors.push(`Invalid menu item ${sel.menuItemId}`)
       return []
     }
-    return [{ categoryId: sel.categoryId, categoryName: item.category.name, menuItemId: sel.menuItemId, menuItemName: item.name, isVeg: item.isVeg, itemPrice: item.basePrice, includedValue: new Prisma.Decimal(0), adjustmentAmount: item.basePrice }]
+    return [{ categoryId: sel.categoryId, categoryName: item.category.name, menuItemId: sel.menuItemId, menuItemName: item.name, isVeg: item.isVeg, itemPrice: item.generalPrice, includedValue: new Prisma.Decimal(0), adjustmentAmount: item.generalPrice }]
   })
   if (errors.length) throw Object.assign(new Error('Invalid custom package selection'), { status: 400, errors })
   const finalPerPlate = items.reduce((s, i) => s.plus(i.itemPrice), new Prisma.Decimal(0))

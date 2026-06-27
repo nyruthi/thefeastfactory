@@ -72,6 +72,8 @@ export type MenuItem = {
   name: string;
   description?: string | null;
   basePrice: string;
+  boxPrice: string;
+  generalPrice: string;
   isVeg: boolean;
   isActive: boolean;
   imageUrl?: string | null;
@@ -94,6 +96,7 @@ export type PackageSummary = {
   name: string;
   description?: string | null;
   displayOrder: number;
+  type: 'MEAL_BOX' | 'FIXED_PACKAGE' | 'CUSTOM_PACKAGE';
   isCustom: boolean;
   activeVersion?: {
     id: string;
@@ -122,6 +125,7 @@ export type PackageConfiguration = {
     isMandatory: boolean;
     items: Array<
       MenuItem & {
+        isSwappable: boolean;
         itemPrice: string;
         includedValue: string;
         adjustmentAmount: string;

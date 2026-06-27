@@ -7,7 +7,6 @@ import {
   CancellationActor,
   EventStatus,
   OrderStatus,
-  PaymentStatus,
   Prisma,
 } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -32,7 +31,7 @@ export class OrdersService {
     return this.serializeQuote(quote);
   }
 
-  async create(userId: string, dto: OrderSelectionDto) {
+  async create(userId: string, dto: OrderSelectionDto, cartId?: string) {
     const event = await this.getEvent(userId, dto.eventId);
     const existingOrder = event.orders[0];
     if (existingOrder?.orderStatus === OrderStatus.PENDING_PAYMENT) {
@@ -50,6 +49,7 @@ export class OrdersService {
           orderNumber: this.orderNumber(),
           userId,
           eventId: event.id,
+          cartId: cartId ?? null,
           regionId: quote.region.id,
           guestCount: quote.guestCount,
           basePerPlatePrice: quote.basePerPlatePrice,
@@ -66,8 +66,11 @@ export class OrdersService {
             create: quote.items.map((item) => ({
               categoryId: item.categoryId,
               menuItemId: item.menuItemId,
+              replacedMenuItemId: item.replacedMenuItemId ?? null,
+              role: item.role,
               menuItemName: item.menuItemName,
               categoryName: item.categoryName,
+              replacedMenuItemName: item.replacedMenuItemName ?? null,
               isVeg: item.isVeg,
               itemPrice: item.itemPrice,
               includedValue: item.includedValue,

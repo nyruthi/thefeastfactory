@@ -16,8 +16,6 @@ import { CreatePackageDto } from './dto/create-package.dto';
 import { CreatePackageVersionDto } from './dto/create-package-version.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
 import { UpdatePackageVersionDto } from './dto/update-package-version.dto';
-import { UpsertCategoryRuleDto } from './dto/upsert-category-rule.dto';
-import { UpsertItemPricingDto } from './dto/upsert-item-pricing.dto';
 import { UpsertPackageMenuItemDto } from './dto/upsert-package-menu-item.dto';
 import { PackagesService } from './packages.service';
 
@@ -54,12 +52,9 @@ export class AdminPackagesController {
     return this.packages.updateVersion(id, dto);
   }
 
-  @Post('package-versions/:id/category-rules')
-  upsertCategoryRule(
-    @Param('id') id: string,
-    @Body() dto: UpsertCategoryRuleDto,
-  ) {
-    return this.packages.upsertCategoryRule(id, dto);
+  @Get('package-versions/:id/configuration')
+  getVersionConfiguration(@Param('id') id: string) {
+    return this.packages.getAdminConfiguration(id);
   }
 
   @Post('package-versions/:id/menu-items')
@@ -68,13 +63,5 @@ export class AdminPackagesController {
     @Body() dto: UpsertPackageMenuItemDto,
   ) {
     return this.packages.upsertMenuItem(id, dto);
-  }
-
-  @Post('package-versions/:id/item-pricing')
-  upsertItemPricing(
-    @Param('id') id: string,
-    @Body() dto: UpsertItemPricingDto,
-  ) {
-    return this.packages.upsertItemPricing(id, dto);
   }
 }

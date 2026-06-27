@@ -541,7 +541,7 @@ export default function MealBoxesPage() {
     apiRequest<PackageSummary[]>('/packages')
       .then((pkgs) => {
         const sorted = pkgs
-          .filter((p) => !p.isCustom && p.activeVersion)
+          .filter((p) => p.type === 'MEAL_BOX' && p.activeVersion)
           .sort(
             (a, b) =>
               parseFloat(a.activeVersion!.basePricePerPlate) -

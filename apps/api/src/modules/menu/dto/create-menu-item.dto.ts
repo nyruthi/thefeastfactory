@@ -25,9 +25,13 @@ export class CreateMenuItemDto {
   @MaxLength(1000)
   description?: string;
 
+  @ApiProperty({ example: '50.00' })
+  @Matches(/^\d+(\.\d{1,2})?$/)
+  boxPrice!: string;
+
   @ApiProperty({ example: '120.00' })
   @Matches(/^\d+(\.\d{1,2})?$/)
-  basePrice!: string;
+  generalPrice!: string;
 
   @ApiPropertyOptional({ default: true })
   @IsOptional()

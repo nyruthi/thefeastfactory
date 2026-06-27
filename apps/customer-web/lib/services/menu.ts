@@ -1,8 +1,13 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from '../prisma'
 
-function serializeItem<T extends { basePrice: Prisma.Decimal }>(item: T) {
-  return { ...item, basePrice: item.basePrice.toFixed(2) }
+function serializeItem<T extends { boxPrice: Prisma.Decimal; generalPrice: Prisma.Decimal }>(item: T) {
+  return {
+    ...item,
+    boxPrice: item.boxPrice.toFixed(2),
+    generalPrice: item.generalPrice.toFixed(2),
+    basePrice: item.generalPrice.toFixed(2),
+  }
 }
 
 async function assertCategory(id: string) {
@@ -115,7 +120,8 @@ export interface CreateItemInput {
   categoryId: string
   name: string
   description?: string
-  basePrice: number
+  boxPrice: number
+  generalPrice: number
   isVeg?: boolean
   isActive?: boolean
   imageUrl?: string | null
@@ -128,7 +134,8 @@ export async function createItem(dto: CreateItemInput) {
       categoryId: dto.categoryId,
       name: dto.name.trim(),
       description: dto.description?.trim(),
-      basePrice: new Prisma.Decimal(dto.basePrice),
+      boxPrice: new Prisma.Decimal(dto.boxPrice),
+      generalPrice: new Prisma.Decimal(dto.generalPrice),
       isVeg: dto.isVeg ?? true,
       isActive: dto.isActive ?? true,
       imageUrl: dto.imageUrl,
@@ -148,7 +155,8 @@ export async function updateItem(id: string, dto: Partial<CreateItemInput>) {
       ...(dto.categoryId !== undefined ? { categoryId: dto.categoryId } : {}),
       ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
       ...(dto.description !== undefined ? { description: dto.description?.trim() } : {}),
-      ...(dto.basePrice !== undefined ? { basePrice: new Prisma.Decimal(dto.basePrice) } : {}),
+      ...(dto.boxPrice !== undefined ? { boxPrice: new Prisma.Decimal(dto.boxPrice) } : {}),
+      ...(dto.generalPrice !== undefined ? { generalPrice: new Prisma.Decimal(dto.generalPrice) } : {}),
       ...(dto.isVeg !== undefined ? { isVeg: dto.isVeg } : {}),
       ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
       ...(dto.imageUrl !== undefined ? { imageUrl: dto.imageUrl } : {}),

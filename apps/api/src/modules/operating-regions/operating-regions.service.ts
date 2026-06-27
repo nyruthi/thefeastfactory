@@ -7,7 +7,7 @@ import { AdminRole, Prisma } from '@prisma/client';
 import { JwtPayload } from '../../common/auth/jwt-payload';
 import { PrismaService } from '../../prisma/prisma.service';
 
-type RegionRow = Prisma.OperatingRegionGetPayload<{}>;
+type RegionRow = Prisma.OperatingRegionGetPayload<object>;
 
 export type RegionAssignment = {
   region: RegionRow;

@@ -27,12 +27,6 @@ async function assertVersion(id: string) {
   return v
 }
 
-async function assertCategory(id: string) {
-  const cat = await prisma.menuCategory.findUnique({ where: { id } })
-  if (!cat) notFound('Menu category not found')
-  return cat
-}
-
 function assertGuestRange(min: number, max?: number | null) {
   if (max != null && max < min) badRequest('Maximum guest count must be at least minimum guest count')
 }
@@ -47,12 +41,11 @@ async function loadVersionConfiguration(versionId: string, publicOnly: boolean) 
     },
     include: {
       package: true,
-      categoryRules: { include: { category: true }, orderBy: { category: { displayOrder: 'asc' } } },
       packageMenuItems: {
         where: publicOnly ? { isAvailable: true, menuItem: { isActive: true, deletedAt: null } } : {},
         include: { menuItem: true, category: true },
+        orderBy: [{ category: { displayOrder: 'asc' } }, { displayOrder: 'asc' }],
       },
-      packageMenuItemPricing: true,
     },
   })
   if (!version) notFound('Package version not found')
@@ -75,50 +68,92 @@ async function customCategoryRules() {
     isMandatory: false,
     items: cat.menuItems.map((item) => ({
       ...item,
-      basePrice: item.basePrice.toFixed(2),
-      itemPrice: item.basePrice.toFixed(2),
+      basePrice: item.generalPrice.toFixed(2),
+      itemPrice: item.generalPrice.toFixed(2),
       includedValue: '0.00',
-      adjustmentAmount: item.basePrice.toFixed(2),
+      adjustmentAmount: item.generalPrice.toFixed(2),
     })),
   }))
 }
 
 // ── serializeConfiguration ─────────────────────────────────────────────────────
+// Derives category rules from packageMenuItems grouped by category.
+// MEAL_BOX  → INCLUDED items per category (fixed slots, included in base price)
+// FIXED_PACKAGE → EXTRA items per category (add-ons, customer pays generalPrice)
+// CUSTOM_PACKAGE → all active menu items across all categories
 
 async function serializeConfiguration(version: Awaited<ReturnType<typeof loadVersionConfiguration>>) {
-  const pricing = new Map(version.packageMenuItemPricing.map((row) => [row.menuItemId, row]))
+  if (version.package.type === 'CUSTOM_PACKAGE') {
+    return {
+      id: version.id,
+      packageId: version.packageId,
+      packageName: version.package.name,
+      isCustom: true,
+      versionNo: version.versionNo,
+      basePricePerPlate: version.basePricePerPlate.toFixed(2),
+      minGuestCount: version.minGuestCount,
+      maxGuestCount: version.maxGuestCount,
+      categoryRules: await customCategoryRules(),
+    }
+  }
+
+  const isMealBox = version.package.type === 'MEAL_BOX'
+  // INCLUDED = fixed items in the package (meal boxes + curated fixed packages)
+  // EXTRA = full add-on menu (uncurated fixed packages still use this)
+  const hasIncluded = version.packageMenuItems.some((i) => i.role === 'INCLUDED')
+  const targetRole = (isMealBox || hasIncluded) ? 'INCLUDED' : 'EXTRA'
+
+  // Group items by category, preserving category displayOrder
+  const categoryMap = new Map<string, {
+    category: (typeof version.packageMenuItems)[number]['category']
+    items: (typeof version.packageMenuItems)[number][]
+  }>()
+
+  for (const pmi of version.packageMenuItems) {
+    if (pmi.role !== targetRole) continue
+    if (!categoryMap.has(pmi.categoryId)) {
+      categoryMap.set(pmi.categoryId, { category: pmi.category, items: [] })
+    }
+    categoryMap.get(pmi.categoryId)!.items.push(pmi)
+  }
+
+  const PREVIEW_CAP = 4
+  const categoryRules = [...categoryMap.values()].map(({ category, items }) => {
+    const count = items.length
+    // INCLUDED items (meal boxes + curated packages): show all. EXTRA items: cap preview.
+    const maxSelections = (isMealBox || targetRole === 'INCLUDED') ? count : Math.min(PREVIEW_CAP, count)
+    return {
+      id: `cat-${category.id}`,
+      category,
+      minSelections: isMealBox ? count : 0,
+      maxSelections,
+      isMandatory: isMealBox,
+      items: items.map((pmi) => {
+        const price = isMealBox ? pmi.menuItem.boxPrice : pmi.menuItem.generalPrice
+        const includedValue = isMealBox ? price : new Prisma.Decimal(0)
+        const adjustmentAmount = Prisma.Decimal.max(price.minus(includedValue), 0)
+        return {
+          ...pmi.menuItem,
+          isSwappable: pmi.isSwappable,
+          basePrice: price.toFixed(2),
+          itemPrice: price.toFixed(2),
+          includedValue: includedValue.toFixed(2),
+          adjustmentAmount: adjustmentAmount.toFixed(2),
+        }
+      }),
+    }
+  })
+
   return {
     id: version.id,
     packageId: version.packageId,
     packageName: version.package.name,
-    isCustom: version.package.isCustom,
+    isCustom: false,
     versionNo: version.versionNo,
     basePricePerPlate: version.basePricePerPlate.toFixed(2),
     minGuestCount: version.minGuestCount,
     maxGuestCount: version.maxGuestCount,
-    categoryRules: version.package.isCustom
-      ? await customCategoryRules()
-      : version.categoryRules.map((rule) => ({
-          id: rule.id,
-          category: rule.category,
-          minSelections: rule.minSelections,
-          maxSelections: rule.maxSelections,
-          isMandatory: rule.isMandatory,
-          items: version.packageMenuItems
-            .filter((a) => a.categoryId === rule.categoryId)
-            .map((a) => {
-              const row = pricing.get(a.menuItemId)
-              const itemPrice = row?.itemPrice ?? a.menuItem.basePrice
-              const includedValue = row?.includedValue ?? a.menuItem.basePrice
-              return {
-                ...a.menuItem,
-                basePrice: a.menuItem.basePrice.toFixed(2),
-                itemPrice: itemPrice.toFixed(2),
-                includedValue: includedValue.toFixed(2),
-                adjustmentAmount: Prisma.Decimal.max(itemPrice.minus(includedValue), 0).toFixed(2),
-              }
-            }),
-        })),
+    categoryRules,
   }
 }
 
@@ -134,22 +169,14 @@ async function evaluateSelection(
   const uniqueKeys = new Set(selectedItems.map((i) => `${i.categoryId}:${i.menuItemId}`))
   if (uniqueKeys.size !== selectedItems.length) errors.push('Duplicate menu selections are not allowed')
 
-  if (version.package.isCustom) {
+  if (version.package.type === 'CUSTOM_PACKAGE') {
     return evaluateCustomSelection(selectedItems, errors)
   }
 
+  const isMealBox = version.package.type === 'MEAL_BOX'
+  // For MEAL_BOX we allow selecting any active item in the same category (swap).
+  // For FIXED_PACKAGE items must be in the EXTRA pool for this version.
   const allowedByItem = new Map(version.packageMenuItems.map((r) => [r.menuItemId, r]))
-  const pricingByItem = new Map(version.packageMenuItemPricing.map((r) => [r.menuItemId, r]))
-
-  for (const rule of version.categoryRules) {
-    const count = selectedItems.filter((i) => i.categoryId === rule.categoryId).length
-    if (rule.isMandatory && count < rule.minSelections) {
-      errors.push(`${rule.category.name} requires at least ${rule.minSelections} selection(s)`)
-    }
-    if (count > rule.maxSelections) {
-      errors.push(`${rule.category.name} allows at most ${rule.maxSelections} selection(s)`)
-    }
-  }
 
   const items = selectedItems.flatMap((sel) => {
     const allowed = allowedByItem.get(sel.menuItemId)
@@ -157,10 +184,9 @@ async function evaluateSelection(
       errors.push(`Menu item ${sel.menuItemId} is not available for the selected package/category`)
       return []
     }
-    const price = pricingByItem.get(sel.menuItemId)
-    const itemPrice = price?.itemPrice ?? allowed.menuItem.basePrice
-    const includedValue = price?.includedValue ?? allowed.menuItem.basePrice
-    return [{ categoryId: sel.categoryId, menuItemId: sel.menuItemId, menuItemName: allowed.menuItem.name, itemPrice, includedValue, adjustmentAmount: Prisma.Decimal.max(itemPrice.minus(includedValue), 0) }]
+    const price = isMealBox ? allowed.menuItem.boxPrice : allowed.menuItem.generalPrice
+    const includedValue = isMealBox ? price : new Prisma.Decimal(0)
+    return [{ categoryId: sel.categoryId, menuItemId: sel.menuItemId, menuItemName: allowed.menuItem.name, itemPrice: price, includedValue, adjustmentAmount: Prisma.Decimal.max(price.minus(includedValue), 0) }]
   })
 
   return { errors, items }
@@ -183,7 +209,7 @@ async function evaluateCustomSelection(selectedItems: SelectedItem[], errors: st
       errors.push(`Menu item ${sel.menuItemId} is not available for the selected category`)
       return []
     }
-    return [{ categoryId: sel.categoryId, menuItemId: sel.menuItemId, menuItemName: menuItem.name, itemPrice: menuItem.basePrice, includedValue: new Prisma.Decimal(0), adjustmentAmount: menuItem.basePrice }]
+    return [{ categoryId: sel.categoryId, menuItemId: sel.menuItemId, menuItemName: menuItem.name, itemPrice: menuItem.generalPrice, includedValue: new Prisma.Decimal(0), adjustmentAmount: menuItem.generalPrice }]
   })
   return { errors, items }
 }
@@ -201,7 +227,8 @@ export async function listPackages() {
     name: pkg.name,
     description: pkg.description,
     displayOrder: pkg.displayOrder,
-    isCustom: pkg.isCustom,
+    type: pkg.type as 'MEAL_BOX' | 'FIXED_PACKAGE' | 'CUSTOM_PACKAGE',
+    isCustom: pkg.type === 'CUSTOM_PACKAGE',
     activeVersion: pkg.versions[0] ? serializeVersion(pkg.versions[0]) : null,
   }))
 }
@@ -213,7 +240,7 @@ export async function getActiveVersion(packageId: string) {
     orderBy: { versionNo: 'desc' },
   })
   if (!version) notFound('Active package version not found')
-  return { ...serializeVersion(version), packageName: version.package.name, isCustom: version.package.isCustom }
+  return { ...serializeVersion(version), packageName: version.package.name, isCustom: version.package.type === 'CUSTOM_PACKAGE' }
 }
 
 export async function getConfiguration(versionId: string) {
@@ -308,44 +335,5 @@ export async function updateVersion(id: string, dto: Partial<CreateVersionInput>
       ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
       ...(dto.publishedAt !== undefined ? { publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : null } : {}),
     },
-  })
-}
-
-export interface UpsertCategoryRuleInput { categoryId: string; minSelections?: number; maxSelections: number; isMandatory?: boolean }
-
-export async function upsertCategoryRule(versionId: string, dto: UpsertCategoryRuleInput) {
-  await Promise.all([assertVersion(versionId), assertCategory(dto.categoryId)])
-  const min = dto.minSelections ?? 1
-  if (dto.maxSelections < min) badRequest('Maximum selections must be at least minimum selections')
-  return prisma.packageCategoryRule.upsert({
-    where: { packageVersionId_categoryId: { packageVersionId: versionId, categoryId: dto.categoryId } },
-    update: { minSelections: min, maxSelections: dto.maxSelections, isMandatory: dto.isMandatory ?? true },
-    create: { packageVersionId: versionId, categoryId: dto.categoryId, minSelections: min, maxSelections: dto.maxSelections, isMandatory: dto.isMandatory ?? true },
-  })
-}
-
-export interface UpsertMenuItemInput { menuItemId: string; categoryId: string; isAvailable?: boolean }
-
-export async function upsertMenuItem(versionId: string, dto: UpsertMenuItemInput) {
-  await assertVersion(versionId)
-  const item = await prisma.menuItem.findFirst({ where: { id: dto.menuItemId, categoryId: dto.categoryId, deletedAt: null } })
-  if (!item) badRequest('Menu item does not belong to the selected category')
-  return prisma.packageMenuItem.upsert({
-    where: { packageVersionId_menuItemId: { packageVersionId: versionId, menuItemId: dto.menuItemId } },
-    update: { categoryId: dto.categoryId, isAvailable: dto.isAvailable ?? true },
-    create: { packageVersionId: versionId, categoryId: dto.categoryId, menuItemId: dto.menuItemId, isAvailable: dto.isAvailable ?? true },
-  })
-}
-
-export interface UpsertItemPricingInput { menuItemId: string; itemPrice: number; includedValue: number }
-
-export async function upsertItemPricing(versionId: string, dto: UpsertItemPricingInput) {
-  await assertVersion(versionId)
-  const allowed = await prisma.packageMenuItem.findUnique({ where: { packageVersionId_menuItemId: { packageVersionId: versionId, menuItemId: dto.menuItemId } } })
-  if (!allowed) badRequest('Add the menu item to this package version first')
-  return prisma.packageMenuItemPricing.upsert({
-    where: { packageVersionId_menuItemId: { packageVersionId: versionId, menuItemId: dto.menuItemId } },
-    update: { itemPrice: new Prisma.Decimal(dto.itemPrice), includedValue: new Prisma.Decimal(dto.includedValue) },
-    create: { packageVersionId: versionId, menuItemId: dto.menuItemId, itemPrice: new Prisma.Decimal(dto.itemPrice), includedValue: new Prisma.Decimal(dto.includedValue) },
   })
 }

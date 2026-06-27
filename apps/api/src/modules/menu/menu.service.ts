@@ -127,7 +127,8 @@ export class MenuService {
         categoryId: dto.categoryId,
         name: dto.name.trim(),
         description: dto.description?.trim(),
-        basePrice: new Prisma.Decimal(dto.basePrice),
+        boxPrice: new Prisma.Decimal(dto.boxPrice),
+        generalPrice: new Prisma.Decimal(dto.generalPrice),
         isVeg: dto.isVeg ?? true,
         isActive: dto.isActive ?? true,
         imageUrl: dto.imageUrl,
@@ -151,8 +152,11 @@ export class MenuService {
         ...(dto.description !== undefined
           ? { description: dto.description?.trim() }
           : {}),
-        ...(dto.basePrice !== undefined
-          ? { basePrice: new Prisma.Decimal(dto.basePrice) }
+        ...(dto.boxPrice !== undefined
+          ? { boxPrice: new Prisma.Decimal(dto.boxPrice) }
+          : {}),
+        ...(dto.generalPrice !== undefined
+          ? { generalPrice: new Prisma.Decimal(dto.generalPrice) }
           : {}),
         ...(dto.isVeg !== undefined ? { isVeg: dto.isVeg } : {}),
         ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
@@ -189,8 +193,16 @@ export class MenuService {
   }
 
   private serializeItem<
-    T extends { basePrice: Prisma.Decimal; category?: unknown },
+    T extends {
+      boxPrice: Prisma.Decimal;
+      generalPrice: Prisma.Decimal;
+      category?: unknown;
+    },
   >(item: T) {
-    return { ...item, basePrice: item.basePrice.toFixed(2) };
+    return {
+      ...item,
+      boxPrice: item.boxPrice.toFixed(2),
+      generalPrice: item.generalPrice.toFixed(2),
+    };
   }
 }
