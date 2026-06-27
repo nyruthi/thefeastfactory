@@ -114,6 +114,7 @@ export async function createOrder(userId: string, dto: OrderSelectionInput) {
             menuItemName: item.menuItemName,
             categoryName: item.categoryName,
             isVeg: item.isVeg,
+            role: item.role,
             itemPrice: item.itemPrice,
             includedValue: item.includedValue,
             adjustmentAmount: item.adjustmentAmount,

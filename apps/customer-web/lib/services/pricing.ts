@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import { Prisma, SelectedItemRole } from '@prisma/client'
 import { prisma } from '../prisma'
 
 export interface SelectedItemInput { categoryId: string; menuItemId: string }
@@ -8,7 +8,7 @@ export async function quote(packageVersionId: string, guestCount: number, select
     where: { id: packageVersionId, isActive: true, publishedAt: { not: null }, package: { isActive: true, deletedAt: null } },
     include: {
       package: true,
-      packageMenuItems: { where: { isAvailable: true }, include: { menuItem: true } },
+      packageMenuItems: { where: { isAvailable: true }, include: { menuItem: true, category: true } },
     },
   })
   if (!version) throw Object.assign(new Error('Package version not found'), { status: 404 })
@@ -34,7 +34,8 @@ export async function quote(packageVersionId: string, guestCount: number, select
     const itemPrice = isMealBox ? row.menuItem.boxPrice : row.menuItem.generalPrice
     const includedValue = isMealBox ? itemPrice : new Prisma.Decimal(0)
     const categoryName = row.category?.name ?? ''
-    return [{ categoryId: sel.categoryId, categoryName, menuItemId: sel.menuItemId, menuItemName: row.menuItem.name, isVeg: row.menuItem.isVeg, itemPrice, includedValue, adjustmentAmount: Prisma.Decimal.max(itemPrice.minus(includedValue), 0) }]
+    const role = isMealBox ? SelectedItemRole.INCLUDED : SelectedItemRole.EXTRA
+    return [{ categoryId: sel.categoryId, categoryName, menuItemId: sel.menuItemId, menuItemName: row.menuItem.name, isVeg: row.menuItem.isVeg, itemPrice, includedValue, adjustmentAmount: Prisma.Decimal.max(itemPrice.minus(includedValue), 0), role }]
   })
 
   if (errors.length) throw Object.assign(new Error('Invalid package selection'), { status: 400, errors })
@@ -57,7 +58,7 @@ async function customQuote(version: Prisma.PackageVersionGetPayload<{ include: {
       errors.push(`Invalid menu item ${sel.menuItemId}`)
       return []
     }
-    return [{ categoryId: sel.categoryId, categoryName: item.category.name, menuItemId: sel.menuItemId, menuItemName: item.name, isVeg: item.isVeg, itemPrice: item.generalPrice, includedValue: new Prisma.Decimal(0), adjustmentAmount: item.generalPrice }]
+    return [{ categoryId: sel.categoryId, categoryName: item.category.name, menuItemId: sel.menuItemId, menuItemName: item.name, isVeg: item.isVeg, itemPrice: item.generalPrice, includedValue: new Prisma.Decimal(0), adjustmentAmount: item.generalPrice, role: SelectedItemRole.CUSTOM }]
   })
   if (errors.length) throw Object.assign(new Error('Invalid custom package selection'), { status: 400, errors })
   const finalPerPlate = items.reduce((s, i) => s.plus(i.itemPrice), new Prisma.Decimal(0))
