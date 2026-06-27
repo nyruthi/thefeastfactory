@@ -2,7 +2,7 @@ import type { CustomerSession } from '@aranyam/shared-types';
 
 import { useSessionStore } from '../store/session.store';
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
+const baseUrl = '/api';
 
 let refreshPromise: Promise<CustomerSession> | undefined;
 
