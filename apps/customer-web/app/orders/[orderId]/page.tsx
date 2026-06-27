@@ -45,10 +45,11 @@ export default function OrderPage() {
 
   const statusColor = STATUS_COLORS[order.orderStatus] ?? 'bg-primary/10 text-primary';
 
-  const grouped = order.selectedItems.reduce<Record<string, any[]>>((acc: Record<string, any[]>, item: any) => {
-    acc[item.categoryName] = [...(acc[item.categoryName] ?? []), item];
+  const grouped = (order.selectedItems as any[]).reduce((acc: Record<string, any[]>, item: any) => {
+    const category = item.categoryName ?? 'Uncategorized';
+    acc[category] = [...(acc[category] ?? []), item];
     return acc;
-  }, {});
+  }, {} as Record<string, any[]>);
 
   return (
     <main className="pb-28">
@@ -91,7 +92,7 @@ export default function OrderPage() {
               <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Selected menu</p>
             </div>
             <div className="divide-y divide-border">
-              {Object.entries(grouped).map(([category, items]: [string, any[]]) => (
+              {Object.entries(grouped).map(([category, items]) => (
                 <div key={category} className="px-6 py-4">
                   <p className="mb-3 text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">{category}</p>
                   <div className="space-y-2.5">
