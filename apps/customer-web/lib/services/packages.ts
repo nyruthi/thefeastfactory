@@ -337,3 +337,56 @@ export async function updateVersion(id: string, dto: Partial<CreateVersionInput>
     },
   })
 }
+
+export interface UpsertMenuItemInput { menuItemId: string; categoryId: string; isAvailable?: boolean }
+
+export async function upsertMenuItem(versionId: string, dto: UpsertMenuItemInput) {
+  await assertVersion(versionId)
+  const existing = await prisma.packageMenuItem.findFirst({
+    where: { packageVersionId: versionId, menuItemId: dto.menuItemId },
+  })
+  if (existing) {
+    return prisma.packageMenuItem.update({
+      where: { id: existing.id },
+      data: {
+        categoryId: dto.categoryId,
+        ...(dto.isAvailable !== undefined ? { isAvailable: dto.isAvailable } : {}),
+      },
+    })
+  }
+  return prisma.packageMenuItem.create({
+    data: {
+      packageVersionId: versionId,
+      menuItemId: dto.menuItemId,
+      categoryId: dto.categoryId,
+      role: 'INCLUDED',
+      isAvailable: dto.isAvailable ?? true,
+    },
+  })
+}
+
+export interface UpsertItemPricingInput { menuItemId: string; itemPrice: number; includedValue: number }
+
+export async function upsertItemPricing(versionId: string, dto: UpsertItemPricingInput) {
+  await assertVersion(versionId)
+  return prisma.menuItem.update({
+    where: { id: dto.menuItemId },
+    data: {
+      generalPrice: new Prisma.Decimal(dto.itemPrice),
+      boxPrice: new Prisma.Decimal(dto.includedValue),
+    },
+  })
+}
+
+export interface UpsertCategoryRuleInput { categoryId: string; minSelections?: number; maxSelections: number; isMandatory?: boolean }
+
+export async function upsertCategoryRule(versionId: string, dto: UpsertCategoryRuleInput) {
+  await assertVersion(versionId)
+  return {
+    versionId,
+    categoryId: dto.categoryId,
+    minSelections: dto.minSelections ?? 0,
+    maxSelections: dto.maxSelections,
+    isMandatory: dto.isMandatory ?? false,
+  }
+}
