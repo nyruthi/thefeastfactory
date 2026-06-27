@@ -37,7 +37,7 @@ type BoxMeta = { image: string; chips: { Icon: LucideIcon; label: string }[]; po
 
 const BOX_META: BoxMeta[] = [
   {
-    image: 'https://images.unsplash.com/photo-1567337710282-00832b415979?auto=format&fit=crop&w=800&q=80',
+    image: '/tray-3.png',
     chips: [
       { Icon: Flame,           label: '1 Starter' },
       { Icon: UtensilsCrossed, label: '1 Main Course' },
@@ -45,7 +45,7 @@ const BOX_META: BoxMeta[] = [
     ],
   },
   {
-    image: 'https://images.unsplash.com/photo-1484980972926-edee96e0960d?auto=format&fit=crop&w=800&q=80',
+    image: '/tray-5.png',
     chips: [
       { Icon: Flame,           label: '1 Starter' },
       { Icon: UtensilsCrossed, label: '1 Main Course' },
@@ -56,7 +56,7 @@ const BOX_META: BoxMeta[] = [
     popular: true,
   },
   {
-    image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=800&q=80',
+    image: '/tray-8.png',
     chips: [
       { Icon: Flame,           label: '2 Starters' },
       { Icon: UtensilsCrossed, label: '1 Main Course' },
@@ -84,26 +84,26 @@ type SampleDish = { category: string; name: string; image: string };
 
 const BOX_SAMPLE_DISHES: SampleDish[][] = [
   [
-    { category: 'Main Course', name: 'Paneer Butter Masala', image: 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Rice',        name: 'Steamed Basmati Rice', image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Dessert',     name: 'Gulab Jamun',          image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=80&q=80' },
+    { category: 'Main Course', name: 'Paneer Butter Masala', image: '/inc-main.png' },
+    { category: 'Rice',        name: 'Steamed Basmati Rice', image: '/inc-rice.png' },
+    { category: 'Dessert',     name: 'Gulab Jamun',          image: '/inc-dessert.png' },
   ],
   [
-    { category: 'Starter',     name: 'Veg Manchurian',       image: 'https://images.unsplash.com/photo-1567188040759-fb8a254b4d85?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Main Course', name: 'Paneer Butter Masala', image: 'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Rice',        name: 'Steamed Rice',         image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Beverage',    name: 'Fresh Lime Juice',     image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Dessert',     name: 'Gulab Jamun',          image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=80&q=80' },
+    { category: 'Starter',     name: 'Veg Manchurian',       image: '/inc-starter.png' },
+    { category: 'Main Course', name: 'Paneer Butter Masala', image: '/inc-main.png' },
+    { category: 'Rice',        name: 'Steamed Rice',         image: '/inc-rice.png' },
+    { category: 'Beverage',    name: 'Fresh Lime Juice',     image: '/inc-beverage.png' },
+    { category: 'Dessert',     name: 'Gulab Jamun',          image: '/inc-dessert.png' },
   ],
   [
-    { category: 'Starter',     name: 'Veg Manchurian',       image: 'https://images.unsplash.com/photo-1567188040759-fb8a254b4d85?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Starter',     name: 'Paneer Tikka',         image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Main Course', name: 'Dal Makhani',          image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Rice',        name: 'Steamed Rice',         image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Bread',       name: 'Butter Naan',          image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Beverage',    name: 'Fresh Lime Juice',     image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Dessert',     name: 'Gulab Jamun',          image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=80&q=80' },
-    { category: 'Premium',     name: 'Rasgulla',             image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=80&q=80' },
+    { category: 'Starter',     name: 'Veg Manchurian',       image: '/inc-starter.png' },
+    { category: 'Starter',     name: 'Paneer Tikka',         image: '/inc-starter.png' },
+    { category: 'Main Course', name: 'Dal Makhani',          image: '/inc-main.png' },
+    { category: 'Rice',        name: 'Steamed Rice',         image: '/inc-rice.png' },
+    { category: 'Bread',       name: 'Butter Naan',          image: '/inc-rice.png' },
+    { category: 'Beverage',    name: 'Fresh Lime Juice',     image: '/inc-beverage.png' },
+    { category: 'Dessert',     name: 'Gulab Jamun',          image: '/inc-dessert.png' },
+    { category: 'Premium',     name: 'Rasgulla',             image: '/inc-dessert.png' },
   ],
 ];
 

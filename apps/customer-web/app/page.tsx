@@ -26,7 +26,7 @@ const ORDER_TYPES = [
     desc: 'One box per person with 3, 5 or 8 items.',
     cta: 'Explore Meal Boxes',
     href: '/packages/meal-boxes',
-    img: 'https://images.unsplash.com/photo-1603073163308-9654c3fb70b5?auto=format&fit=crop&w=700&q=80',
+    img: '/order-mealbox.png',
   },
   {
     Icon: CalendarDays,
@@ -37,7 +37,7 @@ const ORDER_TYPES = [
     desc: 'Pre-designed menus for every occasion.',
     cta: 'View Occasion Packages',
     href: '/packages',
-    img: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=700&q=80',
+    img: '/order-occasion.png',
   },
   {
     Icon: ChefHat,
@@ -48,7 +48,7 @@ const ORDER_TYPES = [
     desc: 'Pick your favourite dishes and create your own menu.',
     cta: 'Build Your Menu',
     href: '/menu',
-    img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=700&q=80',
+    img: '/order-build.png',
   },
 ];
 
@@ -61,7 +61,7 @@ const PACKAGES = [
     serves: 'Serves 20 – 200 people',
     price: 599,
     href: '/packages',
-    img: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=700&q=80',
+    img: '/pkg-farmhouse.png',
   },
   {
     tag: null as string | null,
@@ -71,7 +71,7 @@ const PACKAGES = [
     serves: 'Serves 20 – 500 people',
     price: 499,
     href: '/packages',
-    img: 'https://images.unsplash.com/photo-1535591273668-578e31182c4f?auto=format&fit=crop&w=700&q=80',
+    img: '/pkg-puja.png',
   },
   {
     tag: null as string | null,
@@ -81,7 +81,7 @@ const PACKAGES = [
     serves: 'Serves 50 – 1,000 people',
     price: 449,
     href: '/packages',
-    img: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=700&q=80',
+    img: '/pkg-community.png',
   },
   {
     tag: null as string | null,
@@ -91,7 +91,7 @@ const PACKAGES = [
     serves: 'Serves 20 – 1,000 people',
     price: 649,
     href: '/packages',
-    img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=700&q=80',
+    img: '/pkg-corporate.png',
   },
 ];
 
