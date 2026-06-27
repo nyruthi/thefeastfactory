@@ -5,6 +5,7 @@ import type { PackageSummary } from '@aranyam/shared-types';
 import {
   ArrowRight,
   Check,
+  ChevronUp,
   Clock,
   Coffee,
   Cookie,
@@ -16,7 +17,7 @@ import {
   Plus,
   Shield,
   ShieldCheck,
-  Star,
+  Soup,
   Truck,
   Users,
   UtensilsCrossed,
@@ -32,6 +33,7 @@ import { cn } from '../../../lib/utils';
 /* ─── static display data ───────────────────────────────────────────── */
 
 const BOX_DISPLAY_NAMES = ['3 Item Box', '5 Item Box', '8 Item Box'] as const;
+const BOX_NUMS          = ['3', '5', '8'] as const;
 
 type BoxMeta = { image: string; chips: { Icon: LucideIcon; label: string }[]; popular?: true };
 
@@ -39,8 +41,8 @@ const BOX_META: BoxMeta[] = [
   {
     image: '/tray-3.png',
     chips: [
-      { Icon: Flame,           label: '1 Starter' },
       { Icon: UtensilsCrossed, label: '1 Main Course' },
+      { Icon: Wheat,           label: '1 Rice / Bread' },
       { Icon: Cookie,          label: '1 Dessert' },
     ],
   },
@@ -49,7 +51,7 @@ const BOX_META: BoxMeta[] = [
     chips: [
       { Icon: Flame,           label: '1 Starter' },
       { Icon: UtensilsCrossed, label: '1 Main Course' },
-      { Icon: Wheat,           label: '1 Rice' },
+      { Icon: Wheat,           label: '1 Rice / Bread' },
       { Icon: Coffee,          label: '1 Beverage' },
       { Icon: Cookie,          label: '1 Dessert' },
     ],
@@ -60,50 +62,64 @@ const BOX_META: BoxMeta[] = [
     chips: [
       { Icon: Flame,           label: '2 Starters' },
       { Icon: UtensilsCrossed, label: '1 Main Course' },
-      { Icon: Wheat,           label: '1 Rice' },
-      { Icon: Wheat,           label: '1 Bread' },
+      { Icon: Wheat,           label: '1 Rice / Bread' },
+      { Icon: Soup,            label: '1 Dal' },
+      { Icon: Leaf,            label: '1 Sabzi' },
       { Icon: Coffee,          label: '1 Beverage' },
       { Icon: Cookie,          label: '1 Dessert' },
-      { Icon: Star,            label: '1 Premium' },
     ],
   },
 ];
 
-type CompRow = { label: string; Icon: LucideIcon; values: [boolean, boolean, boolean] };
+type SampleDish = { category: string; name: string; image: string; description: string };
 
-const COMPARISON_ROWS: CompRow[] = [
-  { label: 'Starter',       Icon: Flame,           values: [false, true,  true ] },
-  { label: 'Main Course',   Icon: UtensilsCrossed, values: [true,  true,  true ] },
-  { label: 'Rice / Breads', Icon: Wheat,           values: [true,  true,  true ] },
-  { label: 'Beverage',      Icon: Coffee,          values: [false, true,  true ] },
-  { label: 'Dessert',       Icon: Cookie,          values: [true,  true,  true ] },
-  { label: 'Premium Item',  Icon: Star,            values: [false, false, true ] },
+const BOX_VEG_DISHES: SampleDish[][] = [
+  [
+    { category: 'Main Course',  name: 'Paneer Butter Masala', image: '/inc-main.png',     description: 'Soft paneer cubes cooked in rich tomato gravy.' },
+    { category: 'Rice / Bread', name: 'Steamed Basmati Rice', image: '/inc-rice.png',     description: 'Light, fluffy steamed basmati rice.' },
+    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png',  description: 'Soft and sweet milk-solid dumplings.' },
+  ],
+  [
+    { category: 'Starter',      name: 'Veg Manchurian',       image: '/inc-starter.png',  description: 'Crispy veg balls tossed in a spicy, tangy sauce.' },
+    { category: 'Main Course',  name: 'Paneer Butter Masala', image: '/inc-main.png',     description: 'Soft paneer cubes cooked in rich tomato gravy.' },
+    { category: 'Rice / Bread', name: 'Steamed Rice',         image: '/inc-rice.png',     description: 'Light, fluffy steamed basmati rice.' },
+    { category: 'Beverage',     name: 'Fresh Lime Juice',     image: '/inc-beverage.png', description: 'Refreshing lime juice to energize you.' },
+    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png',  description: 'Soft and sweet milk-solid dumplings.' },
+  ],
+  [
+    { category: 'Starter',      name: 'Veg Manchurian',       image: '/inc-starter.png',  description: 'Crispy veg balls tossed in a spicy, tangy sauce.' },
+    { category: 'Starter',      name: 'Paneer Tikka',         image: '/inc-starter.png',  description: 'Marinated paneer grilled with peppers and onions.' },
+    { category: 'Main Course',  name: 'Dal Makhani',          image: '/inc-main.png',     description: 'Creamy black lentils slow-cooked overnight.' },
+    { category: 'Rice / Bread', name: 'Steamed Rice',         image: '/inc-rice.png',     description: 'Light, fluffy steamed basmati rice.' },
+    { category: 'Rice / Bread', name: 'Butter Naan',          image: '/inc-rice.png',     description: 'Soft, buttery flatbread from the tandoor.' },
+    { category: 'Beverage',     name: 'Fresh Lime Juice',     image: '/inc-beverage.png', description: 'Refreshing lime juice to energize you.' },
+    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png',  description: 'Soft and sweet milk-solid dumplings.' },
+    { category: 'Premium',      name: 'Rasgulla',             image: '/inc-dessert.png',  description: 'Spongy cottage cheese balls in light sugar syrup.' },
+  ],
 ];
 
-type SampleDish = { category: string; name: string; image: string };
-
-const BOX_SAMPLE_DISHES: SampleDish[][] = [
+const BOX_NONVEG_DISHES: SampleDish[][] = [
   [
-    { category: 'Main Course', name: 'Paneer Butter Masala', image: '/inc-main.png' },
-    { category: 'Rice',        name: 'Steamed Basmati Rice', image: '/inc-rice.png' },
-    { category: 'Dessert',     name: 'Gulab Jamun',          image: '/inc-dessert.png' },
+    { category: 'Main Course',  name: 'Butter Chicken',       image: '/inc-main.png',     description: 'Tender chicken in rich, creamy tomato gravy.' },
+    { category: 'Rice / Bread', name: 'Steamed Basmati Rice', image: '/inc-rice.png',     description: 'Light, fluffy steamed basmati rice.' },
+    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png',  description: 'Soft and sweet milk-solid dumplings.' },
   ],
   [
-    { category: 'Starter',     name: 'Veg Manchurian',       image: '/inc-starter.png' },
-    { category: 'Main Course', name: 'Paneer Butter Masala', image: '/inc-main.png' },
-    { category: 'Rice',        name: 'Steamed Rice',         image: '/inc-rice.png' },
-    { category: 'Beverage',    name: 'Fresh Lime Juice',     image: '/inc-beverage.png' },
-    { category: 'Dessert',     name: 'Gulab Jamun',          image: '/inc-dessert.png' },
+    { category: 'Starter',      name: 'Chicken Tikka',        image: '/inc-starter.png',  description: 'Tender chicken marinated and grilled to perfection.' },
+    { category: 'Main Course',  name: 'Butter Chicken',       image: '/inc-main.png',     description: 'Tender chicken in rich, creamy tomato gravy.' },
+    { category: 'Rice / Bread', name: 'Steamed Rice',         image: '/inc-rice.png',     description: 'Light, fluffy steamed basmati rice.' },
+    { category: 'Beverage',     name: 'Fresh Lime Juice',     image: '/inc-beverage.png', description: 'Refreshing lime juice to energize you.' },
+    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png',  description: 'Soft and sweet milk-solid dumplings.' },
   ],
   [
-    { category: 'Starter',     name: 'Veg Manchurian',       image: '/inc-starter.png' },
-    { category: 'Starter',     name: 'Paneer Tikka',         image: '/inc-starter.png' },
-    { category: 'Main Course', name: 'Dal Makhani',          image: '/inc-main.png' },
-    { category: 'Rice',        name: 'Steamed Rice',         image: '/inc-rice.png' },
-    { category: 'Bread',       name: 'Butter Naan',          image: '/inc-rice.png' },
-    { category: 'Beverage',    name: 'Fresh Lime Juice',     image: '/inc-beverage.png' },
-    { category: 'Dessert',     name: 'Gulab Jamun',          image: '/inc-dessert.png' },
-    { category: 'Premium',     name: 'Rasgulla',             image: '/inc-dessert.png' },
+    { category: 'Starter',      name: 'Chicken Tikka',        image: '/inc-starter.png',  description: 'Tender chicken marinated and grilled to perfection.' },
+    { category: 'Starter',      name: 'Prawn 65',             image: '/inc-starter.png',  description: 'Crispy prawns tossed in a spicy masala.' },
+    { category: 'Main Course',  name: 'Mutton Masala',        image: '/inc-main.png',     description: 'Slow-cooked mutton in aromatic spices.' },
+    { category: 'Rice / Bread', name: 'Steamed Rice',         image: '/inc-rice.png',     description: 'Light, fluffy steamed basmati rice.' },
+    { category: 'Rice / Bread', name: 'Butter Naan',          image: '/inc-rice.png',     description: 'Soft, buttery flatbread from the tandoor.' },
+    { category: 'Beverage',     name: 'Fresh Lime Juice',     image: '/inc-beverage.png', description: 'Refreshing lime juice to energize you.' },
+    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png',  description: 'Soft and sweet milk-solid dumplings.' },
+    { category: 'Premium',      name: 'Fish Tikka',           image: '/inc-starter.png',  description: 'Marinated fish pieces grilled to tender perfection.' },
   ],
 ];
 
@@ -115,108 +131,28 @@ const INFO_CARDS: { Icon: LucideIcon; label: string; desc: string }[] = [
 ];
 
 const BOTTOM_FEATURES: { Icon: LucideIcon; label: string; desc: string }[] = [
-  { Icon: Leaf,   label: 'Freshly prepared',   desc: 'Made with premium ingredients and no preservatives' },
-  { Icon: Shield, label: 'Hygienic packaging', desc: 'Food safe, tamper-proof containers' },
-  { Icon: Clock,  label: 'On-time delivery',   desc: 'Punctual delivery for all corporate & event orders' },
+  { Icon: Leaf,   label: 'Fresh Ingredients',  desc: 'Sourced daily for the best taste' },
+  { Icon: Shield, label: 'Hygienic Packaging', desc: 'Food safe and tamper-proof' },
+  { Icon: Check,  label: 'Balanced Nutrition', desc: 'Curated for a wholesome meal' },
+  { Icon: Clock,  label: 'Timely Delivery',    desc: 'Always on time, every time' },
 ];
 
-/* ─── ComparisonTable ───────────────────────────────────────────────── */
+/* ─── VegDot ─────────────────────────────────────────────────────────── */
 
-function ComparisonTable({
-  packages,
-  selectedIdx,
-  onSelect,
-}: {
-  packages:    PackageSummary[];
-  selectedIdx: number | null;
-  onSelect:    (i: number) => void;
-}) {
-  if (!packages.length) return null;
-
+function VegDot({ type, active }: { type: 'veg' | 'non-veg'; active: boolean }) {
   return (
-    <section>
-      <h2 className="mb-3 text-sm font-bold text-foreground">Compare Meal Boxes</h2>
-
-      <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
-        <table className="w-full min-w-[380px] border-collapse text-xs">
-          <thead>
-            <tr>
-              <th className="w-[30%] border-b border-border" />
-              {packages.map((pkg, i) => {
-                const pop = BOX_META[i]?.popular ?? false;
-                return (
-                  <th
-                    key={pkg.id}
-                    className={cn('border-b border-border text-center', pop ? 'bg-primary' : '')}
-                  >
-                    {pop && (
-                      <span className="block py-0.5 text-[9px] font-bold uppercase tracking-widest text-white">
-                        Most Popular
-                      </span>
-                    )}
-                  </th>
-                );
-              })}
-            </tr>
-
-            <tr className="border-b border-border">
-              <th className="px-4 py-1.5 text-left text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
-                Includes
-              </th>
-              {packages.map((pkg, i) => {
-                const pop  = BOX_META[i]?.popular ?? false;
-                const name = BOX_DISPLAY_NAMES[i] ?? pkg.name;
-                return (
-                  <th
-                    key={pkg.id}
-                    className={cn('px-3 py-1.5 text-center', pop ? 'bg-primary/[0.04]' : '')}
-                  >
-                    <p className={cn('text-[10px] font-bold uppercase tracking-wider', pop ? 'text-primary' : 'text-foreground')}>
-                      {name}
-                    </p>
-                    <p>
-                      <span className="text-sm font-extrabold text-primary">
-                        ₹{pkg.activeVersion?.basePricePerPlate}
-                      </span>
-                      <span className="ml-0.5 text-[10px] text-muted-foreground">/ box</span>
-                    </p>
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-border/50">
-            {COMPARISON_ROWS.map(({ label, Icon, values }) => (
-              <tr key={label} className="hover:bg-muted/20">
-                <td className="px-4 py-1.5">
-                  <span className="flex items-center gap-1.5 text-xs text-foreground">
-                    <Icon className="h-3 w-3 shrink-0 text-primary/50" />
-                    {label}
-                  </span>
-                </td>
-                {packages.map((pkg, i) => {
-                  const included = values[i] ?? false;
-                  const pop      = BOX_META[i]?.popular ?? false;
-                  return (
-                    <td
-                      key={pkg.id}
-                      className={cn('px-3 py-1.5 text-center', pop ? 'bg-primary/[0.03]' : '')}
-                    >
-                      {included ? (
-                        <Check className="mx-auto h-3.5 w-3.5 text-emerald-500" />
-                      ) : (
-                        <span className="text-sm leading-none text-muted-foreground/30">—</span>
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <span className="flex h-4 w-4 items-center justify-center rounded-sm border-2 border-current">
+      <span
+        className={cn(
+          'h-2 w-2 rounded-full',
+          active
+            ? 'bg-white'
+            : type === 'veg'
+            ? 'bg-green-600'
+            : 'bg-red-600',
+        )}
+      />
+    </span>
   );
 }
 
@@ -249,7 +185,6 @@ function BoxCard({
           : 'shadow-sm ring-1 ring-border hover:ring-primary/30',
       )}
     >
-      {/* Most Popular pill */}
       {meta.popular && (
         <div className="flex justify-center bg-primary py-1.5">
           <span className="text-[10px] font-bold uppercase tracking-widest text-white">
@@ -258,7 +193,6 @@ function BoxCard({
         </div>
       )}
 
-      {/* Food image */}
       <div className="relative overflow-hidden">
         <img
           src={meta.image}
@@ -270,9 +204,7 @@ function BoxCard({
         </span>
       </div>
 
-      {/* Body */}
       <div className="p-4">
-        {/* Content chips */}
         <div className="flex flex-wrap gap-1.5">
           {meta.chips.map(({ Icon, label }) => (
             <span
@@ -287,7 +219,6 @@ function BoxCard({
 
         <p className="mt-3 text-xs text-muted-foreground">Serves 1 Person</p>
 
-        {/* Price + CTA */}
         <div className="mt-2.5 flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-1">
             <span className="font-serif text-2xl font-extrabold text-foreground">
@@ -304,7 +235,7 @@ function BoxCard({
                 : 'border border-primary bg-white text-primary hover:bg-primary hover:text-white',
             )}
           >
-            {isSelected ? 'Selected ✓' : 'Select Box'}
+            View Details
           </button>
         </div>
       </div>
@@ -317,6 +248,7 @@ function BoxCard({
 function OrderSidebar({
   pkg,
   index,
+  vegMode,
   qty,
   onQtyChange,
   onContinue,
@@ -324,22 +256,26 @@ function OrderSidebar({
 }: {
   pkg:         PackageSummary | null;
   index:       number | null;
+  vegMode:     'veg' | 'non-veg';
   qty:         number;
   onQtyChange: (n: number) => void;
   onContinue:  () => void;
   onEditBox:   () => void;
 }) {
   const meta         = index !== null ? (BOX_META[index] ?? null) : null;
-  const displayName  = index !== null ? (BOX_DISPLAY_NAMES[index] ?? pkg?.name ?? '') : '';
-  const sampleDishes = index !== null ? (BOX_SAMPLE_DISHES[index] ?? []) : [];
-  const price        = parseFloat(pkg?.activeVersion?.basePricePerPlate ?? '0');
-  const subtotal     = price * qty;
-  const minQty       = pkg?.activeVersion?.minGuestCount ?? 20;
+  const displayName  = index !== null
+    ? `${BOX_NUMS[index] ?? ''} Item ${vegMode === 'veg' ? 'Veg' : 'Non-Veg'} Box`
+    : '';
+  const sampleDishes = index !== null
+    ? ((vegMode === 'veg' ? BOX_VEG_DISHES : BOX_NONVEG_DISHES)[index] ?? [])
+    : [];
+  const price    = parseFloat(pkg?.activeVersion?.basePricePerPlate ?? '0');
+  const subtotal = price * qty;
+  const minQty   = pkg?.activeVersion?.minGuestCount ?? 20;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-md">
 
-      {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <span className="text-base font-bold text-foreground">Your Order</span>
         {pkg && (
@@ -354,7 +290,6 @@ function OrderSidebar({
 
       {pkg && meta ? (
         <>
-          {/* Selected box thumbnail */}
           <div className="flex items-center gap-3 border-b border-border px-5 py-4">
             <img
               src={meta.image}
@@ -369,14 +304,9 @@ function OrderSidebar({
             </div>
           </div>
 
-          {/* Quantity */}
           <div className="border-b border-border px-5 py-4">
             <p className="font-semibold text-foreground">How many boxes?</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Minimum order: {minQty} boxes
-            </p>
-
-            {/* Circular maroon stepper */}
+            <p className="mt-0.5 text-xs text-muted-foreground">Minimum order: {minQty} boxes</p>
             <div className="mt-4 flex items-center gap-5">
               <button
                 onClick={() => onQtyChange(Math.max(minQty, qty - 10))}
@@ -399,7 +329,6 @@ function OrderSidebar({
             <p className="mt-2 text-xs text-muted-foreground">{qty} Boxes</p>
           </div>
 
-          {/* Included dishes */}
           <div className="border-b border-border px-5 py-4">
             <p className="font-semibold text-foreground">What's included in your box</p>
             <ul className="mt-3 space-y-3">
@@ -421,7 +350,6 @@ function OrderSidebar({
             </ul>
           </div>
 
-          {/* Pricing */}
           <div className="border-b border-border px-5 py-4">
             <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between">
@@ -445,7 +373,6 @@ function OrderSidebar({
             </div>
           </div>
 
-          {/* CTA */}
           <div className="px-5 py-4">
             <button
               onClick={onContinue}
@@ -460,15 +387,13 @@ function OrderSidebar({
           </div>
         </>
       ) : (
-        /* Empty state */
         <div className="px-5 py-6">
           <div className="rounded-xl border border-dashed border-border bg-muted/30 px-4 py-5 text-center">
             <p className="text-sm font-semibold text-foreground">No box selected</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Select a meal box below to see your order summary.
+              Select a meal box to see your order summary.
             </p>
           </div>
-
           <div className="mt-5">
             <p className="font-semibold text-foreground">How many boxes?</p>
             <p className="mt-0.5 text-xs text-muted-foreground">Minimum order: 20 boxes</p>
@@ -499,12 +424,12 @@ function OrderSidebar({
   );
 }
 
-/* ─── Skeleton ──────────────────────────────────────────────────────── */
+/* ─── PageSkeleton ──────────────────────────────────────────────────── */
 
 function PageSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="h-40 animate-pulse rounded-2xl bg-muted" />
+      <div className="h-12 w-52 animate-pulse rounded-full bg-muted" />
       <div className="grid gap-4 sm:grid-cols-3">
         {[1, 2, 3].map((i) => (
           <div key={i} className="overflow-hidden rounded-2xl bg-white ring-1 ring-border">
@@ -532,32 +457,51 @@ export default function MealBoxesPage() {
   const setPackage    = useOrderBuilderStore((s) => s.setPackage);
   const setGuestCount = useOrderBuilderStore((s) => s.setGuestCount);
 
-  const [packages,    setPackages]    = useState<PackageSummary[]>([]);
-  const [error,       setError]       = useState('');
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const [qty,         setQty]         = useState(100);
+  const [vegPackages,    setVegPackages]    = useState<PackageSummary[]>([]);
+  const [nonVegPackages, setNonVegPackages] = useState<PackageSummary[]>([]);
+  const [loading,        setLoading]        = useState(true);
+  const [error,          setError]          = useState('');
+  const [selectedIdx,    setSelectedIdx]    = useState<number | null>(null);
+  const [vegMode,        setVegMode]        = useState<'veg' | 'non-veg'>('veg');
+  const [qty,            setQty]            = useState(100);
 
   useEffect(() => {
     apiRequest<PackageSummary[]>('/packages')
       .then((pkgs) => {
-        const sorted = pkgs
+        const mealBoxes = pkgs
           .filter((p) => p.type === 'MEAL_BOX' && p.activeVersion)
           .sort(
             (a, b) =>
               parseFloat(a.activeVersion!.basePricePerPlate) -
               parseFloat(b.activeVersion!.basePricePerPlate),
           );
-        setPackages(sorted.slice(0, 3));
+        setVegPackages(mealBoxes.filter((p) => !p.name.toLowerCase().includes('non')).slice(0, 3));
+        setNonVegPackages(mealBoxes.filter((p) => p.name.toLowerCase().includes('non')).slice(0, 3));
       })
-      .catch((r) => setError(r.message));
+      .catch((r) => setError(r.message))
+      .finally(() => setLoading(false));
   }, []);
 
+  const packages    = vegMode === 'veg' ? vegPackages : nonVegPackages;
   const selectedPkg = selectedIdx !== null ? (packages[selectedIdx] ?? null) : null;
+
+  const currentDishes = selectedIdx !== null
+    ? ((vegMode === 'veg' ? BOX_VEG_DISHES : BOX_NONVEG_DISHES)[selectedIdx] ?? [])
+    : [];
+
+  const selectedDisplayName = selectedIdx !== null
+    ? `${BOX_NUMS[selectedIdx] ?? ''} Item ${vegMode === 'veg' ? 'Veg' : 'Non-Veg'} Box`
+    : '';
 
   function handleSelect(idx: number) {
     setSelectedIdx((prev) => (prev === idx ? null : idx));
     const minQ = packages[idx]?.activeVersion?.minGuestCount ?? 20;
     setQty((q) => Math.max(q, minQ));
+  }
+
+  function handleVegModeChange(mode: 'veg' | 'non-veg') {
+    setVegMode(mode);
+    setSelectedIdx(null);
   }
 
   function handleContinue() {
@@ -623,20 +567,40 @@ export default function MealBoxesPage() {
           {/* Left: main content */}
           <div className="min-w-0 flex-1 space-y-6">
 
-            {!error && packages.length === 0 && <PageSkeleton />}
+            {!error && loading && <PageSkeleton />}
 
-            {!error && packages.length > 0 && (
+            {!error && !loading && (
               <>
-                {/* Comparison table */}
-                <ComparisonTable
-                  packages={packages}
-                  selectedIdx={selectedIdx}
-                  onSelect={handleSelect}
-                />
+                {/* ── Veg / Non-Veg toggle ── */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleVegModeChange('veg')}
+                    className={cn(
+                      'inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-bold transition-all duration-200',
+                      vegMode === 'veg'
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'border border-border bg-white text-foreground hover:border-primary/40',
+                    )}
+                  >
+                    <VegDot type="veg" active={vegMode === 'veg'} />
+                    Veg
+                  </button>
+                  <button
+                    onClick={() => handleVegModeChange('non-veg')}
+                    className={cn(
+                      'inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-bold transition-all duration-200',
+                      vegMode === 'non-veg'
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'border border-border bg-white text-foreground hover:border-primary/40',
+                    )}
+                  >
+                    <VegDot type="non-veg" active={vegMode === 'non-veg'} />
+                    Non Veg
+                  </button>
+                </div>
 
-                {/* Box cards */}
-                <section>
-                  <h2 className="mb-4 text-lg font-bold text-foreground">Choose your box</h2>
+                {/* ── Box cards ── */}
+                {packages.length > 0 ? (
                   <div className="grid gap-4 sm:grid-cols-3">
                     {packages.map((pkg, i) => (
                       <BoxCard
@@ -648,10 +612,62 @@ export default function MealBoxesPage() {
                       />
                     ))}
                   </div>
-                </section>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-border bg-white px-6 py-10 text-center">
+                    <p className="text-sm font-semibold text-foreground">
+                      {vegMode === 'non-veg' ? 'Non-Veg boxes coming soon' : 'No boxes available'}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Please check back later or try the Veg selection.
+                    </p>
+                  </div>
+                )}
 
-                {/* Bottom features */}
-                <div className="grid gap-5 rounded-2xl border border-border bg-white p-6 sm:grid-cols-3">
+                {/* ── Expandable included items ── */}
+                {selectedIdx !== null && currentDishes.length > 0 && (
+                  <div className="rounded-2xl border border-border bg-white p-6">
+                    <div className="mb-5 flex items-center justify-between gap-4">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-semibold text-foreground">
+                          {selectedDisplayName} Includes
+                        </h3>
+                        <span className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground">
+                          Serves 1 Person
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setSelectedIdx(null)}
+                        className="flex shrink-0 items-center gap-1 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+                      >
+                        Collapse
+                        <ChevronUp className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-5">
+                      {currentDishes.map((dish, i) => (
+                        <div key={i} className="flex flex-col gap-2">
+                          <img
+                            src={dish.image}
+                            alt={dish.name}
+                            className="h-16 w-full rounded-xl object-cover sm:h-14 sm:w-14"
+                          />
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wide text-primary">
+                              {dish.category}
+                            </p>
+                            <p className="text-sm font-semibold text-foreground">{dish.name}</p>
+                            <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                              {dish.description}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Bottom features ── */}
+                <div className="grid gap-5 rounded-2xl border border-border bg-white p-6 sm:grid-cols-4">
                   {BOTTOM_FEATURES.map(({ Icon, label, desc }) => (
                     <div key={label} className="flex items-start gap-3">
                       <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/8">
@@ -674,6 +690,7 @@ export default function MealBoxesPage() {
               <OrderSidebar
                 pkg={selectedPkg}
                 index={selectedIdx}
+                vegMode={vegMode}
                 qty={qty}
                 onQtyChange={setQty}
                 onContinue={handleContinue}
@@ -689,11 +706,7 @@ export default function MealBoxesPage() {
         <div className="fixed inset-x-0 bottom-16 z-30 px-4 pb-2 md:hidden">
           <div className="flex items-center justify-between gap-4 rounded-2xl bg-primary px-5 py-4 shadow-2xl">
             <div>
-              <p className="font-bold leading-tight text-white">
-                {selectedIdx !== null
-                  ? (BOX_DISPLAY_NAMES[selectedIdx] ?? selectedPkg.name)
-                  : selectedPkg.name}
-              </p>
+              <p className="font-bold leading-tight text-white">{selectedDisplayName}</p>
               <p className="text-sm text-white/70">
                 {qty} boxes · ₹{(
                   parseFloat(selectedPkg.activeVersion?.basePricePerPlate ?? '0') * qty
