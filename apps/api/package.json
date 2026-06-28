@@ -6,6 +6,7 @@
     "dev": "nest start --watch",
     "build": "nest build",
     "start": "node dist/main.js",
+    "start:prod": "node dist/main.js",
     "lint": "eslint \"src/**/*.ts\"",
     "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
     "db:push": "prisma db push --schema=prisma/schema.prisma",
