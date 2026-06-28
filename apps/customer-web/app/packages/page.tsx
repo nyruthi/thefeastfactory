@@ -421,136 +421,96 @@ export default function PackagesPage() {
                           {config.isCustom ? 'Full Menu' : config.categoryRules[0]?.isMandatory ? 'Included Items' : 'Menu Highlights'}
                         </div>
 
-                        {config.categoryRules.map((rule) => {
-                          const isMealBox = rule.isMandatory;
-                          const displayItems = getDisplayItems(rule, apiPkg!.id);
-                          const hiddenCount = rule.items.length - displayItems.length;
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          {config.categoryRules.flatMap((rule) => {
+                            const displayItems = getDisplayItems(rule, apiPkg!.id);
+                            return displayItems.map((item, idx) => {
+                              const swapKey = `${apiPkg!.id}:${rule.id}:${idx}`;
+                              const isSwapOpen = swapOpen === swapKey;
+                              const displayedIds = item.isSwappable ? getDisplayedIds(rule, apiPkg!.id) : new Set<string>();
+                              const alternatives = item.isSwappable
+                                ? (swapAlts[rule.category.id] ?? []).filter((a) => !displayedIds.has(a.id))
+                                : [];
 
-                          return (
-                            <div key={rule.id} style={{ marginBottom: 18 }}>
-                              {/* Category header */}
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, gap: 8 }}>
-                                <span style={{ fontSize: 13, fontWeight: 800, color: 'hsl(352 59% 28%)' }}>
-                                  {rule.category.name}
-                                </span>
-                                {isMealBox ? (
-                                  <span style={{
-                                    fontSize: 11, color: 'hsl(0 0% 44%)', fontWeight: 600,
-                                    background: 'hsl(35 22% 90%)', borderRadius: 4, padding: '2px 8px', flexShrink: 0,
+                              return (
+                                <div key={swapKey}>
+                                  <div style={{
+                                    display: 'flex', alignItems: 'center', gap: 8,
+                                    background: '#fff', borderRadius: 7, padding: '5px 9px',
+                                    border: `1px solid ${isSwapOpen ? 'hsl(352 59% 72%)' : 'hsl(35 22% 90%)'}`,
+                                    transition: 'border-color 0.15s',
                                   }}>
-                                    {rule.maxSelections} included
-                                  </span>
-                                ) : (
-                                  <span style={{
-                                    fontSize: 11, color: 'hsl(0 0% 44%)', fontWeight: 600,
-                                    background: 'hsl(35 22% 90%)', borderRadius: 4, padding: '2px 8px', flexShrink: 0,
-                                  }}>
-                                    {rule.items.length} options
-                                  </span>
-                                )}
-                              </div>
+                                    <VegDot isVeg={item.isVeg} />
+                                    <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: 'hsl(0 0% 16%)', lineHeight: 1.3 }}>
+                                      {item.name}
+                                    </span>
+                                    {item.isSwappable && (
+                                      <button
+                                        onClick={() => openSwap(swapKey, rule.category.id, displayedIds)}
+                                        style={{
+                                          display: 'inline-flex', alignItems: 'center', gap: 4,
+                                          fontSize: 11, fontWeight: 700,
+                                          color: isSwapOpen ? '#fff' : 'hsl(352 59% 30%)',
+                                          background: isSwapOpen ? 'hsl(352 59% 30%)' : 'transparent',
+                                          border: '1px solid hsl(352 59% 60%)',
+                                          borderRadius: 6, padding: '3px 8px',
+                                          cursor: 'pointer', flexShrink: 0,
+                                        }}
+                                      >
+                                        <ArrowLeftRight style={{ width: 10, height: 10 }} />
+                                        Swap
+                                      </button>
+                                    )}
+                                  </div>
 
-                              {/* Item rows */}
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                                {displayItems.map((item, idx) => {
-                                  const swapKey = `${apiPkg!.id}:${rule.id}:${idx}`;
-                                  const isSwapOpen = swapOpen === swapKey;
-                                  const displayedIds = item.isSwappable ? getDisplayedIds(rule, apiPkg!.id) : new Set<string>();
-                                  const alternatives = item.isSwappable
-                                    ? (swapAlts[rule.category.id] ?? []).filter((a) => !displayedIds.has(a.id))
-                                    : [];
-
-                                  return (
-                                    <div key={swapKey}>
-                                      {/* Item row */}
+                                  {isSwapOpen && (
+                                    <div style={{
+                                      marginTop: 3,
+                                      background: '#fff',
+                                      border: '1px solid hsl(352 59% 80%)',
+                                      borderRadius: 8, padding: '8px',
+                                      boxShadow: '0 6px 18px rgba(0,0,0,0.1)',
+                                    }}>
                                       <div style={{
-                                        display: 'flex', alignItems: 'center', gap: 8,
-                                        background: '#fff', borderRadius: 8, padding: '8px 10px',
-                                        border: `1px solid ${isSwapOpen ? 'hsl(352 59% 72%)' : 'hsl(35 22% 90%)'}`,
-                                        transition: 'border-color 0.15s',
+                                        fontSize: 11, fontWeight: 700, color: 'hsl(0 0% 44%)',
+                                        marginBottom: 6, padding: '0 4px',
                                       }}>
-                                        <VegDot isVeg={item.isVeg} />
-                                        <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'hsl(0 0% 16%)', lineHeight: 1.3 }}>
-                                          {item.name}
-                                        </span>
-                                        {item.isSwappable && (
-                                          <button
-                                            onClick={() => openSwap(swapKey, rule.category.id, displayedIds)}
-                                            style={{
-                                              display: 'inline-flex', alignItems: 'center', gap: 4,
-                                              fontSize: 11, fontWeight: 700,
-                                              color: isSwapOpen ? '#fff' : 'hsl(352 59% 30%)',
-                                              background: isSwapOpen ? 'hsl(352 59% 30%)' : 'transparent',
-                                              border: '1px solid hsl(352 59% 60%)',
-                                              borderRadius: 6, padding: '3px 8px',
-                                              cursor: 'pointer', flexShrink: 0,
-                                            }}
-                                          >
-                                            <ArrowLeftRight style={{ width: 10, height: 10 }} />
-                                            Swap
-                                          </button>
-                                        )}
+                                        Swap with:
                                       </div>
-
-                                      {/* Swap alternatives dropdown */}
-                                      {isSwapOpen && (
-                                        <div style={{
-                                          marginTop: 3,
-                                          background: '#fff',
-                                          border: '1px solid hsl(352 59% 80%)',
-                                          borderRadius: 8, padding: '8px',
-                                          boxShadow: '0 6px 18px rgba(0,0,0,0.1)',
-                                        }}>
-                                          <div style={{
-                                            fontSize: 11, fontWeight: 700, color: 'hsl(0 0% 44%)',
-                                            marginBottom: 6, padding: '0 4px',
-                                          }}>
-                                            Swap with:
-                                          </div>
-                                          {swapLoading ? (
-                                            <div style={{ fontSize: 12, color: 'hsl(0 0% 52%)', padding: '6px 4px' }}>Loading…</div>
-                                          ) : alternatives.length === 0 ? (
-                                            <div style={{ fontSize: 12, color: 'hsl(0 0% 52%)', padding: '6px 4px' }}>No other options available</div>
-                                          ) : (
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                              {alternatives.map((alt) => (
-                                                <button
-                                                  key={alt.id}
-                                                  onClick={() => handleSwap(apiPkg!.id, rule.id, idx, alt)}
-                                                  style={{
-                                                    display: 'flex', alignItems: 'center', gap: 8,
-                                                    padding: '7px 10px', borderRadius: 6, width: '100%',
-                                                    border: 'none', background: 'transparent',
-                                                    cursor: 'pointer', textAlign: 'left',
-                                                  }}
-                                                  onMouseEnter={(e) => (e.currentTarget.style.background = 'hsl(352 59% 97%)')}
-                                                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                                                >
-                                                  <VegDot isVeg={alt.isVeg} />
-                                                  <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: 'hsl(0 0% 18%)' }}>
-                                                    {alt.name}
-                                                  </span>
-                                                </button>
-                                              ))}
-                                            </div>
-                                          )}
+                                      {swapLoading ? (
+                                        <div style={{ fontSize: 12, color: 'hsl(0 0% 52%)', padding: '6px 4px' }}>Loading…</div>
+                                      ) : alternatives.length === 0 ? (
+                                        <div style={{ fontSize: 12, color: 'hsl(0 0% 52%)', padding: '6px 4px' }}>No other options available</div>
+                                      ) : (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                          {alternatives.map((alt) => (
+                                            <button
+                                              key={alt.id}
+                                              onClick={() => handleSwap(apiPkg!.id, rule.id, idx, alt)}
+                                              style={{
+                                                display: 'flex', alignItems: 'center', gap: 8,
+                                                padding: '7px 10px', borderRadius: 6, width: '100%',
+                                                border: 'none', background: 'transparent',
+                                                cursor: 'pointer', textAlign: 'left',
+                                              }}
+                                              onMouseEnter={(e) => (e.currentTarget.style.background = 'hsl(352 59% 97%)')}
+                                              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                                            >
+                                              <VegDot isVeg={alt.isVeg} />
+                                              <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: 'hsl(0 0% 18%)' }}>
+                                                {alt.name}
+                                              </span>
+                                            </button>
+                                          ))}
                                         </div>
                                       )}
                                     </div>
-                                  );
-                                })}
-                                {hiddenCount > 0 && (
-                                  <div style={{
-                                    fontSize: 12, fontWeight: 600, color: 'hsl(0 0% 52%)',
-                                    padding: '5px 10px',
-                                  }}>
-                                    +{hiddenCount} more options
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
+                                  )}
+                                </div>
+                              );
+                            });
+                          })}
+                        </div>
 
                         {/* Footer: pricing + choose CTA */}
                         <div style={{

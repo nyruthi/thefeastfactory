@@ -1,10 +1,11 @@
 'use client';
 
 import type { LucideIcon } from 'lucide-react';
-import type { PackageSummary } from '@aranyam/shared-types';
+import type { PackageConfiguration, PackageSummary } from '@aranyam/shared-types';
 import {
   ArrowRight,
   Check,
+  ChevronDown,
   ChevronUp,
   Clock,
   Coffee,
@@ -71,55 +72,56 @@ const BOX_META: BoxMeta[] = [
   },
 ];
 
-type SampleDish = { category: string; name: string; image: string; description: string };
+/* sidebar-only static dish lists (no API call needed for sidebar preview) */
+type SampleDish = { category: string; name: string; image: string };
 
 const BOX_VEG_DISHES: SampleDish[][] = [
   [
-    { category: 'Main Course',  name: 'Paneer Butter Masala', image: '/inc-main.png',     description: 'Soft paneer cubes cooked in rich tomato gravy.' },
-    { category: 'Rice / Bread', name: 'Steamed Basmati Rice', image: '/inc-rice.png',     description: 'Light, fluffy steamed basmati rice.' },
-    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png',  description: 'Soft and sweet milk-solid dumplings.' },
+    { category: 'Main Course',  name: 'Paneer Butter Masala', image: '/inc-main.png'     },
+    { category: 'Rice / Bread', name: 'Steamed Basmati Rice', image: '/inc-rice.png'     },
+    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png'  },
   ],
   [
-    { category: 'Starter',      name: 'Veg Manchurian',       image: '/inc-starter.png',  description: 'Crispy veg balls tossed in a spicy, tangy sauce.' },
-    { category: 'Main Course',  name: 'Paneer Butter Masala', image: '/inc-main.png',     description: 'Soft paneer cubes cooked in rich tomato gravy.' },
-    { category: 'Rice / Bread', name: 'Steamed Rice',         image: '/inc-rice.png',     description: 'Light, fluffy steamed basmati rice.' },
-    { category: 'Beverage',     name: 'Fresh Lime Juice',     image: '/inc-beverage.png', description: 'Refreshing lime juice to energize you.' },
-    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png',  description: 'Soft and sweet milk-solid dumplings.' },
+    { category: 'Starter',      name: 'Veg Manchurian',       image: '/inc-starter.png'  },
+    { category: 'Main Course',  name: 'Paneer Butter Masala', image: '/inc-main.png'     },
+    { category: 'Rice / Bread', name: 'Steamed Rice',         image: '/inc-rice.png'     },
+    { category: 'Beverage',     name: 'Fresh Lime Juice',     image: '/inc-beverage.png' },
+    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png'  },
   ],
   [
-    { category: 'Starter',      name: 'Veg Manchurian',       image: '/inc-starter.png',  description: 'Crispy veg balls tossed in a spicy, tangy sauce.' },
-    { category: 'Starter',      name: 'Paneer Tikka',         image: '/inc-starter.png',  description: 'Marinated paneer grilled with peppers and onions.' },
-    { category: 'Main Course',  name: 'Dal Makhani',          image: '/inc-main.png',     description: 'Creamy black lentils slow-cooked overnight.' },
-    { category: 'Rice / Bread', name: 'Steamed Rice',         image: '/inc-rice.png',     description: 'Light, fluffy steamed basmati rice.' },
-    { category: 'Rice / Bread', name: 'Butter Naan',          image: '/inc-rice.png',     description: 'Soft, buttery flatbread from the tandoor.' },
-    { category: 'Beverage',     name: 'Fresh Lime Juice',     image: '/inc-beverage.png', description: 'Refreshing lime juice to energize you.' },
-    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png',  description: 'Soft and sweet milk-solid dumplings.' },
-    { category: 'Premium',      name: 'Rasgulla',             image: '/inc-dessert.png',  description: 'Spongy cottage cheese balls in light sugar syrup.' },
+    { category: 'Starter',      name: 'Veg Manchurian',       image: '/inc-starter.png'  },
+    { category: 'Starter',      name: 'Paneer Tikka',         image: '/inc-starter.png'  },
+    { category: 'Main Course',  name: 'Dal Makhani',          image: '/inc-main.png'     },
+    { category: 'Rice / Bread', name: 'Steamed Rice',         image: '/inc-rice.png'     },
+    { category: 'Rice / Bread', name: 'Butter Naan',          image: '/inc-rice.png'     },
+    { category: 'Beverage',     name: 'Fresh Lime Juice',     image: '/inc-beverage.png' },
+    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png'  },
+    { category: 'Premium',      name: 'Rasgulla',             image: '/inc-dessert.png'  },
   ],
 ];
 
 const BOX_NONVEG_DISHES: SampleDish[][] = [
   [
-    { category: 'Main Course',  name: 'Butter Chicken',       image: '/inc-main.png',     description: 'Tender chicken in rich, creamy tomato gravy.' },
-    { category: 'Rice / Bread', name: 'Steamed Basmati Rice', image: '/inc-rice.png',     description: 'Light, fluffy steamed basmati rice.' },
-    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png',  description: 'Soft and sweet milk-solid dumplings.' },
+    { category: 'Main Course',  name: 'Butter Chicken',       image: '/inc-main.png'     },
+    { category: 'Rice / Bread', name: 'Steamed Basmati Rice', image: '/inc-rice.png'     },
+    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png'  },
   ],
   [
-    { category: 'Starter',      name: 'Chicken Tikka',        image: '/inc-starter.png',  description: 'Tender chicken marinated and grilled to perfection.' },
-    { category: 'Main Course',  name: 'Butter Chicken',       image: '/inc-main.png',     description: 'Tender chicken in rich, creamy tomato gravy.' },
-    { category: 'Rice / Bread', name: 'Steamed Rice',         image: '/inc-rice.png',     description: 'Light, fluffy steamed basmati rice.' },
-    { category: 'Beverage',     name: 'Fresh Lime Juice',     image: '/inc-beverage.png', description: 'Refreshing lime juice to energize you.' },
-    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png',  description: 'Soft and sweet milk-solid dumplings.' },
+    { category: 'Starter',      name: 'Chicken Tikka',        image: '/inc-starter.png'  },
+    { category: 'Main Course',  name: 'Butter Chicken',       image: '/inc-main.png'     },
+    { category: 'Rice / Bread', name: 'Steamed Rice',         image: '/inc-rice.png'     },
+    { category: 'Beverage',     name: 'Fresh Lime Juice',     image: '/inc-beverage.png' },
+    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png'  },
   ],
   [
-    { category: 'Starter',      name: 'Chicken Tikka',        image: '/inc-starter.png',  description: 'Tender chicken marinated and grilled to perfection.' },
-    { category: 'Starter',      name: 'Prawn 65',             image: '/inc-starter.png',  description: 'Crispy prawns tossed in a spicy masala.' },
-    { category: 'Main Course',  name: 'Mutton Masala',        image: '/inc-main.png',     description: 'Slow-cooked mutton in aromatic spices.' },
-    { category: 'Rice / Bread', name: 'Steamed Rice',         image: '/inc-rice.png',     description: 'Light, fluffy steamed basmati rice.' },
-    { category: 'Rice / Bread', name: 'Butter Naan',          image: '/inc-rice.png',     description: 'Soft, buttery flatbread from the tandoor.' },
-    { category: 'Beverage',     name: 'Fresh Lime Juice',     image: '/inc-beverage.png', description: 'Refreshing lime juice to energize you.' },
-    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png',  description: 'Soft and sweet milk-solid dumplings.' },
-    { category: 'Premium',      name: 'Fish Tikka',           image: '/inc-starter.png',  description: 'Marinated fish pieces grilled to tender perfection.' },
+    { category: 'Starter',      name: 'Chicken Tikka',        image: '/inc-starter.png'  },
+    { category: 'Starter',      name: 'Prawn 65',             image: '/inc-starter.png'  },
+    { category: 'Main Course',  name: 'Mutton Masala',        image: '/inc-main.png'     },
+    { category: 'Rice / Bread', name: 'Steamed Rice',         image: '/inc-rice.png'     },
+    { category: 'Rice / Bread', name: 'Butter Naan',          image: '/inc-rice.png'     },
+    { category: 'Beverage',     name: 'Fresh Lime Juice',     image: '/inc-beverage.png' },
+    { category: 'Dessert',      name: 'Gulab Jamun',          image: '/inc-dessert.png'  },
+    { category: 'Premium',      name: 'Fish Tikka',           image: '/inc-starter.png'  },
   ],
 ];
 
@@ -137,21 +139,34 @@ const BOTTOM_FEATURES: { Icon: LucideIcon; label: string; desc: string }[] = [
   { Icon: Clock,  label: 'Timely Delivery',    desc: 'Always on time, every time' },
 ];
 
-/* ─── VegDot ─────────────────────────────────────────────────────────── */
+/* ─── ToggleDot (Veg/Non-Veg pill buttons) ──────────────────────────── */
 
-function VegDot({ type, active }: { type: 'veg' | 'non-veg'; active: boolean }) {
+function ToggleDot({ type, active }: { type: 'veg' | 'non-veg'; active: boolean }) {
   return (
     <span className="flex h-4 w-4 items-center justify-center rounded-sm border-2 border-current">
       <span
         className={cn(
           'h-2 w-2 rounded-full',
-          active
-            ? 'bg-white'
-            : type === 'veg'
-            ? 'bg-green-600'
-            : 'bg-red-600',
+          active ? 'bg-white' : type === 'veg' ? 'bg-green-600' : 'bg-red-600',
         )}
       />
+    </span>
+  );
+}
+
+/* ─── VegDot (item-level veg/non-veg indicator) ─────────────────────── */
+
+function VegDot({ isVeg }: { isVeg: boolean }) {
+  const color = isVeg ? '#16a34a' : '#dc2626';
+  return (
+    <span
+      style={{
+        width: 12, height: 12, borderRadius: 3, flexShrink: 0,
+        border: `2px solid ${color}`,
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      }}
+    >
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'block' }} />
     </span>
   );
 }
@@ -162,12 +177,16 @@ function BoxCard({
   pkg,
   index,
   isSelected,
-  onSelect,
+  config,
+  isLoadingConfig,
+  onToggle,
 }: {
-  pkg:        PackageSummary;
-  index:      number;
-  isSelected: boolean;
-  onSelect:   () => void;
+  pkg:             PackageSummary;
+  index:           number;
+  isSelected:      boolean;
+  config:          PackageConfiguration | undefined;
+  isLoadingConfig: boolean;
+  onToggle:        () => void;
 }) {
   const meta        = BOX_META[index];
   const displayName = BOX_DISPLAY_NAMES[index] ?? pkg.name;
@@ -175,9 +194,8 @@ function BoxCard({
 
   return (
     <article
-      onClick={onSelect}
       className={cn(
-        'cursor-pointer overflow-hidden rounded-2xl bg-white transition-all duration-200',
+        'overflow-hidden rounded-2xl bg-white transition-all duration-200',
         isSelected
           ? 'shadow-elevated ring-2 ring-primary'
           : meta.popular
@@ -185,6 +203,7 @@ function BoxCard({
           : 'shadow-sm ring-1 ring-border hover:ring-primary/30',
       )}
     >
+      {/* Most Popular banner */}
       {meta.popular && (
         <div className="flex justify-center bg-primary py-1.5">
           <span className="text-[10px] font-bold uppercase tracking-widest text-white">
@@ -193,17 +212,15 @@ function BoxCard({
         </div>
       )}
 
+      {/* Food image */}
       <div className="relative overflow-hidden">
-        <img
-          src={meta.image}
-          alt={displayName}
-          className="aspect-[16/10] w-full object-cover"
-        />
+        <img src={meta.image} alt={displayName} className="aspect-[16/10] w-full object-cover" />
         <span className="absolute left-2.5 top-2.5 rounded-lg bg-black/55 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-sm">
           {displayName}
         </span>
       </div>
 
+      {/* Body */}
       <div className="p-4">
         <div className="flex flex-wrap gap-1.5">
           {meta.chips.map(({ Icon, label }) => (
@@ -227,18 +244,69 @@ function BoxCard({
             <span className="text-xs text-muted-foreground">/ box</span>
           </div>
           <button
-            onClick={(e) => { e.stopPropagation(); onSelect(); }}
+            onClick={onToggle}
             className={cn(
-              'shrink-0 rounded-xl px-5 py-2 text-sm font-bold transition-all duration-200',
+              'inline-flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold transition-all duration-200',
               isSelected
                 ? 'bg-primary text-white'
                 : 'border border-primary bg-white text-primary hover:bg-primary hover:text-white',
             )}
           >
-            View Details
+            {isSelected ? 'Hide Details' : 'View Details'}
+            {isSelected
+              ? <ChevronUp className="h-3.5 w-3.5" />
+              : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
         </div>
       </div>
+
+      {/* ── Inline expanded details panel (like packages page) ── */}
+      {isSelected && (
+        <div className="border-t border-border p-5" style={{ background: 'hsl(37 30% 97%)' }}>
+          {isLoadingConfig ? (
+            <div className="space-y-3 py-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-10 animate-pulse rounded-lg bg-muted" />
+              ))}
+            </div>
+          ) : config ? (
+            <>
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                Included Items
+              </p>
+
+              <div className="space-y-1">
+                {config.categoryRules.flatMap((rule) =>
+                  rule.items.slice(0, rule.maxSelections).map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center gap-2 rounded-md border border-border bg-white px-2.5 py-1"
+                    >
+                      <VegDot isVeg={item.isVeg} />
+                      <span className="text-[12px] font-medium text-foreground">
+                        {item.name}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="mt-4 border-t border-border pt-4">
+                <p className="text-[11px] font-semibold text-muted-foreground">Starting from</p>
+                <p className="mt-0.5 font-serif text-lg font-extrabold text-primary">
+                  ₹{config.basePricePerPlate}
+                  <span className="ml-0.5 font-sans text-xs font-semibold text-muted-foreground"> / box</span>
+                </p>
+              </div>
+            </>
+          ) : (
+            <p className="py-2 text-center text-sm text-muted-foreground">
+              Details unavailable for this box.
+            </p>
+          )}
+        </div>
+      )}
     </article>
   );
 }
@@ -262,8 +330,8 @@ function OrderSidebar({
   onContinue:  () => void;
   onEditBox:   () => void;
 }) {
-  const meta         = index !== null ? (BOX_META[index] ?? null) : null;
-  const displayName  = index !== null
+  const meta        = index !== null ? (BOX_META[index] ?? null) : null;
+  const displayName = index !== null
     ? `${BOX_NUMS[index] ?? ''} Item ${vegMode === 'veg' ? 'Veg' : 'Non-Veg'} Box`
     : '';
   const sampleDishes = index !== null
@@ -291,16 +359,10 @@ function OrderSidebar({
       {pkg && meta ? (
         <>
           <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-            <img
-              src={meta.image}
-              alt={displayName}
-              className="h-14 w-14 shrink-0 rounded-xl object-cover"
-            />
+            <img src={meta.image} alt={displayName} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
             <div>
               <p className="font-semibold text-foreground">{displayName}</p>
-              <p className="text-sm text-muted-foreground">
-                ₹{pkg.activeVersion?.basePricePerPlate} / box
-              </p>
+              <p className="text-sm text-muted-foreground">₹{pkg.activeVersion?.basePricePerPlate} / box</p>
             </div>
           </div>
 
@@ -310,17 +372,15 @@ function OrderSidebar({
             <div className="mt-4 flex items-center gap-5">
               <button
                 onClick={() => onQtyChange(Math.max(minQty, qty - 10))}
-                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition hover:bg-primary/90"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition hover:bg-primary/90"
                 aria-label="Decrease"
               >
                 <Minus className="h-4 w-4" />
               </button>
-              <span className="w-14 text-center text-2xl font-bold tabular-nums text-foreground">
-                {qty}
-              </span>
+              <span className="w-14 text-center text-2xl font-bold tabular-nums text-foreground">{qty}</span>
               <button
                 onClick={() => onQtyChange(qty + 10)}
-                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition hover:bg-primary/90"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition hover:bg-primary/90"
                 aria-label="Increase"
               >
                 <Plus className="h-4 w-4" />
@@ -329,34 +389,26 @@ function OrderSidebar({
             <p className="mt-2 text-xs text-muted-foreground">{qty} Boxes</p>
           </div>
 
-          <div className="border-b border-border px-5 py-4">
+          {/* <div className="border-b border-border px-5 py-4">
             <p className="font-semibold text-foreground">What's included in your box</p>
             <ul className="mt-3 space-y-3">
               {sampleDishes.map((dish, i) => (
                 <li key={i} className="flex items-center gap-3">
-                  <img
-                    src={dish.image}
-                    alt={dish.name}
-                    className="h-11 w-11 shrink-0 rounded-xl object-cover"
-                  />
+                  <img src={dish.image} alt={dish.name} className="h-11 w-11 shrink-0 rounded-xl object-cover" />
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-                      {dish.category}
-                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{dish.category}</p>
                     <p className="text-sm font-medium text-foreground">{dish.name}</p>
                   </div>
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
 
           <div className="border-b border-border px-5 py-4">
             <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Subtotal ({qty} boxes)</span>
-                <span className="font-semibold text-foreground">
-                  ₹{subtotal.toLocaleString('en-IN')}
-                </span>
+                <span className="font-semibold text-foreground">₹{subtotal.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Delivery</span>
@@ -364,9 +416,7 @@ function OrderSidebar({
               </div>
             </div>
             <div className="mt-4 border-t border-border pt-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                Estimated Total
-              </p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Estimated Total</p>
               <p className="mt-1 font-serif text-3xl font-extrabold text-foreground">
                 ₹{subtotal.toLocaleString('en-IN')}
               </p>
@@ -391,7 +441,7 @@ function OrderSidebar({
           <div className="rounded-xl border border-dashed border-border bg-muted/30 px-4 py-5 text-center">
             <p className="text-sm font-semibold text-foreground">No box selected</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Select a meal box to see your order summary.
+              Click "View Details" on a meal box to select it.
             </p>
           </div>
           <div className="mt-5">
@@ -400,17 +450,15 @@ function OrderSidebar({
             <div className="mt-4 flex items-center gap-5">
               <button
                 onClick={() => onQtyChange(Math.max(20, qty - 10))}
-                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition hover:bg-primary/90"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition hover:bg-primary/90"
                 aria-label="Decrease"
               >
                 <Minus className="h-4 w-4" />
               </button>
-              <span className="w-14 text-center text-2xl font-bold tabular-nums text-foreground">
-                {qty}
-              </span>
+              <span className="w-14 text-center text-2xl font-bold tabular-nums text-foreground">{qty}</span>
               <button
                 onClick={() => onQtyChange(qty + 10)}
-                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition hover:bg-primary/90"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-sm transition hover:bg-primary/90"
                 aria-label="Increase"
               >
                 <Plus className="h-4 w-4" />
@@ -465,6 +513,10 @@ export default function MealBoxesPage() {
   const [vegMode,        setVegMode]        = useState<'veg' | 'non-veg'>('veg');
   const [qty,            setQty]            = useState(100);
 
+  /* config cache keyed by package version id */
+  const [configs,          setConfigs]          = useState<Record<string, PackageConfiguration>>({});
+  const [loadingVersionId, setLoadingVersionId] = useState<string | null>(null);
+
   useEffect(() => {
     apiRequest<PackageSummary[]>('/packages')
       .then((pkgs) => {
@@ -485,18 +537,30 @@ export default function MealBoxesPage() {
   const packages    = vegMode === 'veg' ? vegPackages : nonVegPackages;
   const selectedPkg = selectedIdx !== null ? (packages[selectedIdx] ?? null) : null;
 
-  const currentDishes = selectedIdx !== null
-    ? ((vegMode === 'veg' ? BOX_VEG_DISHES : BOX_NONVEG_DISHES)[selectedIdx] ?? [])
-    : [];
-
   const selectedDisplayName = selectedIdx !== null
     ? `${BOX_NUMS[selectedIdx] ?? ''} Item ${vegMode === 'veg' ? 'Veg' : 'Non-Veg'} Box`
     : '';
 
   function handleSelect(idx: number) {
-    setSelectedIdx((prev) => (prev === idx ? null : idx));
+    /* toggle off */
+    if (selectedIdx === idx) {
+      setSelectedIdx(null);
+      return;
+    }
+
+    setSelectedIdx(idx);
     const minQ = packages[idx]?.activeVersion?.minGuestCount ?? 20;
     setQty((q) => Math.max(q, minQ));
+
+    /* load configuration if not cached yet */
+    const versionId = packages[idx]?.activeVersion?.id;
+    if (!versionId || configs[versionId]) return;
+
+    setLoadingVersionId(versionId);
+    apiRequest<PackageConfiguration>(`/package-versions/${versionId}/configuration`)
+      .then((config) => setConfigs((prev) => ({ ...prev, [versionId]: config })))
+      .catch(() => {})
+      .finally(() => setLoadingVersionId(null));
   }
 
   function handleVegModeChange(mode: 'veg' | 'non-veg') {
@@ -525,12 +589,8 @@ export default function MealBoxesPage() {
 
         {/* ── Page header ── */}
         <div className="mb-7">
-          <h1 className="font-serif text-5xl font-bold tracking-tight text-foreground">
-            Meal Boxes
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Delicious, balanced meals. Perfectly portioned.
-          </p>
+          <h1 className="font-serif text-5xl font-bold tracking-tight text-foreground">Meal Boxes</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Delicious, balanced meals. Perfectly portioned.</p>
         </div>
 
         {/* ── Trust cards ── */}
@@ -582,7 +642,7 @@ export default function MealBoxesPage() {
                         : 'border border-border bg-white text-foreground hover:border-primary/40',
                     )}
                   >
-                    <VegDot type="veg" active={vegMode === 'veg'} />
+                    <ToggleDot type="veg" active={vegMode === 'veg'} />
                     Veg
                   </button>
                   <button
@@ -594,7 +654,7 @@ export default function MealBoxesPage() {
                         : 'border border-border bg-white text-foreground hover:border-primary/40',
                     )}
                   >
-                    <VegDot type="non-veg" active={vegMode === 'non-veg'} />
+                    <ToggleDot type="non-veg" active={vegMode === 'non-veg'} />
                     Non Veg
                   </button>
                 </div>
@@ -602,15 +662,20 @@ export default function MealBoxesPage() {
                 {/* ── Box cards ── */}
                 {packages.length > 0 ? (
                   <div className="grid gap-4 sm:grid-cols-3">
-                    {packages.map((pkg, i) => (
-                      <BoxCard
-                        key={pkg.id}
-                        pkg={pkg}
-                        index={i}
-                        isSelected={selectedIdx === i}
-                        onSelect={() => handleSelect(i)}
-                      />
-                    ))}
+                    {packages.map((pkg, i) => {
+                      const versionId = pkg.activeVersion?.id ?? '';
+                      return (
+                        <BoxCard
+                          key={pkg.id}
+                          pkg={pkg}
+                          index={i}
+                          isSelected={selectedIdx === i}
+                          config={configs[versionId]}
+                          isLoadingConfig={loadingVersionId === versionId}
+                          onToggle={() => handleSelect(i)}
+                        />
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="rounded-2xl border border-dashed border-border bg-white px-6 py-10 text-center">
@@ -620,49 +685,6 @@ export default function MealBoxesPage() {
                     <p className="mt-1 text-xs text-muted-foreground">
                       Please check back later or try the Veg selection.
                     </p>
-                  </div>
-                )}
-
-                {/* ── Expandable included items ── */}
-                {selectedIdx !== null && currentDishes.length > 0 && (
-                  <div className="rounded-2xl border border-border bg-white p-6">
-                    <div className="mb-5 flex items-center justify-between gap-4">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-semibold text-foreground">
-                          {selectedDisplayName} Includes
-                        </h3>
-                        <span className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground">
-                          Serves 1 Person
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => setSelectedIdx(null)}
-                        className="flex shrink-0 items-center gap-1 text-sm font-medium text-muted-foreground transition hover:text-foreground"
-                      >
-                        Collapse
-                        <ChevronUp className="h-4 w-4" />
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-5">
-                      {currentDishes.map((dish, i) => (
-                        <div key={i} className="flex flex-col gap-2">
-                          <img
-                            src={dish.image}
-                            alt={dish.name}
-                            className="h-16 w-full rounded-xl object-cover sm:h-14 sm:w-14"
-                          />
-                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wide text-primary">
-                              {dish.category}
-                            </p>
-                            <p className="text-sm font-semibold text-foreground">{dish.name}</p>
-                            <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
-                              {dish.description}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
 
